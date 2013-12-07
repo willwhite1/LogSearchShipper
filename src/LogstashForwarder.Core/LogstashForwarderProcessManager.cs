@@ -67,6 +67,9 @@ namespace LogstashForwarder.Core
             {
                 _process.Kill();
             }
+
+            //Cleanup
+            File.Delete(GoLogstashForwarderFile);
 		}
 
 	    private void StartProcess()
