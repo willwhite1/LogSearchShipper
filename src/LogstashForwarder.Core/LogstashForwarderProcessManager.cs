@@ -69,36 +69,36 @@ namespace LogstashForwarder.Core
 			_process.BeginErrorReadLine();
 		}
 
+        private string _server;
+        private string _log_type;
 		private void TryUpdateLumberjack(string path, string exeFilePath)
 		{
-//			if (!System.IO.File.Exists(exeFilePath))
-//			{
-//				var zipFilePath = Path.Combine(path, GetDownloadFileName());
-//
-//				var url = "https://s3.amazonaws.com/logsearch-ciapi_latency_monitor-bot/" + GetDownloadFileName();
-//				using (var client = new WebClient())
-//				{
-//					client.DownloadFile(url, zipFilePath);
-//				}
-//
-//				var zipFile = new FastZip();
-//				zipFile.ExtractZip(zipFilePath, path, "");
-//
-//				var dataPath = Path.Combine(path, "data");
-//
-//				var serverInfoString = ConfigurationManager.AppSettings["LumberjackServer"];
-//				if (string.IsNullOrEmpty(serverInfoString))
-//					throw new ApplicationException("LumberjackServer is not set");
-//				var serverInfo = serverInfoString.Split('|');
-//				var serverUrl = serverInfo[0];
-//				var certificatePath = NormalizePath(serverInfo[1]);
-//
-//				var configPath = GetConfigPath(path);
-//				var config = Resources.Resource.LumberjackConf;
-//				config = config.Replace("{0}", serverUrl).Replace("{1}", certificatePath).Replace("{2}", NormalizePath(Path.Combine(dataPath, "*")))
-//					.Replace("{3}", AppSettings.Instance.NodeName).Replace("{4}", AppSettings.Instance.GeoLonLat);
-//				File.WriteAllText(configPath, config);
-//			}
+            if (!System.IO.File.Exists(exeFilePath))
+            {
+                var dataPath = Path.Combine(path, "data");
+
+                var serverInfoString = _server;
+                if (string.IsNullOrEmpty(serverInfoString))
+                    throw new ApplicationException("LumberjackServer is not set");
+                var serverInfo = serverInfoString.Split('|');
+                var serverUrl = serverInfo[0];
+                var certificatePath = NormalizePath(serverInfo[1]);
+
+                string outputPath = Path.Combine(path, "lumberjack.exe");
+                using (FileStream fStream = new FileStream(outputPath, FileMode.Create))
+                {
+                    fStream.Write(Resources.Resource.go_logstash_forwarder_exe, 
+                        0, Resources.Resource.go_logstash_forwarder_exe.Length);
+                }
+
+                var configPath = GetConfigPath(path);
+                var config = Resources.Resource.go_logstash_forwarder_config;
+                config = config.Replace("{0}", serverUrl)
+                    .Replace("{1}", certificatePath)
+                    .Replace("{2}", NormalizePath(Path.Combine(dataPath, "*")))
+                    .Replace("{3}", _log_type);
+                File.WriteAllText(configPath, config);
+            }
 		}
 
 
@@ -118,7 +118,7 @@ namespace LogstashForwarder.Core
 
 		static string GetConfigPath(string path)
 		{
-			return Path.Combine(path, "lumberjack.conf");
+			return Path.Combine(path, "go-logstash-forwarder.conf");
 		}
 
 		static bool IsWindows ()
