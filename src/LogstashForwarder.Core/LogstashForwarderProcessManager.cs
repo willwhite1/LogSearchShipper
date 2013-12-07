@@ -9,121 +9,86 @@ namespace LogstashForwarder.Core
 		private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(LogstashForwarderProcessManager));
 
 		static Process _process;
+        private string _server;
+        private string _log_type;
+        public string ConfigFile { get; private set; }
+        public string GoLogstashForwarderFile { get; private set; }
 
-		public LogstashForwarderProcessManager ()
-		{
+	    public LogstashForwarderProcessManager()
+	    {
+	    }
 
+	    public void Start()
+	    {
+	        ExtractGoLogstashForwarder();
+            SetupConfigFile("TODO", "TODO", "TODO", "TODO");
+            StartProcess();
 		}
 
-		public void Start() {
-			var path = Path.Combine(Path.GetTempPath(), "tmp.logsearch-ciapi_latency_monitor-bot");
-			var exeFilePath = Path.Combine(path, "lumberjack.exe");
-			var dataPath = Path.Combine(path, "data");
-			var logFilePath = Path.Combine(dataPath, Process.GetCurrentProcess().Id + "log.txt");
+	    private void ExtractGoLogstashForwarder()
+	    {
+            if (!Environment.OSVersion.VersionString.Contains("Windows"))
+                throw new NotSupportedException("LogstashForwarderProcessManager only supports Windows");
 
-			var processes = Process.GetProcessesByName("lumberjack");
-			if (processes.Length == 0)
-			{
-				if (!Directory.Exists(path))
-					Directory.CreateDirectory(path);
-				else
-					WipeDirectory(path);
+	        var tempFile = Path.GetTempFileName();
+	        var exeFile = tempFile + ".exe";
+            File.Move(tempFile, exeFile);
 
-				if (!Directory.Exists(dataPath))
-					Directory.CreateDirectory(dataPath);
-				else
-					WipeDirectory(dataPath);
+            using (var fStream = new FileStream(exeFile, FileMode.Create))
+            {
+                fStream.Write(Resources.Resource.go_logstash_forwarder_exe,
+                    0, Resources.Resource.go_logstash_forwarder_exe.Length);
+            }
 
-				TryUpdateLumberjack(path, exeFilePath);
-				StartProcess(exeFilePath, path);
-			}
-		}
+            _log.Debug(string.Format("go-logstash-forwarder.exe => {0}", exeFile));
 
-		public void Stop()
+            GoLogstashForwarderFile = exeFile;
+	    }
+
+        private void SetupConfigFile(string serverUrl, string certificatePath, string logPath, string logType)
+        {
+            ConfigFile = Path.GetTempFileName();
+            var config = Resources.Resource.go_logstash_forwarder_config;
+            config = config
+                .Replace("{0}", serverUrl)
+                .Replace("{1}", certificatePath)
+                .Replace("{2}", logPath)
+                .Replace("{3}", logType);
+            File.WriteAllText(ConfigFile, config);
+        }
+
+	    public void Stop()
 		{
 			if (_process == null)
 				return;
 			_process.StandardInput.Close (); // send the close process signal
 			_process.WaitForExit (5 * 1000);
-			_process.Kill ();
+            if (!_process.HasExited)
+            {
+                _process.Kill();
+            }
 		}
 
-		private void StartProcess(string exeFilePath, string path)
+	    private void StartProcess()
 		{
-			var startInfo = new ProcessStartInfo(exeFilePath)
+			var startInfo = new ProcessStartInfo(GoLogstashForwarderFile)
 			{
-				Arguments = "-config " + GetConfigPath(path),
-				WorkingDirectory = path,
+                Arguments = "-config " + ConfigFile,
+				WorkingDirectory = Path.GetTempPath(),
 				UseShellExecute = false,
 				RedirectStandardInput = true,
 				RedirectStandardOutput = true,
 				RedirectStandardError = true,
 				CreateNoWindow = true,
 			};
+            _log.DebugFormat("go-logstash-forwarder.exe: running {0} -config {1}", GoLogstashForwarderFile, ConfigFile);
 			_process = Process.Start(startInfo);
 
-			_process.OutputDataReceived += (s, e) => _log.Info("Lumberjack: " + e.Data);
+			_process.OutputDataReceived += (s, e) => _log.Info("go-logstash-forwarder.exe: " + e.Data);
 			_process.BeginOutputReadLine();
 
-			_process.ErrorDataReceived += (s, e) => _log.Info("Lumberjack: " + e.Data);
+            _process.ErrorDataReceived += (s, e) => _log.Info("go-logstash-forwarder.exe: " + e.Data);
 			_process.BeginErrorReadLine();
-		}
-
-        private string _server;
-        private string _log_type;
-		private void TryUpdateLumberjack(string path, string exeFilePath)
-		{
-            if (!System.IO.File.Exists(exeFilePath))
-            {
-                var dataPath = Path.Combine(path, "data");
-
-                var serverInfoString = _server;
-                if (string.IsNullOrEmpty(serverInfoString))
-                    throw new ApplicationException("LumberjackServer is not set");
-                var serverInfo = serverInfoString.Split('|');
-                var serverUrl = serverInfo[0];
-                var certificatePath = NormalizePath(serverInfo[1]);
-
-                string outputPath = Path.Combine(path, "lumberjack.exe");
-                using (FileStream fStream = new FileStream(outputPath, FileMode.Create))
-                {
-                    fStream.Write(Resources.Resource.go_logstash_forwarder_exe, 
-                        0, Resources.Resource.go_logstash_forwarder_exe.Length);
-                }
-
-                var configPath = GetConfigPath(path);
-                var config = Resources.Resource.go_logstash_forwarder_config;
-                config = config.Replace("{0}", serverUrl)
-                    .Replace("{1}", certificatePath)
-                    .Replace("{2}", NormalizePath(Path.Combine(dataPath, "*")))
-                    .Replace("{3}", _log_type);
-                File.WriteAllText(configPath, config);
-            }
-		}
-
-
-		private static void WipeDirectory(string path)
-		{
-			foreach (var file in Directory.GetFiles(path, "*", SearchOption.AllDirectories))
-			{
-				File.Delete(file);
-			}
-		}
-
-		private static string NormalizePath(string val)
-		{
-			var res = val.Replace("\\", "\\\\");
-			return res;
-		}
-
-		static string GetConfigPath(string path)
-		{
-			return Path.Combine(path, "go-logstash-forwarder.conf");
-		}
-
-		static bool IsWindows ()
-		{
-			return Environment.OSVersion.VersionString.Contains ("Windows");
 		}
 	}
 }
