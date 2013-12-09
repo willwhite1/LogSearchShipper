@@ -30,5 +30,35 @@ namespace LogstashForwarder.Core.Tests
             Assert.AreEqual(15, _logstashForwarder.Timeout);
         }
 
+		[Test]
+		public void ShouldHaveWatchArray()
+		{
+			Assert.GreaterOrEqual(1, _logstashForwarder.Watchs.Count);
+		}
+
+		[Test]
+		public void ShouldHaveWatchWithFilesAttribute()
+		{
+			Assert.AreEqual("myfile.log", _logstashForwarder.Watchs[0].Files);
+		}
+
+		[Test]
+		public void ShouldHaveWatchWithTypeAttribute()
+		{
+			Assert.AreEqual("myfile_type", _logstashForwarder.Watchs[0].Type);
+		}
+
+		[Test]
+		public void ShouldHaveWatchWithFieldsArray()
+		{
+			Assert.GreaterOrEqual(2, _logstashForwarder.Watchs[0].Fields.Count);
+		}
+
+		[Test]
+		public void ShouldHaveWatchWithFieldsWithKeyAndValue()
+		{
+			Assert.AreEqual("field1", _logstashForwarder.Watchs[0].Fields[0].Key);
+			Assert.AreEqual("field1 value", _logstashForwarder.Watchs[0].Fields[0].Value);
+		}
     }
 }
