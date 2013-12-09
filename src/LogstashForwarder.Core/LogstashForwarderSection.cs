@@ -3,7 +3,7 @@ using System.Configuration;
 
 namespace LogstashForwarder.Core
 {
-    public class LogstashForwarderSection : ConfigurationSection
+	public class LogstashForwarderSection : ConfigurationSection
     {
         [ConfigurationProperty("servers", IsRequired = true)]
         public String Servers
