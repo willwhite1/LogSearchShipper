@@ -36,6 +36,18 @@ namespace LogstashForwarder.Core.Tests
             Assert.AreEqual(1, processes.Count(), "a logstash-forwarder process wasn't started");
         }
 
+        [Test]
+        public void ShouldCorrectlyGenerateGoLogstashForwarderConfigFromAppConfigSettings()
+        {
 
+            _logstashForwarderProcessManager.SetupConfigFile();
+            var config = File.ReadAllText(_logstashForwarderProcessManager.ConfigFile);
+            Console.WriteLine(config);
+
+            StringAssert.Contains(string.Format("\"servers\": [ \"endpoint.example.com:5034\" ]"), config);
+            StringAssert.Contains(string.Format("\"ssl ca\": \"mycert.crt\""), config);
+            StringAssert.Contains(string.Format("\"timeout\": 23"), config);
+            StringAssert.Contains(string.Format("\"@type\": \"myfile_type\""), config);
+        }
     }
 }

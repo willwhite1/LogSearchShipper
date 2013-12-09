@@ -27,7 +27,7 @@ namespace LogstashForwarder.Core.Tests
         [Test]
         public void ShouldHaveTimeoutAttribute()
         {
-            Assert.AreEqual(15, _logstashForwarder.Timeout);
+            Assert.AreEqual(23, _logstashForwarder.Timeout);
         }
 
 		[Test]

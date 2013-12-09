@@ -1,4 +1,5 @@
 using System;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 
@@ -21,7 +22,7 @@ namespace LogstashForwarder.Core
 	    public void Start()
 	    {
 	        ExtractGoLogstashForwarder();
-            SetupConfigFile("TODO", "TODO", "TODO", "TODO");
+            SetupConfigFile();
             StartProcess();
 		}
 
@@ -45,17 +46,20 @@ namespace LogstashForwarder.Core
             GoLogstashForwarderFile = exeFile;
 	    }
 
-        private void SetupConfigFile(string serverUrl, string certificatePath, string logPath, string logType)
-        {
-            ConfigFile = Path.GetTempFileName();
-            var config = Resources.Resource.go_logstash_forwarder_config;
-            config = config
-                .Replace("{0}", serverUrl)
-                .Replace("{1}", certificatePath)
-                .Replace("{2}", logPath)
-                .Replace("{3}", logType);
-            File.WriteAllText(ConfigFile, config);
-        }
+	    internal void SetupConfigFile()
+	    {
+            var logstashForwarderConfig = ConfigurationManager.GetSection("logstashForwarderGroup/logstashForwarder") as LogstashForwarderSection;
+
+	        ConfigFile = Path.GetTempFileName();
+	        var config = Resources.Resource.go_logstash_forwarder_config;
+	        config = config
+	            .Replace("{0}", logstashForwarderConfig.Servers)
+	            .Replace("{1}", logstashForwarderConfig.SSL_CA)
+	            .Replace("{2}", logstashForwarderConfig.Timeout.ToString())
+	            .Replace("{3}", logstashForwarderConfig.Watchs[0].Files)
+	            .Replace("{4}", logstashForwarderConfig.Watchs[0].Type);
+	        File.WriteAllText(ConfigFile, config);
+	    }
 
 	    public void Stop()
 		{
