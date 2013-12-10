@@ -73,7 +73,26 @@ namespace LogstashForwarder.Core
             }
 
             //Cleanup
-            File.Delete(GoLogstashForwarderFile);
+	        try
+	        {
+                System.Threading.Thread.Sleep(TimeSpan.FromMilliseconds(100));
+                File.Delete(GoLogstashForwarderFile);
+	        }
+	        catch (Exception)
+	        {
+                //Wait a bit more, then try again
+	            try
+	            {
+                    System.Threading.Thread.Sleep(TimeSpan.FromMilliseconds(1000));
+                    File.Delete(GoLogstashForwarderFile);
+	            }
+	            catch (Exception e)
+	            {
+                    _log.Warn(string.Format("Unable to delete {0}.  Giving up.", GoLogstashForwarderFile), e);
+	            }
+                
+	        }
+            
 		}
 
 	    private void StartProcess()
