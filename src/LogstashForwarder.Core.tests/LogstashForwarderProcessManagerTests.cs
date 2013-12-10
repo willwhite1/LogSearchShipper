@@ -44,10 +44,45 @@ namespace LogstashForwarder.Core.Tests
             var config = File.ReadAllText(_logstashForwarderProcessManager.ConfigFile);
             Console.WriteLine(config);
 
-            StringAssert.Contains(string.Format("\"servers\": [ \"endpoint.example.com:5034\" ]"), config);
-            StringAssert.Contains(string.Format("\"ssl ca\": \"mycert.crt\""), config);
-            StringAssert.Contains(string.Format("\"timeout\": 23"), config);
-            StringAssert.Contains(string.Format("\"@type\": \"myfile_type\""), config);
+            /* We're expecting a config that looks like this:
+            * 
+            {
+            "network": {
+            "servers": [ "endpoint.example.com:5034" ],
+            "ssl ca": "C:\\Logs\\mycert.crt",
+            "timeout": 23
+            },
+            "files": [
+            {
+                "paths": [ "myfile.log" ],
+                "fields": {
+                "@type": "myfile_type",
+                "field1": "field1 value"
+                "field2": "field2 value"
+                }
+            },
+            {
+                "paths": [ "C:\\Logs\\myfile.log" ],
+                "fields": {
+                "@type": "type/subtype",
+                "key/subkey": "value/subvalue"
+                }
+            }
+            ]
+        }
+            */
+
+            StringAssert.Contains("\"servers\": [ \"endpoint.example.com:5034\" ]", config);
+            StringAssert.Contains("\"ssl ca\": \"C:\\\\Logs\\\\mycert.crt\"", config);
+            StringAssert.Contains("\"timeout\": 23", config);
+            StringAssert.Contains("\"@type\": \"myfile_type\"", config);
+            StringAssert.Contains("\"paths\": [ \"myfile.log\" ]", config);
+            StringAssert.Contains("\"field1\": \"field1 value\"", config);
+            StringAssert.Contains("\"field2\": \"field2 value\"", config);
+
+            StringAssert.Contains("\"paths\": [ \"C:\\\\Logs\\\\myfile.log\" ]", config);
+            StringAssert.Contains("\"@type\": \"type/subtype\"", config);
+            StringAssert.Contains("\"key/subkey\": \"value/subvalue\"", config);
         }
     }
 }

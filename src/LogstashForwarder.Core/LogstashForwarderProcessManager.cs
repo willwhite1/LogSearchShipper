@@ -1,7 +1,9 @@
 using System;
 using System.Configuration;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
+using System.Web;
 
 namespace LogstashForwarder.Core
 {
@@ -10,14 +12,9 @@ namespace LogstashForwarder.Core
 		private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(LogstashForwarderProcessManager));
 
 		static Process _process;
-        private string _server;
-        private string _log_type;
+	    private string _logType;
         public string ConfigFile { get; private set; }
         public string GoLogstashForwarderFile { get; private set; }
-
-	    public LogstashForwarderProcessManager()
-	    {
-	    }
 
 	    public void Start()
 	    {
@@ -46,19 +43,71 @@ namespace LogstashForwarder.Core
             GoLogstashForwarderFile = exeFile;
 	    }
 
+        /// <summary>
+        /// We're expecting a config that looks like this:
+        ///    
+        ///   {
+        ///   "network": {
+        ///   "servers": [ "endpoint.example.com:5034" ],
+        ///   "ssl ca": "C:\\Logs\\mycert.crt",
+        ///   "timeout": 23
+        ///   }
+        ///   ,"files": [
+        ///   {
+        ///       "paths": [ "myfile.log" ],
+        ///       "fields": {
+        ///       "@type": "myfile_type",
+        ///       "field1": "field1 value"
+        ///       "field2": "field2 value"
+        ///       }
+        ///   },
+        ///   {
+        ///       "paths": [ "C:\\Logs\\myfile.log" ],
+        ///       "fields": {
+        ///       "@type": "type\/subtype",
+        ///       "key\/subkey": "value\/subvalue"
+        ///       }
+        ///   }
+        ///   ]
+        ///}
+        /// </summary>
 	    internal void SetupConfigFile()
 	    {
             var logstashForwarderConfig = ConfigurationManager.GetSection("logstashForwarderGroup/logstashForwarder") as LogstashForwarderSection;
+            Debug.Assert(logstashForwarderConfig != null, "logstashForwarderConfig != null");
 
 	        ConfigFile = Path.GetTempFileName();
-	        var config = Resources.Resource.go_logstash_forwarder_config;
-	        config = config
-	            .Replace("{0}", logstashForwarderConfig.Servers)
-	            .Replace("{1}", logstashForwarderConfig.SSL_CA)
-	            .Replace("{2}", logstashForwarderConfig.Timeout.ToString())
-	            .Replace("{3}", logstashForwarderConfig.Watchs[0].Files)
-	            .Replace("{4}", logstashForwarderConfig.Watchs[0].Type);
-	        File.WriteAllText(ConfigFile, config);
+	        var networkSection =
+	            @"""network"": {
+    ""servers"": [ ""{0}"" ],
+    ""ssl ca"": ""{1}"",
+    ""timeout"": {2}
+  },"
+	            .Replace("{0}", HttpUtility.JavaScriptStringEncode(logstashForwarderConfig.Servers))
+	            .Replace("{1}", HttpUtility.JavaScriptStringEncode(logstashForwarderConfig.SSL_CA))
+	            .Replace("{2}", HttpUtility.JavaScriptStringEncode(logstashForwarderConfig.Timeout.ToString(CultureInfo.InvariantCulture)));
+
+            var filesSection = " \"files\": [\n";
+            for (int i = 0; i < logstashForwarderConfig.Watchs.Count; i++)
+            {
+                WatchElement watch = logstashForwarderConfig.Watchs[i];
+                filesSection += "  {\n";
+                filesSection += "    \"paths\": [ \""+HttpUtility.JavaScriptStringEncode(watch.Files)+"\" ],\n";
+                filesSection += "    \"fields\": {\n";
+                filesSection += "      \"@type\": \""+HttpUtility.JavaScriptStringEncode(watch.Type)+"\"\n";
+                foreach (FieldElement field in watch.Fields)
+                {
+                    filesSection += "      ,\"" + HttpUtility.JavaScriptStringEncode(field.Key) + "\": \"" + HttpUtility.JavaScriptStringEncode(field.Value) + "\"\n";
+                }
+                filesSection += "    }\n";
+                filesSection += "  }";
+                if (i < logstashForwarderConfig.Watchs.Count - 1) { filesSection += ","; }
+                filesSection += "\n";
+            }
+            filesSection += "]\n";
+            var config = "{\n" + networkSection + "\n" + filesSection + "}";
+	       
+            File.WriteAllText(ConfigFile, config);
 	    }
 
 	    public void Stop()
