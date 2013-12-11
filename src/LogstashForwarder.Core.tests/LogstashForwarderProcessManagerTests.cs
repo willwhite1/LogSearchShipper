@@ -26,6 +26,7 @@ namespace LogstashForwarder.Core.Tests
         }
 
         [Test]
+		[Platform(Exclude="Mono")]
         public void ShouldLaunchGoLogstashForwarderProcess()
         {
             
@@ -42,7 +43,7 @@ namespace LogstashForwarder.Core.Tests
 
             _logstashForwarderProcessManager.SetupConfigFile();
             var config = File.ReadAllText(_logstashForwarderProcessManager.ConfigFile);
-            Console.WriteLine(config);
+			// Console.WriteLine(config);
 
             /* We're expecting a config that looks like this:
             * 
