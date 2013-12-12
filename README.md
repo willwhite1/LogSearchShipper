@@ -1,5 +1,5 @@
 
-## logstash-forwarder.NET
+## logstash-forwarder.NET [![Build Status](http://ci.labs.cityindex.com:8080/buildStatus/icon?job=logsearch-logstash-forwarder-NET)](http://ci.labs.cityindex.com:8080/job/logsearch-logstash-forwarder-NET/)
 
 A Windows optimised version of the elasticsearch/logstash-forwarder (in .NET).
 
