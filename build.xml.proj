@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration>Release</Configuration>
+    <Platform>Any CPU</Platform>
+    <SolutionDir>src\</SolutionDir>
+  </PropertyGroup>
+
+	<Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+
+  <Target Name="Build">
+    <MSBuild Projects="src/LogstashForwarder.sln" Targets="Rebuild" 
+             Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+  </Target>
+
+	<PropertyGroup>
+        <NUnitCommand Condition=" '$(OS)' == 'Windows_NT'">"tools\NUnit.Runners.lite.2.6.3.20131019\nunit-console.exe"</NUnitCommand>
+        <NUnitCommand Condition=" '$(OS)' != 'Windows_NT' ">mono --runtime=v4.0.30319 tools/NUnit.Runners.lite.2.6.3.20131019/nunit-console.exe</NUnitCommand>
+	</PropertyGroup>
+	<ItemGroup>
+		<TestAssembly Include="bin\*.Tests.dll" />
+	</ItemGroup>
+	<Target Name="RunTests">
+		<Message Text="Installing NUnit runners" />
+		<Exec Command="$(NuGetCommand) install nunit.runners.lite -Version 2.6.3.20131019 -OutputDirectory tools"/>
+		<Message Text="*** NUnit tests beginning..." />
+		<Exec Command="$(NUnitCommand) @(TestAssembly) -result=TestResults.xml"/>
+	</Target>
+
+</Project>
