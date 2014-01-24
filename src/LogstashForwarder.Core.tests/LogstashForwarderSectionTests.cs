@@ -22,7 +22,7 @@ namespace LogstashForwarder.Core.Tests
         [Test]
         public void ShouldHaveSSLCAAttribute()
         {
-            Assert.AreEqual("mycert.crt", _logstashForwarder.SSL_CA);
+            StringAssert.Contains("mycert.crt", _logstashForwarder.SSL_CA);
         }
         [Test]
         public void ShouldHaveTimeoutAttribute()
@@ -33,7 +33,7 @@ namespace LogstashForwarder.Core.Tests
 		[Test]
 		public void ShouldHaveWatchArray()
 		{
-			Assert.GreaterOrEqual(1, _logstashForwarder.Watchs.Count);
+			Assert.GreaterOrEqual(_logstashForwarder.Watchs.Count, 1);
 		}
 
 		[Test]
