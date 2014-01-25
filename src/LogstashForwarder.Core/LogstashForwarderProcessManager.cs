@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Web;
+using LogstashForwarder.Core.ConfigurationSections;
 
 namespace LogstashForwarder.Core
 {
