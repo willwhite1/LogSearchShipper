@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogsearchShipper.Core", "LogsearchShipper.Core\LogsearchShipper.Core.csproj", "{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogsearchShipper.Service", "LogsearchShipper.Service\LogsearchShipper.Service.csproj", "{E728F5F0-84D6-4A57-9A09-504D4ADF4636}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogsearchShipper.Core.Tests", "LogsearchShipper.Core.Tests\LogsearchShipper.Core.Tests.csproj", "{9D8DD347-4396-4ED2-8935-8EE71373F4D5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D8DD347-4396-4ED2-8935-8EE71373F4D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D8DD347-4396-4ED2-8935-8EE71373F4D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D8DD347-4396-4ED2-8935-8EE71373F4D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D8DD347-4396-4ED2-8935-8EE71373F4D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E728F5F0-84D6-4A57-9A09-504D4ADF4636}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E728F5F0-84D6-4A57-9A09-504D4ADF4636}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E728F5F0-84D6-4A57-9A09-504D4ADF4636}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E728F5F0-84D6-4A57-9A09-504D4ADF4636}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = LogsearchShipper.Core\LogsearchShipper.Core.csproj
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

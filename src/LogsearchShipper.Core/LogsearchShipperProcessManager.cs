@@ -5,28 +5,28 @@ using System.Globalization;
 using System.IO;
 using System.Web;
 
-namespace LogstashForwarder.Core
+namespace LogsearchShipper.Core
 {
-	public class LogstashForwarderProcessManager
+	public class LogsearchShipperProcessManager
 	{
-		private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(LogstashForwarderProcessManager));
+		private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(LogsearchShipperProcessManager));
 
 		static Process _process;
 	    private string _logType;
         public string ConfigFile { get; private set; }
-        public string GoLogstashForwarderFile { get; private set; }
+        public string GoLogsearchShipperFile { get; private set; }
 
 	    public void Start()
 	    {
-	        ExtractGoLogstashForwarder();
+	        ExtractGoLogsearchShipper();
             SetupConfigFile();
             StartProcess();
 		}
 
-	    private void ExtractGoLogstashForwarder()
+	    private void ExtractGoLogsearchShipper()
 	    {
             if (!Environment.OSVersion.VersionString.Contains("Windows"))
-                throw new NotSupportedException("LogstashForwarderProcessManager only supports Windows");
+                throw new NotSupportedException("LogsearchShipperProcessManager only supports Windows");
 
 	        var tempFile = Path.GetTempFileName();
 	        var exeFile = tempFile + ".exe";
@@ -40,7 +40,7 @@ namespace LogstashForwarder.Core
 
             _log.Debug(string.Format("go-logstash-forwarder.exe => {0}", exeFile));
 
-            GoLogstashForwarderFile = exeFile;
+            GoLogsearchShipperFile = exeFile;
 	    }
 
         /// <summary>
@@ -73,8 +73,8 @@ namespace LogstashForwarder.Core
         /// </summary>
 	    internal void SetupConfigFile()
 	    {
-            var logstashForwarderConfig = ConfigurationManager.GetSection("logstashForwarderGroup/logstashForwarder") as LogstashForwarderSection;
-            Debug.Assert(logstashForwarderConfig != null, "logstashForwarderConfig != null");
+            var LogsearchShipperConfig = ConfigurationManager.GetSection("LogsearchShipperGroup/LogsearchShipper") as LogsearchShipperSection;
+            Debug.Assert(LogsearchShipperConfig != null, "LogsearchShipperConfig != null");
 
 	        ConfigFile = Path.GetTempFileName();
 	        var networkSection =
@@ -83,14 +83,14 @@ namespace LogstashForwarder.Core
     ""ssl ca"": ""{1}"",
     ""timeout"": {2}
   },"
-	            .Replace("{0}", HttpUtility.JavaScriptStringEncode(logstashForwarderConfig.Servers))
-	            .Replace("{1}", HttpUtility.JavaScriptStringEncode(logstashForwarderConfig.SSL_CA))
-	            .Replace("{2}", HttpUtility.JavaScriptStringEncode(logstashForwarderConfig.Timeout.ToString(CultureInfo.InvariantCulture)));
+	            .Replace("{0}", HttpUtility.JavaScriptStringEncode(LogsearchShipperConfig.Servers))
+	            .Replace("{1}", HttpUtility.JavaScriptStringEncode(LogsearchShipperConfig.SSL_CA))
+	            .Replace("{2}", HttpUtility.JavaScriptStringEncode(LogsearchShipperConfig.Timeout.ToString(CultureInfo.InvariantCulture)));
 
             var filesSection = " \"files\": [\n";
-            for (int i = 0; i < logstashForwarderConfig.Watchs.Count; i++)
+            for (int i = 0; i < LogsearchShipperConfig.Watchs.Count; i++)
             {
-                WatchElement watch = logstashForwarderConfig.Watchs[i];
+                WatchElement watch = LogsearchShipperConfig.Watchs[i];
                 filesSection += "  {\n";
                 filesSection += "    \"paths\": [ \""+HttpUtility.JavaScriptStringEncode(watch.Files)+"\" ],\n";
                 filesSection += "    \"fields\": {\n";
@@ -101,7 +101,7 @@ namespace LogstashForwarder.Core
                 }
                 filesSection += "    }\n";
                 filesSection += "  }";
-                if (i < logstashForwarderConfig.Watchs.Count - 1) { filesSection += ","; }
+                if (i < LogsearchShipperConfig.Watchs.Count - 1) { filesSection += ","; }
                 filesSection += "\n";
             }
             filesSection += "]\n";
@@ -125,7 +125,7 @@ namespace LogstashForwarder.Core
 	        try
 	        {
                 System.Threading.Thread.Sleep(TimeSpan.FromMilliseconds(100));
-                File.Delete(GoLogstashForwarderFile);
+                File.Delete(GoLogsearchShipperFile);
 	        }
 	        catch (Exception)
 	        {
@@ -133,11 +133,11 @@ namespace LogstashForwarder.Core
 	            try
 	            {
                     System.Threading.Thread.Sleep(TimeSpan.FromMilliseconds(1000));
-                    File.Delete(GoLogstashForwarderFile);
+                    File.Delete(GoLogsearchShipperFile);
 	            }
 	            catch (Exception e)
 	            {
-                    _log.Warn(string.Format("Unable to delete {0}.  Giving up.", GoLogstashForwarderFile), e);
+                    _log.Warn(string.Format("Unable to delete {0}.  Giving up.", GoLogsearchShipperFile), e);
 	            }
                 
 	        }
@@ -146,7 +146,7 @@ namespace LogstashForwarder.Core
 
 	    private void StartProcess()
 		{
-			var startInfo = new ProcessStartInfo(GoLogstashForwarderFile)
+			var startInfo = new ProcessStartInfo(GoLogsearchShipperFile)
 			{
                 Arguments = "-config " + ConfigFile,
 				WorkingDirectory = Path.GetTempPath(),
@@ -156,7 +156,7 @@ namespace LogstashForwarder.Core
 				RedirectStandardError = true,
 				CreateNoWindow = true,
 			};
-            _log.DebugFormat("go-logstash-forwarder.exe: running {0} -config {1}", GoLogstashForwarderFile, ConfigFile);
+            _log.DebugFormat("go-logstash-forwarder.exe: running {0} -config {1}", GoLogsearchShipperFile, ConfigFile);
 			_process = Process.Start(startInfo);
 
 			_process.OutputDataReceived += (s, e) => _log.Info("go-logstash-forwarder.exe: " + e.Data);

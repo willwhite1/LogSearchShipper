@@ -1,8 +1,8 @@
 using System;
-using LogstashForwarder.Core;
+using LogsearchShipper.Core;
 using Topshelf;
 
-namespace LogstashForwarder.Service
+namespace LogsearchShipper.Service
 {
 	class MainClass
 	{
@@ -12,9 +12,9 @@ namespace LogstashForwarder.Service
 
             HostFactory.Run(x =>
             {
-                x.Service<LogstashForwarderService>(s =>
+                x.Service<LogsearchShipperService>(s =>
                 {
-                    s.ConstructUsing(name => new LogstashForwarderService());
+                    s.ConstructUsing(name => new LogsearchShipperService());
                     s.WhenStarted(tc =>
                     {
                         tc.Start();
@@ -38,18 +38,18 @@ namespace LogstashForwarder.Service
 		}
 	}
 
-    public class LogstashForwarderService
+    public class LogsearchShipperService
     {
-        private LogstashForwarderProcessManager _logstashForwarderProcessManager;
+        private LogsearchShipperProcessManager _LogsearchShipperProcessManager;
         public void Start()
         {
-            _logstashForwarderProcessManager = new LogstashForwarderProcessManager();
-            _logstashForwarderProcessManager.Start();
+            _LogsearchShipperProcessManager = new LogsearchShipperProcessManager();
+            _LogsearchShipperProcessManager.Start();
         }
 
         public void Stop()
         {
-            _logstashForwarderProcessManager.Stop();
+            _LogsearchShipperProcessManager.Stop();
         }
     }
 }

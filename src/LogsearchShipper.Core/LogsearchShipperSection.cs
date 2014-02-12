@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Configuration;
 
-namespace LogstashForwarder.Core
+namespace LogsearchShipper.Core
 {
-	public class LogstashForwarderSection : ConfigurationSection
+	public class LogsearchShipperSection : ConfigurationSection
     {
         [ConfigurationProperty("servers", IsRequired = true)]
         public String Servers
