@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace LogstashForwarder.Core.Tests
+namespace LogsearchShipper.Core.Tests
 {
     [SetUpFixture]
     public class SetupFixture

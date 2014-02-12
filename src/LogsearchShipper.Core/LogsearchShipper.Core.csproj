@@ -5,10 +5,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{E728F5F0-84D6-4A57-9A09-504D4ADF4636}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>LogstashForwarder.Service</RootNamespace>
-    <AssemblyName>LogstashForwarder.Service</AssemblyName>
+    <ProjectGuid>{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>LogsearchShipper.Core</RootNamespace>
+    <AssemblyName>LogsearchShipper.Core</AssemblyName>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -16,48 +16,56 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\bin</OutputPath>
+    <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Externalconsole>true</Externalconsole>
+    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\bin</OutputPath>
+    <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Externalconsole>true</Externalconsole>
+    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Topshelf">
-      <HintPath>..\packages\Topshelf.3.1.2\lib\net40-full\Topshelf.dll</HintPath>
-    </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Topshelf.Log4Net">
-      <HintPath>..\packages\Topshelf.Log4Net.3.1.2\lib\net40-full\Topshelf.Log4Net.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="CustomPatternLayoutConverter.cs" />
+    <Compile Include="ConfigurationSections\FieldElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\Resource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
+    <Compile Include="LogsearchShipperProcessManager.cs" />
+    <Compile Include="ConfigurationSections\LogsearchShipperSection.cs" />
+    <Compile Include="ConfigurationSections\EDBFileWatchCollection.cs" />
+    <Compile Include="ConfigurationSections\FileWatchCollection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup />
   <ItemGroup>
-    <None Include="app.config">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LogstashForwarder.Core\LogstashForwarder.Core.csproj">
-      <Project>{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}</Project>
-      <Name>LogstashForwarder.Core</Name>
-    </ProjectReference>
+    <EmbeddedResource Include="Resources\Resource.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\go-logstash-forwarder.exe" />
   </ItemGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>

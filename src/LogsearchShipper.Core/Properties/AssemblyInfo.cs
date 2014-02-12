@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 // Information about this assembly is defined by the following attributes.
 // Change them to the values specific to your project.
-[assembly: AssemblyTitle ("LogstashForwarderAppender")]
+[assembly: AssemblyTitle ("LogsearchShipper.Core")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("")]
@@ -19,4 +19,5 @@ using System.Runtime.CompilerServices;
 // if desired. See the Mono documentation for more information about signing.
 //[assembly: AssemblyDelaySign(false)]
 //[assembly: AssemblyKeyFile("")]
+[assembly:InternalsVisibleTo("LogsearchShipper.Core.Tests")]
 

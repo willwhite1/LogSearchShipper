@@ -6,43 +6,43 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
-namespace LogstashForwarder.Core.Tests
+namespace LogsearchShipper.Core.Tests
 {
     [TestFixture]
-    public class LogstashForwarderProcessManagerTests
+    public class LogsearchShipperProcessManagerTests
     {
-        private LogstashForwarderProcessManager _logstashForwarderProcessManager;
+        private LogsearchShipperProcessManager _LogsearchShipperProcessManager;
 
         [SetUp]
         public void Setup()
         {
-            _logstashForwarderProcessManager = new LogstashForwarderProcessManager();
+            _LogsearchShipperProcessManager = new LogsearchShipperProcessManager();
         }
 
         [TearDown]
         public void TearDown()
         {
-            _logstashForwarderProcessManager.Stop();
+            _LogsearchShipperProcessManager.Stop();
         }
 
         [Test]
 		[Platform(Exclude="Mono")]
-        public void ShouldLaunchGoLogstashForwarderProcess()
+        public void ShouldLaunchGoLogsearchShipperProcess()
         {
             
-            _logstashForwarderProcessManager.Start();
+            _LogsearchShipperProcessManager.Start();
 
-            var processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(_logstashForwarderProcessManager.GoLogstashForwarderFile));
+            var processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(_LogsearchShipperProcessManager.GoLogsearchShipperFile));
             
             Assert.AreEqual(1, processes.Count(), "a logstash-forwarder process wasn't started");
         }
 
         [Test]
-        public void ShouldCorrectlyGenerateGoLogstashForwarderConfigFromAppConfigSettings()
+        public void ShouldCorrectlyGenerateGoLogsearchShipperConfigFromAppConfigSettings()
         {
 
-            _logstashForwarderProcessManager.SetupConfigFile();
-            var config = File.ReadAllText(_logstashForwarderProcessManager.ConfigFile);
+            _LogsearchShipperProcessManager.SetupConfigFile();
+            var config = File.ReadAllText(_LogsearchShipperProcessManager.ConfigFile);
 			// Console.WriteLine(config);
 
             /* We're expecting a config that looks like this:
@@ -73,7 +73,7 @@ namespace LogstashForwarder.Core.Tests
         }
             */
 
-            StringAssert.Contains("\"servers\": [ \"endpoint.example.com:5034\" ]", config);
+			StringAssert.Contains("\"servers\": [ \"ingestor.example.com:5043\" ]", config);
             StringAssert.Contains("\"ssl ca\": \"C:\\\\Logs\\\\mycert.crt\"", config);
             StringAssert.Contains("\"timeout\": 23", config);
             StringAssert.Contains("\"@type\": \"myfile_type\"", config);
