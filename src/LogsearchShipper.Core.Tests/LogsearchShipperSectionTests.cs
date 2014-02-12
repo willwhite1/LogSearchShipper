@@ -7,59 +7,91 @@ namespace LogsearchShipper.Core.Tests
     [TestFixture]
     public class LogsearchShipperSectionTests
     {
-		private LogsearchShipperSection _LogsearchShipper;
+		private LogsearchShipperSection _logsearchShipper;
 
         [SetUp]
         public void Setup()
         {
-            _LogsearchShipper = ConfigurationManager.GetSection("LogsearchShipperGroup/LogsearchShipper") as LogsearchShipperSection;
+            _logsearchShipper = ConfigurationManager.GetSection("LogsearchShipperGroup/LogsearchShipper") as LogsearchShipperSection;
         }
 
         [Test]
         public void ShouldHaveServersAttribute()
         {
-			Assert.AreEqual("ingestor.example.com:5043", _LogsearchShipper.Servers);
+			Assert.AreEqual("ingestor.example.com:5043", _logsearchShipper.Servers);
         }
         [Test]
         public void ShouldHaveSSLCAAttribute()
         {
-            StringAssert.Contains("mycert.crt", _LogsearchShipper.SSL_CA);
+            StringAssert.Contains("mycert.crt", _logsearchShipper.SSL_CA);
         }
         [Test]
         public void ShouldHaveTimeoutAttribute()
         {
-            Assert.AreEqual(23, _LogsearchShipper.Timeout);
+            Assert.AreEqual(23, _logsearchShipper.Timeout);
         }
 
 		[Test]
-		public void ShouldHaveWatchArray()
+		public void ShouldHaveFileWatchersArray()
 		{
-			Assert.GreaterOrEqual(_LogsearchShipper.FileWatchers.Count, 1);
+			Assert.GreaterOrEqual(_logsearchShipper.FileWatchers.Count, 1);
 		}
 
 		[Test]
-		public void ShouldHaveWatchWithFilesAttribute()
+		public void ShouldHaveFileWatchWithFilesAttribute()
 		{
-			Assert.AreEqual("myfile.log", _LogsearchShipper.FileWatchers[0].Files);
+			Assert.AreEqual("myfile.log", _logsearchShipper.FileWatchers[0].Files);
 		}
 
 		[Test]
-		public void ShouldHaveWatchWithTypeAttribute()
+		public void ShouldHaveFileWatchWithTypeAttribute()
 		{
-			Assert.AreEqual("myfile_type", _LogsearchShipper.FileWatchers[0].Type);
+			Assert.AreEqual("myfile_type", _logsearchShipper.FileWatchers[0].Type);
 		}
 
 		[Test]
-		public void ShouldHaveWatchWithFieldsArray()
+		public void ShouldHaveFileWatchWithFieldsArray()
 		{
-			Assert.GreaterOrEqual(2, _LogsearchShipper.FileWatchers[0].Fields.Count);
+			Assert.GreaterOrEqual(2, _logsearchShipper.FileWatchers[0].Fields.Count);
 		}
 
 		[Test]
-		public void ShouldHaveWatchWithFieldsWithKeyAndValue()
+		public void ShouldHaveFileWatchWithFieldsWithKeyAndValue()
 		{
-			Assert.AreEqual("field1", _LogsearchShipper.FileWatchers[0].Fields[0].Key);
-			Assert.AreEqual("field1 value", _LogsearchShipper.FileWatchers[0].Fields[0].Value);
+			Assert.AreEqual("field1", _logsearchShipper.FileWatchers[0].Fields[0].Key);
+			Assert.AreEqual("field1 value", _logsearchShipper.FileWatchers[0].Fields[0].Value);
 		}
-    }
+
+		[Test]
+		public void ShouldHaveEDBFileWatchArray()
+		{
+			Assert.GreaterOrEqual(_logsearchShipper.EDBFileWatchers.Count, 1);
+		}
+
+		[Test]
+		public void ShouldHaveEDBFileWatchWithDataFileAttribute()
+		{
+			Assert.AreEqual(@"SampleData\EDB\ENV1\Latest.xml", _logsearchShipper.EDBFileWatchers[0].DataFile);
+		}
+
+		[Test]
+		public void ShouldHaveEDBFileWatchWithServerGroupNamesAttribute()
+		{
+			Assert.AreEqual("DMZ|APP", _logsearchShipper.EDBFileWatchers[0].NetworkAreas);
+		}
+
+		[Test]
+		public void ShouldHaveEDBFileWatchWithServiceNamesAttribute()
+		{
+			Assert.AreEqual("nolio.*", _logsearchShipper.EDBFileWatchers[0].ServiceNames);
+		}
+
+		[Test]
+		public void ShouldHaveEDBFileWatchWithFieldsWithKeyAndValue()
+		{
+			Assert.AreEqual("edb_key/subkey", _logsearchShipper.EDBFileWatchers[0].Fields[0].Key);
+			Assert.AreEqual("edb_value/subvalue", _logsearchShipper.EDBFileWatchers[0].Fields[0].Value);
+		}
+
+	}
 }

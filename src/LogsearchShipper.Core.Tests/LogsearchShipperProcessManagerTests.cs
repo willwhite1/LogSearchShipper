@@ -11,18 +11,18 @@ namespace LogsearchShipper.Core.Tests
     [TestFixture]
     public class LogsearchShipperProcessManagerTests
     {
-        private LogsearchShipperProcessManager _LogsearchShipperProcessManager;
+        private LogsearchShipperProcessManager _logsearchShipperProcessManager;
 
         [SetUp]
         public void Setup()
         {
-            _LogsearchShipperProcessManager = new LogsearchShipperProcessManager();
+            _logsearchShipperProcessManager = new LogsearchShipperProcessManager();
         }
 
         [TearDown]
         public void TearDown()
         {
-            _LogsearchShipperProcessManager.Stop();
+            _logsearchShipperProcessManager.Stop();
         }
 
         [Test]
@@ -30,9 +30,9 @@ namespace LogsearchShipper.Core.Tests
         public void ShouldLaunchGoLogsearchShipperProcess()
         {
             
-            _LogsearchShipperProcessManager.Start();
+			_logsearchShipperProcessManager.Start();
 
-            var processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(_LogsearchShipperProcessManager.GoLogsearchShipperFile));
+            var processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(_logsearchShipperProcessManager.GoLogsearchShipperFile));
             
             Assert.AreEqual(1, processes.Count(), "a logstash-forwarder process wasn't started");
         }
@@ -41,8 +41,8 @@ namespace LogsearchShipper.Core.Tests
         public void ShouldCorrectlyGenerateGoLogsearchShipperConfigFromAppConfigSettings()
         {
 
-            _LogsearchShipperProcessManager.SetupConfigFile();
-            var config = File.ReadAllText(_LogsearchShipperProcessManager.ConfigFile);
+            _logsearchShipperProcessManager.SetupConfigFile();
+            var config = File.ReadAllText(_logsearchShipperProcessManager.ConfigFile);
 			// Console.WriteLine(config);
 
             /* We're expecting a config that looks like this:
@@ -68,6 +68,27 @@ namespace LogsearchShipper.Core.Tests
                 "@type": "type/subtype",
                 "key/subkey": "value/subvalue"
                 }
+            },
+            {
+                "paths": [ "\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\log.log" ],
+                "fields": {
+	                "@type": "log4net",
+	                "edb_key/subkey": "edb_value/subvalue"
+                }
+            },
+            {
+                "paths": [ "\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\PriceHistoryStats.log" ],
+                "fields": {
+	                "@type": "log4net_stats",
+	                "edb_key/subkey": "edb_value/subvalue"
+                }
+            },
+            {
+                "paths": [ "\\ENV1-DB01\Logs\Nolio\all.log" ],
+                "fields": {
+	                "@type": "log4j",
+	                "edb_key/subkey": "edb_value/subvalue"
+                }
             }
             ]
         }
@@ -84,6 +105,10 @@ namespace LogsearchShipper.Core.Tests
             StringAssert.Contains("\"paths\": [ \"C:\\\\Logs\\\\myfile.log\" ]", config);
             StringAssert.Contains("\"@type\": \"type/subtype\"", config);
             StringAssert.Contains("\"key/subkey\": \"value/subvalue\"", config);
+
+			StringAssert.Contains("\"paths\": [ \"\\\\\\\\PKH-PPE-APP10\\\\logs\\\\Apps\\\\PriceHistoryService\\\\log.log\" ]", config);
+			StringAssert.Contains("\"@type\": \"log4net\"", config);
+			StringAssert.Contains("\"edb_key/subkey\": \"edb_value/subvalue\"", config);
         }
     }
 }

@@ -17,9 +17,9 @@
           <BinaryPath>"D:\Apps\PriceHistoryServiceHost\PriceHistoryServiceHost.exe"</BinaryPath>
           <BundlePath />
           <LogPath>\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\log.log</LogPath>
-          <LogPathType />
-          <LogPath1>\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\PriceHistoryStats</LogPath1>
-          <LogPath1Type />
+          <LogPathType>log4net</LogPathType>
+          <LogPath1>\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\PriceHistoryStats.log</LogPath1>
+          <LogPathType>log4net_stats</LogPathType>
           <LogPath2>\\PKH-PPE-APP10\</LogPath2>
           <LogPath2Type />
           <SystemArea>CORE</SystemArea>
@@ -30,8 +30,8 @@
           <Website>ENV1-APP01 webservices</Website>
           <ApplicationUri>/</ApplicationUri>
           <BinaryPath>D:\Websites\ROOT01</BinaryPath>
-          <LogPath>\\ENV1-APP01\Logs</LogPath>
-          <LogPathType />
+          <LogPath>\\ENV1-APP01\Logs\u*.log</LogPath>
+          <LogPathType>IIS7</LogPathType>
           <LogPath1>\\ENV1-APP01\</LogPath1>
           <LogPath1Type />
           <LogPath2>\\ENV1-APP01\</LogPath2>
@@ -53,8 +53,8 @@
           <ServiceName>Nolio Agent 2.0</ServiceName>
           <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
           <BundlePath />
-          <LogPath>\\ENV1-DB01\Logs</LogPath>
-          <LogPathType />
+          <LogPath>\\ENV1-DB01\Logs\Nolio\all.log</LogPath>
+          <LogPathType>log4j</LogPathType>
           <LogPath1>\\ENV1-DB01\</LogPath1>
           <LogPath1Type />
           <LogPath2>\\ENV1-DB01\</LogPath2>

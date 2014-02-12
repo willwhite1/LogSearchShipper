@@ -5,6 +5,8 @@ using System.Globalization;
 using System.IO;
 using System.Web;
 using LogsearchShipper.Core.ConfigurationSections;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace LogsearchShipper.Core
 {
@@ -76,40 +78,66 @@ namespace LogsearchShipper.Core
 	    {
             var LogsearchShipperConfig = ConfigurationManager.GetSection("LogsearchShipperGroup/LogsearchShipper") as LogsearchShipperSection;
             Debug.Assert(LogsearchShipperConfig != null, "LogsearchShipperConfig != null");
+		    
+			var watches = new List<FileWatchElement> ();
 
-	        ConfigFile = Path.GetTempFileName();
-	        var networkSection =
-	            @"""network"": {
+			ExtractFileWatchers (LogsearchShipperConfig, watches);
+			ExtractEDBFileWatchers (LogsearchShipperConfig, watches);
+
+            var config = string.Format ("{{\n{0}\n{1}}}", 
+				GenerateNetworkSection (LogsearchShipperConfig),
+				GenerateFilesSection (watches));
+	       
+			ConfigFile = Path.GetTempFileName();
+            File.WriteAllText(ConfigFile, config);
+	    }
+
+		static void ExtractFileWatchers (LogsearchShipperSection LogsearchShipperConfig, List<FileWatchElement> watches)
+		{
+			for (int i = 0; i < LogsearchShipperConfig.FileWatchers.Count; i++) {
+				watches.Add (LogsearchShipperConfig.FileWatchers [i]);
+			}
+		}
+
+		static void ExtractEDBFileWatchers (LogsearchShipperSection LogsearchShipperConfig, List<FileWatchElement> watches)
+		{
+			for (int i = 0; i < LogsearchShipperConfig.EDBFileWatchers.Count; i++) {
+				watches.AddRange( new EDBFileWatchParser(LogsearchShipperConfig.EDBFileWatchers[i]).ToFileWatchCollection() );
+			}
+		}
+
+		static string GenerateNetworkSection (LogsearchShipperSection LogsearchShipperConfig)
+		{
+			var networkSection = @"""network"": {
     ""servers"": [ ""{0}"" ],
     ""ssl ca"": ""{1}"",
     ""timeout"": {2}
-  },"
-	            .Replace("{0}", HttpUtility.JavaScriptStringEncode(LogsearchShipperConfig.Servers))
-	            .Replace("{1}", HttpUtility.JavaScriptStringEncode(LogsearchShipperConfig.SSL_CA))
-	            .Replace("{2}", HttpUtility.JavaScriptStringEncode(LogsearchShipperConfig.Timeout.ToString(CultureInfo.InvariantCulture)));
+  },".Replace ("{0}", HttpUtility.JavaScriptStringEncode (LogsearchShipperConfig.Servers)).Replace ("{1}", HttpUtility.JavaScriptStringEncode (LogsearchShipperConfig.SSL_CA)).Replace ("{2}", HttpUtility.JavaScriptStringEncode (LogsearchShipperConfig.Timeout.ToString (CultureInfo.InvariantCulture)));
+			return networkSection;
+		}
 
-            var filesSection = " \"files\": [\n";
-            for (int i = 0; i < LogsearchShipperConfig.FileWatchers.Count; i++)
-            {
-                FileWatchElement watch = LogsearchShipperConfig.FileWatchers[i];
-                filesSection += "  {\n";
-                filesSection += "    \"paths\": [ \""+HttpUtility.JavaScriptStringEncode(watch.Files)+"\" ],\n";
-                filesSection += "    \"fields\": {\n";
-                filesSection += "      \"@type\": \""+HttpUtility.JavaScriptStringEncode(watch.Type)+"\"\n";
-                foreach (FieldElement field in watch.Fields)
-                {
-                    filesSection += "      ,\"" + HttpUtility.JavaScriptStringEncode(field.Key) + "\": \"" + HttpUtility.JavaScriptStringEncode(field.Value) + "\"\n";
-                }
-                filesSection += "    }\n";
-                filesSection += "  }";
-				if (i < LogsearchShipperConfig.FileWatchers.Count - 1) { filesSection += ","; }
-                filesSection += "\n";
-            }
-            filesSection += "]\n";
-            var config = "{\n" + networkSection + "\n" + filesSection + "}";
-	       
-            File.WriteAllText(ConfigFile, config);
-	    }
+		static string GenerateFilesSection (List<FileWatchElement> watches)
+		{
+			var filesSection = " \"files\": [\n";
+			for (int i = 0; i < watches.Count; i++) {
+				FileWatchElement watch = watches [i];
+				filesSection += "  {\n";
+				filesSection += "    \"paths\": [ \"" + HttpUtility.JavaScriptStringEncode (watch.Files) + "\" ],\n";
+				filesSection += "    \"fields\": {\n";
+				filesSection += "      \"@type\": \"" + HttpUtility.JavaScriptStringEncode (watch.Type) + "\"\n";
+				foreach (FieldElement field in watch.Fields) {
+					filesSection += "      ,\"" + HttpUtility.JavaScriptStringEncode (field.Key) + "\": \"" + HttpUtility.JavaScriptStringEncode (field.Value) + "\"\n";
+				}
+				filesSection += "    }\n";
+				filesSection += "  }";
+				if (i < watches.Count - 1) {
+					filesSection += ",";
+				}
+				filesSection += "\n";
+			}
+			filesSection += "]\n";
+			return filesSection;
+		}
 
 	    public void Stop()
 		{

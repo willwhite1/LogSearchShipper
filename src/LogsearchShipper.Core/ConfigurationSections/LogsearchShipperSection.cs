@@ -54,7 +54,7 @@ namespace LogsearchShipper.Core.ConfigurationSections
 		}
 
 		[ConfigurationProperty("edbFileWatchers", IsDefaultCollection = false)]
-		public EDBFileWatchCollection EnvironmentWatchers
+		public EDBFileWatchCollection EDBFileWatchers
 		{
 			get
 			{

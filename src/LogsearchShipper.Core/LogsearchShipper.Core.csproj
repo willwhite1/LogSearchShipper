@@ -51,6 +51,7 @@
     <Compile Include="ConfigurationSections\LogsearchShipperSection.cs" />
     <Compile Include="ConfigurationSections\EDBFileWatchCollection.cs" />
     <Compile Include="ConfigurationSections\FileWatchCollection.cs" />
+    <Compile Include="EDBFileWatchParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

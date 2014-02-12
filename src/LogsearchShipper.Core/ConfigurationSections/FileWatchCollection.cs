@@ -31,15 +31,21 @@ namespace LogsearchShipper.Core.ConfigurationSections
 			}
 		}
 
+		private FieldCollection _fieldCollection;
 		[ConfigurationProperty("", IsDefaultCollection = true)]
 		public FieldCollection Fields
 		{
 			get
 			{
-				var fieldCollection = (FieldCollection)base[""];
-				return fieldCollection;
+				if (_fieldCollection == null) {
+					_fieldCollection = (FieldCollection)base[""];
+				}
+				return _fieldCollection;
 			}
-
+			set 
+			{
+				_fieldCollection = value;
+			}
 		}
 
 	}

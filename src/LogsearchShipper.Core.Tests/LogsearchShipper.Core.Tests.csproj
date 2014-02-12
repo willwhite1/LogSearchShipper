@@ -59,7 +59,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
-    <None Include="SampleData\EDB\ENV1\Latest.xml" />
+    <None Include="SampleData\EDB\ENV1\Latest.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LogsearchShipper.Core\LogsearchShipper.Core.csproj">
