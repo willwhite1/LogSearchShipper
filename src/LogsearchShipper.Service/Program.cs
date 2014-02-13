@@ -24,9 +24,9 @@ namespace LogsearchShipper.Service
                 x.RunAsNetworkService();
                 x.StartAutomatically();
 
-                x.SetDescription("LogStash Forwarder.NET - forwards (Windows) log files to Logsearch cluster");
-                x.SetDisplayName("LogStash Forwarder.NET");
-                x.SetServiceName("logstash_forwarder_net");
+				x.SetDescription("Logsearch Shipper.NET - forwards (Windows) log files to Logsearch cluster");
+				x.SetDisplayName("Logsearch Shipper.NET");
+				x.SetServiceName("logsearch_shipper_net");
 
                 x.EnableServiceRecovery(rc =>
                 {
@@ -34,6 +34,7 @@ namespace LogsearchShipper.Service
                 });
 
                 x.UseLog4Net();
+				x.UseLinuxIfAvailable();
             });
 		}
 	}

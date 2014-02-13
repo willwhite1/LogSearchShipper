@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-16"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Environment xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Name>ENV1</Name>
   <Description>Description of ENV1</Description>
@@ -19,7 +19,7 @@
           <LogPath>\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\log.log</LogPath>
           <LogPathType>log4net</LogPathType>
           <LogPath1>\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\PriceHistoryStats.log</LogPath1>
-          <LogPathType>log4net_stats</LogPathType>
+          <LogPath1Type>log4net_stats</LogPath1Type>
           <LogPath2>\\PKH-PPE-APP10\</LogPath2>
           <LogPath2Type />
           <SystemArea>CORE</SystemArea>

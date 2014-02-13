@@ -15,15 +15,14 @@ namespace LogsearchShipper.Core
 		private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(LogsearchShipperProcessManager));
 
 		static Process _process;
-	    private string _logType;
         public string ConfigFile { get; private set; }
         public string GoLogsearchShipperFile { get; private set; }
 
 	    public void Start()
 	    {
-	        ExtractGoLogsearchShipper();
             SetupConfigFile();
-            StartProcess();
+			ExtractGoLogsearchShipper();
+			StartProcess();
 		}
 
 	    private void ExtractGoLogsearchShipper()
@@ -31,8 +30,8 @@ namespace LogsearchShipper.Core
             if (!Environment.OSVersion.VersionString.Contains("Windows"))
                 throw new NotSupportedException("LogsearchShipperProcessManager only supports Windows");
 
-	        var tempFile = Path.GetTempFileName();
-	        var exeFile = tempFile + ".exe";
+			var tempFile = Path.GetTempFileName();
+			var exeFile = tempFile + "go-logstash-forwarder.exe";
             File.Move(tempFile, exeFile);
 
             using (var fStream = new FileStream(exeFile, FileMode.Create))
@@ -102,8 +101,21 @@ namespace LogsearchShipper.Core
 		static void ExtractEDBFileWatchers (LogsearchShipperSection LogsearchShipperConfig, List<FileWatchElement> watches)
 		{
 			for (int i = 0; i < LogsearchShipperConfig.EDBFileWatchers.Count; i++) {
-				watches.AddRange( new EDBFileWatchParser(LogsearchShipperConfig.EDBFileWatchers[i]).ToFileWatchCollection() );
+				var parser = new EDBFileWatchParser(LogsearchShipperConfig.EDBFileWatchers[i]);
+
+				LogEnvironmentDiagramData (parser);
+
+				watches.AddRange(parser.ToFileWatchCollection());
 			}
+		}
+
+		/// <summary>
+		/// Logs the environment diagram data as extracted from the EDB file that is being used to determine what log files to ship
+		/// </summary>
+		/// <param name="parser">EDBFileWatchParser</param>
+		static void LogEnvironmentDiagramData(EDBFileWatchParser parser) {
+			var _environmentDiagramLogger = log4net.LogManager.GetLogger("EnvironmentDiagramLogger");
+			_environmentDiagramLogger.Info(new { Environments = parser.GenerateLogsearchEnvironmentDiagramJson() });
 		}
 
 		static string GenerateNetworkSection (LogsearchShipperSection LogsearchShipperConfig)

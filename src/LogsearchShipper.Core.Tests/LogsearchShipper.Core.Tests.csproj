@@ -47,12 +47,16 @@
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System.Configuration" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="LogsearchShipperProcessManagerTests.cs" />
     <Compile Include="LogsearchShipperSectionTests.cs" />
+    <Compile Include="EDBFileWatchParserTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
