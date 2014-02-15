@@ -13,6 +13,7 @@ namespace LogsearchShipper.Core
 	public class LogsearchShipperProcessManager
 	{
 		private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(LogsearchShipperProcessManager));
+		private List<FileSystemWatcher> watchedConfigFiles = new List<FileSystemWatcher> ();
 
 		static Process _process;
         public string ConfigFile { get; private set; }
@@ -23,6 +24,28 @@ namespace LogsearchShipper.Core
             SetupConfigFile();
 			ExtractGoLogsearchShipper();
 			StartProcess();
+
+			WhenConfigFileChanges (() => {
+				Stop ();
+				SetupConfigFile ();
+				StartProcess ();
+			});
+
+		}
+
+		private void WhenConfigFileChanges(Action actionsToRun) {
+			foreach (var watcher in watchedConfigFiles) {
+				watcher.Changed += new FileSystemEventHandler((s,e) => {
+					actionsToRun ();
+				});
+				watcher.EnableRaisingEvents = true;
+			}
+		}
+
+		private void AddWatchedConfigFile(string filePath) {
+			var watcher = new FileSystemWatcher (Path.GetDirectoryName(filePath), Path.GetFileName(filePath));
+			watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size;
+			watchedConfigFiles.Add (watcher);
 		}
 
 	    private void ExtractGoLogsearchShipper()
@@ -98,9 +121,12 @@ namespace LogsearchShipper.Core
 			}
 		}
 
-		static void ExtractEDBFileWatchers (LogsearchShipperSection LogsearchShipperConfig, List<FileWatchElement> watches)
+		void ExtractEDBFileWatchers (LogsearchShipperSection LogsearchShipperConfig, List<FileWatchElement> watches)
 		{
 			for (int i = 0; i < LogsearchShipperConfig.EDBFileWatchers.Count; i++) {
+
+				AddWatchedConfigFile (LogsearchShipperConfig.EDBFileWatchers[i].DataFile);
+
 				var parser = new EDBFileWatchParser(LogsearchShipperConfig.EDBFileWatchers[i]);
 
 				LogEnvironmentDiagramData (parser);
@@ -114,8 +140,11 @@ namespace LogsearchShipper.Core
 		/// </summary>
 		/// <param name="parser">EDBFileWatchParser</param>
 		static void LogEnvironmentDiagramData(EDBFileWatchParser parser) {
-			var _environmentDiagramLogger = log4net.LogManager.GetLogger("EnvironmentDiagramLogger");
-			_environmentDiagramLogger.Info(new { Environments = parser.GenerateLogsearchEnvironmentDiagramJson() });
+			var environments = parser.GenerateLogsearchEnvironmentDiagram ();
+
+			_log.Info (string.Format("Logged environment diagram data for {0}", string.Join(",",environments.Select(e => e.Name))));
+
+			log4net.LogManager.GetLogger("EnvironmentDiagramLogger").Info(new { Environments = environments });
 		}
 
 		static string GenerateNetworkSection (LogsearchShipperSection LogsearchShipperConfig)

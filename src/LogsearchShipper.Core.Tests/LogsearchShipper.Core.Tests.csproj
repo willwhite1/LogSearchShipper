@@ -66,6 +66,9 @@
     <None Include="SampleData\EDB\ENV1\Latest.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="SampleData\EDB\ENV2\Latest.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LogsearchShipper.Core\LogsearchShipper.Core.csproj">
