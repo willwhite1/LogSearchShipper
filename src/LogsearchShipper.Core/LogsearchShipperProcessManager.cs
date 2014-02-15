@@ -13,7 +13,9 @@ namespace LogsearchShipper.Core
 	public class LogsearchShipperProcessManager
 	{
 		private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(LogsearchShipperProcessManager));
-		private List<FileSystemWatcher> watchedConfigFiles = new List<FileSystemWatcher> ();
+        private static readonly log4net.ILog _logLogstashForwarder = log4net.LogManager.GetLogger("go-logstash-forwarder.exe");
+		
+        private List<FileSystemWatcher> _watchedConfigFiles = new List<FileSystemWatcher> ();
 
 		static Process _process;
         public string ConfigFile { get; private set; }
@@ -28,13 +30,14 @@ namespace LogsearchShipper.Core
 			WhenConfigFileChanges (() => {
 				Stop ();
 				SetupConfigFile ();
+                ExtractGoLogsearchShipper();
 				StartProcess ();
 			});
 
 		}
 
 		private void WhenConfigFileChanges(Action actionsToRun) {
-			foreach (var watcher in watchedConfigFiles) {
+			foreach (var watcher in _watchedConfigFiles) {
 				watcher.Changed += new FileSystemEventHandler((s,e) => {
 					actionsToRun ();
 				});
@@ -44,10 +47,21 @@ namespace LogsearchShipper.Core
 
 		private void AddWatchedConfigFile(string filePath) {
             var fullPath = Path.GetFullPath(filePath);
+            if (WatcherAlreadyExists(fullPath)) return;
             var watcher = new FileSystemWatcher(Path.GetDirectoryName(fullPath), Path.GetFileName(fullPath));
 			watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size;
-			watchedConfigFiles.Add (watcher);
+			_watchedConfigFiles.Add (watcher);
 		}
+
+        private bool WatcherAlreadyExists(string fullPath)
+        {
+            foreach (var watcher in _watchedConfigFiles)
+            {
+                if (Path.Combine(watcher.Path, watcher.Filter) == fullPath)
+                    return true;
+            }
+            return false;
+        }
 
 	    private void ExtractGoLogsearchShipper()
 	    {
@@ -226,13 +240,13 @@ namespace LogsearchShipper.Core
 				RedirectStandardError = true,
 				CreateNoWindow = true,
 			};
-            _log.DebugFormat("go-logstash-forwarder.exe: running {0} {1}", GoLogsearchShipperFile, startInfo.Arguments);
+            _log.DebugFormat("Running {0} {1}", GoLogsearchShipperFile, startInfo.Arguments);
 			_process = Process.Start(startInfo);
 
-			_process.OutputDataReceived += (s, e) => _log.Info("go-logstash-forwarder.exe: " + e.Data);
+            _process.OutputDataReceived += (s, e) => _logLogstashForwarder.Info(e.Data);
 			_process.BeginOutputReadLine();
 
-            _process.ErrorDataReceived += (s, e) => _log.Info("go-logstash-forwarder.exe: " + e.Data);
+            _process.ErrorDataReceived += (s, e) => _logLogstashForwarder.Info(e.Data);
 			_process.BeginErrorReadLine();
 		}
 	}
