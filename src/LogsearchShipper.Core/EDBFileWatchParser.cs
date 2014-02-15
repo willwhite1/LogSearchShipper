@@ -13,11 +13,25 @@ using System.Xml.Linq;
 
 namespace LogsearchShipper.Core
 {
-	public class EDBEnvironment {
+    public class EDBEnvironment
+    {
 		public string Name { get; set; }
 		public object ServerGroups { get; set; }
-	}
-	
+    }
+
+    public class EDBEnvironmentComparer: IEqualityComparer<EDBEnvironment>
+    {
+        public bool Equals(EDBEnvironment e1, EDBEnvironment e2)
+        {
+            return e1.Name.ToUpper() == e2.Name.ToUpper();
+        }
+
+        public int GetHashCode(EDBEnvironment obj)
+        {
+            return obj.Name.GetHashCode();
+        }
+    }
+
 	public class EDBFileWatchParser
 	{
 		private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(EDBFileWatchParser));
@@ -55,7 +69,7 @@ namespace LogsearchShipper.Core
 								select new EDBEnvironment {
 									Name = server.Element("Environment").Value
 								}
-			).Distinct ().ToArray ();
+			).Distinct (new EDBEnvironmentComparer()).ToArray ();
 
 			var networkAreas = (from server in environmentDataXml.Descendants ("Servers").Descendants("Server")
 			                    select new {
