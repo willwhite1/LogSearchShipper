@@ -13,6 +13,11 @@ using System.Xml.Linq;
 
 namespace LogsearchShipper.Core
 {
+	public class EDBEnvironment {
+		public string Name { get; set; }
+		public object ServerGroups { get; set; }
+	}
+	
 	public class EDBFileWatchParser
 	{
 		private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(EDBFileWatchParser));
@@ -33,7 +38,7 @@ namespace LogsearchShipper.Core
 			return watches;
 		}
 
-		public IEnumerable<object> GenerateLogsearchEnvironmentDiagramJson ()
+		public IEnumerable<EDBEnvironment> GenerateLogsearchEnvironmentDiagram ()
 		{
 			var environmentDataXml = XDocument.Load(_environmentWatchElement.DataFile.Replace('\\',Path.DirectorySeparatorChar));
 
@@ -42,7 +47,7 @@ namespace LogsearchShipper.Core
 			 */
 
 			var environments = (from server in environmentDataXml.Descendants ("Servers").Descendants("Server")
-								select new {
+								select new EDBEnvironment {
 									Name = server.Element("Environment").Value
 								}
 			).Distinct ().ToArray ();
@@ -66,9 +71,9 @@ namespace LogsearchShipper.Core
 				}).Distinct ().ToArray ();
 
 			var environmentHierarchy = from environment in environments
-			    select new
+			    select new EDBEnvironment
 				{
-					environment.Name,
+					Name = environment.Name,
 					ServerGroups = from serverGroup in networkAreas
 						select new
 						{
@@ -84,4 +89,5 @@ namespace LogsearchShipper.Core
 		}
 	}
 }
+
 
