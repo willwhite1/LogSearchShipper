@@ -64,5 +64,14 @@
         </Entity>
       </Services>
     </Server>
+	<Server>
+      <Name>ENV1-NO-SERVICES</Name>
+      <Description>A server with no services</Description>
+      <Domain>example.org</Domain>
+      <Environment>ENV1</Environment>
+      <NetworkArea>APP</NetworkArea>
+      <PorV>Virtual</PorV>
+      <Services />
+    </Server>
   </Servers>
 </Environment>
