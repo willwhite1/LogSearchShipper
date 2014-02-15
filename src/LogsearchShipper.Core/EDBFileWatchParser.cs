@@ -35,7 +35,12 @@ namespace LogsearchShipper.Core
 
 		public IEnumerable<object> GenerateLogsearchEnvironmentDiagramJson ()
 		{
-			var environmentDataXml = XDocument.Load(_environmentWatchElement.DataFile.Replace('\\',Path.DirectorySeparatorChar));
+            XDocument environmentDataXml;
+            //Use StreamReader to autodetect file encoding - http://stackoverflow.com/a/4569093/13238
+            using (StreamReader sr = new StreamReader(_environmentWatchElement.DataFile.Replace('\\', Path.DirectorySeparatorChar), true))
+            {
+                environmentDataXml = XDocument.Load(sr);
+            }
 
 			/* NB Note how we force LINQ evaluation for each query by calling ToArray().  
 			 * Without this data seems to get duplicated.
