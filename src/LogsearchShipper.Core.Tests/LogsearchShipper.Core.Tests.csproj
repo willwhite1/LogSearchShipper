@@ -67,7 +67,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="SampleData\EDB\ENV2\Latest.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -85,10 +85,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="SampleData\" />
-    <Folder Include="SampleData\EDB\" />
-    <Folder Include="SampleData\EDB\ENV1\" />
-    <Folder Include="SampleData\EDB\ENV2\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

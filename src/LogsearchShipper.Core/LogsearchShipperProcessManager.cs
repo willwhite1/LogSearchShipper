@@ -43,7 +43,8 @@ namespace LogsearchShipper.Core
 		}
 
 		private void AddWatchedConfigFile(string filePath) {
-			var watcher = new FileSystemWatcher (Path.GetDirectoryName(filePath), Path.GetFileName(filePath));
+            var fullPath = Path.GetFullPath(filePath);
+            var watcher = new FileSystemWatcher(Path.GetDirectoryName(fullPath), Path.GetFileName(fullPath));
 			watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size;
 			watchedConfigFiles.Add (watcher);
 		}
