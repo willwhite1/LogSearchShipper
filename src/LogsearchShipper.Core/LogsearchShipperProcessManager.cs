@@ -31,7 +31,7 @@ namespace LogsearchShipper.Core
                 throw new NotSupportedException("LogsearchShipperProcessManager only supports Windows");
 
 			var tempFile = Path.GetTempFileName();
-			var exeFile = tempFile + "go-logstash-forwarder.exe";
+			var exeFile = tempFile + "-go-logstash-forwarder.exe";
             File.Move(tempFile, exeFile);
 
             using (var fStream = new FileStream(exeFile, FileMode.Create))
@@ -189,15 +189,14 @@ namespace LogsearchShipper.Core
 		{
 			var startInfo = new ProcessStartInfo(GoLogsearchShipperFile)
 			{
-                Arguments = "-config " + ConfigFile,
-				WorkingDirectory = Path.GetTempPath(),
+                Arguments = "-from-beginning=true -config " + ConfigFile,
 				UseShellExecute = false,
 				RedirectStandardInput = true,
 				RedirectStandardOutput = true,
 				RedirectStandardError = true,
 				CreateNoWindow = true,
 			};
-            _log.DebugFormat("go-logstash-forwarder.exe: running {0} -config {1}", GoLogsearchShipperFile, ConfigFile);
+            _log.DebugFormat("go-logstash-forwarder.exe: running {0} {1}", GoLogsearchShipperFile, startInfo.Arguments);
 			_process = Process.Start(startInfo);
 
 			_process.OutputDataReceived += (s, e) => _log.Info("go-logstash-forwarder.exe: " + e.Data);
