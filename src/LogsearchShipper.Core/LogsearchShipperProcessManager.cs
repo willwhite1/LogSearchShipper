@@ -21,24 +21,47 @@ namespace LogsearchShipper.Core
         public string ConfigFile { get; private set; }
         public string GoLogsearchShipperFile { get; private set; }
 
+        public class CodeBlockLocker
+        {
+            public bool isBusy { get; set; }
+        }
+
 	    public void Start()
 	    {
             SetupConfigFile();
 			ExtractGoLogsearchShipper();
 			StartProcess();
 
+            var configChanging = new CodeBlockLocker { isBusy = false };
+
 			WhenConfigFileChanges (() => {
-				Stop ();
-				SetupConfigFile ();
-                ExtractGoLogsearchShipper();
-				StartProcess ();
-			});
+                if (configChanging.isBusy)
+                {
+                    _log.Debug("Already in the process of updating config; ignoring trigger");
+                    return;
+                }
+
+                lock (configChanging)
+                {
+                    configChanging.isBusy = true;
+
+                    _log.Debug("Updating config and restarting shipping...");
+				    Stop ();
+				    SetupConfigFile ();
+                    ExtractGoLogsearchShipper();
+				    StartProcess ();
+
+                    configChanging.isBusy = false; 
+                }
+
+            });
 
 		}
 
 		private void WhenConfigFileChanges(Action actionsToRun) {
 			foreach (var watcher in _watchedConfigFiles) {
 				watcher.Changed += new FileSystemEventHandler((s,e) => {
+                    _log.DebugFormat("Detected change in file: {0}", e.FullPath);
 					actionsToRun ();
 				});
 				watcher.EnableRaisingEvents = true;
@@ -199,7 +222,8 @@ namespace LogsearchShipper.Core
 		{
 			if (_process == null)
 				return;
-			_process.StandardInput.Close (); // send the close process signal
+
+            _process.StandardInput.WriteLine(char.ConvertFromUtf32(3)); // send Ctrl-C to logstash shipper so it can clean up
 			_process.WaitForExit (5 * 1000);
             if (!_process.HasExited)
             {
