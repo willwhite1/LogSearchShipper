@@ -25,7 +25,7 @@ namespace LogsearchShipper.Core.Tests
             _logsearchShipperProcessManager.Stop();
         }
 
-        [Test]
+        [Test, Ignore("Needs valid logstash ingestor to connect to")]
 		[Platform(Exclude="Mono")]
         public void ShouldLaunchGoLogsearchShipperProcess()
         {
