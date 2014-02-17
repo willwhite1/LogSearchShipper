@@ -18,6 +18,23 @@ namespace LogsearchShipper.Core.ConfigurationSections
 			}
 		}
 
+        [ConfigurationProperty("logEnvironmentDiagramDataEveryMinutes", IsRequired = false)]
+        public int LogEnvironmentDiagramDataEveryMinutes
+		{
+			get
+			{
+                if (this.Properties.Contains("logEnvironmentDiagramDataEveryMinutes"))
+				{
+					return (int)this["logEnvironmentDiagramDataEveryMinutes"];
+				}
+				return 60;
+			}
+			set
+			{
+                this["logEnvironmentDiagramDataEveryMinutes"] = value;
+			}
+		}
+
 		[ConfigurationProperty("networkAreas", IsRequired = false)]
 		public String NetworkAreas
 		{

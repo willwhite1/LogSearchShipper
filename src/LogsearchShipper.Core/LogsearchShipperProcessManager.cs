@@ -16,6 +16,7 @@ namespace LogsearchShipper.Core
         private static readonly log4net.ILog _logLogstashForwarder = log4net.LogManager.GetLogger("go-logstash-forwarder.exe");
 		
         private List<FileSystemWatcher> _watchedConfigFiles = new List<FileSystemWatcher> ();
+        private Dictionary<string, System.Threading.Timer> _environmentDiagramLoggingTimers = new Dictionary<string, System.Threading.Timer>();
 
 		static Process _process;
         public string ConfigFile { get; private set; }
@@ -163,27 +164,47 @@ namespace LogsearchShipper.Core
 		{
 			for (int i = 0; i < LogsearchShipperConfig.EDBFileWatchers.Count; i++) {
 
-				AddWatchedConfigFile (LogsearchShipperConfig.EDBFileWatchers[i].DataFile);
+                var envWatchElement = LogsearchShipperConfig.EDBFileWatchers[i];
 
-				var parser = new EDBFileWatchParser(LogsearchShipperConfig.EDBFileWatchers[i]);
+                StartLoggingEnvironmentData(envWatchElement);
+                AddWatchedConfigFile(envWatchElement.DataFile);
 
-				LogEnvironmentDiagramData (parser);
-
-				watches.AddRange(parser.ToFileWatchCollection());
+                var parser = new EDBFileWatchParser(envWatchElement);
+                watches.AddRange(parser.ToFileWatchCollection());
 			}
 		}
 
-		/// <summary>
-		/// Logs the environment diagram data as extracted from the EDB file that is being used to determine what log files to ship
-		/// </summary>
-		/// <param name="parser">EDBFileWatchParser</param>
-		static void LogEnvironmentDiagramData(EDBFileWatchParser parser) {
-			var environments = parser.GenerateLogsearchEnvironmentDiagram ();
+        /// <summary>
+        /// Logs the environment diagram data as extracted from the EDB file that is being used to determine what log files to ship
+        /// </summary>
+        /// <param name="edbDataFilePath"></param>
+        private void StartLoggingEnvironmentData(EnvironmentWatchElement envWatchElement)
+        {
+            var key = envWatchElement.DataFile;
+            if (_environmentDiagramLoggingTimers.ContainsKey(key))
+            {
+                _environmentDiagramLoggingTimers[key].Dispose();
+            }
 
-			_log.Info (string.Format("Logged environment diagram data for {0}", string.Join(",",environments.Select(e => e.Name))));
+            var timer = new System.Threading.Timer(
+                callback:LogEnvironmentData,
+                state: envWatchElement,
+                dueTime: 0, //Run once immediately
+                period: Convert.ToInt64(TimeSpan.FromMinutes(envWatchElement.LogEnvironmentDiagramDataEveryMinutes).TotalMilliseconds)
+             ); 
+            
+            _environmentDiagramLoggingTimers[key] = timer;
+        }
 
-			log4net.LogManager.GetLogger("EnvironmentDiagramLogger").Info(new { Environments = environments });
-		}
+        public static void LogEnvironmentData(object state)
+        {
+            var parser = new EDBFileWatchParser((EnvironmentWatchElement)state);
+            var environments = parser.GenerateLogsearchEnvironmentDiagram();
+
+            _log.Info(string.Format("Logged environment diagram data for {0}", string.Join(",", environments.Select(e => e.Name))));
+
+            log4net.LogManager.GetLogger("EnvironmentDiagramLogger").Info(new { Environments = environments });
+        }
 
 		static string GenerateNetworkSection (LogsearchShipperSection LogsearchShipperConfig)
 		{
@@ -223,15 +244,20 @@ namespace LogsearchShipper.Core
 			if (_process == null)
 				return;
 
-            _process.StandardInput.WriteLine(char.ConvertFromUtf32(3)); // send Ctrl-C to logstash shipper so it can clean up
+            _process.StandardInput.WriteLine(char.ConvertFromUtf32(3)); // send Ctrl-C to logstash-forwarder so it can clean up
 			_process.WaitForExit (5 * 1000);
             if (!_process.HasExited)
             {
                 _process.Kill();
             }
 
-            File.Copy(".logstash-forwarder", ".logstash-forwarder.old", true);
-            File.Copy(".logstash-forwarder.new", ".logstash-forwarder", true);
+            //TODO:  Figure out why logstash-forwarder isn't doing this cleanup itself.  It must be something to do with the way we're terminating the process above
+            if (File.Exists(".logstash-forwarder.new") && File.GetLastWriteTime(".logstash-forwarder.new") > File.GetLastWriteTime(".logstash-forwarder"))
+            {
+                File.Copy(".logstash-forwarder", ".logstash-forwarder.old", true);
+                File.Copy(".logstash-forwarder.new", ".logstash-forwarder", true);
+            }
+           
             //Cleanup
 	        try
 	        {

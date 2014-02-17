@@ -74,6 +74,12 @@ namespace LogsearchShipper.Core.Tests
 			Assert.AreEqual(@"SampleData\EDB\ENV1\Latest.xml", _logsearchShipper.EDBFileWatchers[0].DataFile);
 		}
 
+        [Test]
+        public void ShouldHaveEDBFileWatchWithLogEnvironmentDiagramDataEveryMinutes()
+        {
+            Assert.AreEqual(42, _logsearchShipper.EDBFileWatchers[0].LogEnvironmentDiagramDataEveryMinutes);
+        }
+
 		[Test]
 		public void ShouldHaveEDBFileWatchWithServerGroupNamesAttribute()
 		{
