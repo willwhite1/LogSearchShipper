@@ -230,6 +230,8 @@ namespace LogsearchShipper.Core
                 _process.Kill();
             }
 
+            File.Copy(".logstash-forwarder", ".logstash-forwarder.old", true);
+            File.Copy(".logstash-forwarder.new", ".logstash-forwarder", true);
             //Cleanup
 	        try
 	        {
