@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Environment xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Name>STG</Name>
+  <Description>Manual generated environment entity - 02/13/2014</Description>
+  <Servers>
+    <Server>
+      <Name>PKH-STG-EKDBQAT</Name>
+      <Description>Ektron QAT DB</Description>
+      <Domain>cityindex.co.uk</Domain>
+      <Environment>STG</Environment>
+      <NetworkArea>APP</NetworkArea>
+      <PorV>Virtual</PorV>
+      <Services />
+    </Server>
+    <Server>
+      <Name>PKH-STG-WEB01</Name>
+      <Description>EDB</Description>
+      <Domain>cityindex.co.uk</Domain>
+      <Environment>STG</Environment>
+      <NetworkArea>DMZ</NetworkArea>
+      <PorV>Virtual</PorV>
+      <Services>
+        <Entity xsi:type="WebService">
+          <Name>edb.cityindex.co.uk</Name>
+          <Website>edb.cityindex.co.uk</Website>
+          <ApplicationUri>http://edb-stg.cityindex.co.uk</ApplicationUri>
+          <BinaryPath>D:\websites\edb.cityindex.co.uk</BinaryPath>
+          <LogPath>\\PKH-STG-WEB01\Logs\EDBDataSerializer</LogPath>
+          <LogPathType />
+          <LogPath1>\\PKH-STG-WEB01\</LogPath1>
+          <LogPath1Type />
+          <LogPath2>\\PKH-STG-WEB01\</LogPath2>
+          <LogPath2Type />
+          <SystemArea>CORE</SystemArea>
+          <State>running</State>
+        </Entity>
+      </Services>
+    </Server>
+    <Server>
+      <Name>PKH-STG-PRICE01</Name>
+      <Description>Republisher</Description>
+      <Domain>cityindex.co.uk</Domain>
+      <Environment>STG</Environment>
+      <NetworkArea>APP</NetworkArea>
+      <PorV>Virtual</PorV>
+      <Services />
+    </Server>
+    <Server>
+      <Name>PKH-STG-EXP</Name>
+      <Description>Experian</Description>
+      <Domain>cityindex.co.uk</Domain>
+      <Environment>STG</Environment>
+      <NetworkArea>APP</NetworkArea>
+      <PorV>Virtual</PorV>
+      <Services />
+    </Server>
+    <Server>
+      <Name>PKH-STG-EKWBDEV</Name>
+      <Description>Ektron Dev Web</Description>
+      <Domain>cityindex.co.uk</Domain>
+      <Environment>STG</Environment>
+      <NetworkArea>APP</NetworkArea>
+      <PorV>Virtual</PorV>
+      <Services />
+    </Server>
+    <Server>
+      <Name>PKH-STG-EKDBDEV</Name>
+      <Description>Ektron Dev DB</Description>
+      <Domain>cityindex.co.uk</Domain>
+      <Environment>STG</Environment>
+      <NetworkArea>DB</NetworkArea>
+      <PorV>Virtual</PorV>
+      <Services />
+    </Server>
+    <Server>
+      <Name>PKH-STG-EKWBQAT</Name>
+      <Description>Ektron QAT Web</Description>
+      <Domain>cityindex.co.uk</Domain>
+      <Environment>STG</Environment>
+      <NetworkArea>APP</NetworkArea>
+      <PorV>Virtual</PorV>
+      <Services />
+    </Server>
+  </Servers>
+</Environment>
