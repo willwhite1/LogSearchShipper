@@ -9,7 +9,7 @@
 	<Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 
   <Target Name="Build">
-    <MSBuild Projects="src/LogstashForwarder.sln" Targets="Rebuild" 
+    <MSBuild Projects="src/LogsearchShipper.sln" Targets="Rebuild" 
              Properties="Configuration=$(Configuration);Platform=$(Platform)" />
   </Target>
 
