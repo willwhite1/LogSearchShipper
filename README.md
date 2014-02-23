@@ -1,4 +1,4 @@
-## logsearch-shipper.NET [![Build Status](http://jenkins.cityindex.logsearch.io/buildStatus/icon?job=logsearch-logstash-forwarder-NET)](http://jenkins.cityindex.logsearch.io/job/logsearch-logstash-forwarder-NET/)
+## logsearch-shipper.NET 
 
 A Windows optimised shipper for getting logs into Logsearch.
 
