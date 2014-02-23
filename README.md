@@ -1,7 +1,6 @@
+## logsearch-shipper.NET [![Build Status](http://jenkins.cityindex.logsearch.io/buildStatus/icon?job=logsearch-logstash-forwarder-NET)](http://jenkins.cityindex.logsearch.io/job/logsearch-logstash-forwarder-NET/)
 
-## logstash-forwarder.NET [![Build Status](http://ci.labs.cityindex.com:8080/buildStatus/icon?job=logsearch-logstash-forwarder-NET)](http://ci.labs.cityindex.com:8080/job/logsearch-logstash-forwarder-NET/)
-
-A Windows optimised version of the elasticsearch/logstash-forwarder (in .NET).
+A Windows optimised shipper for getting logs into Logsearch.
 
 Currenty this is just a wrapper aroung the Go elasticsearch/logstash-forwarder that adds .NET style config 
 and the ability to run as a Windows Service.
@@ -10,31 +9,34 @@ _NB:  This (currently) only supports Windows.  Run the native elasticsearch/logs
 
 ### Config
 
-Edit `LogstashForwarder.Service.exe.config` and configure the `logstashForwarderGroup` to point at the files you want shipped.
+Edit `LogsearchShipper.Service.exe.config` and configure the `LogsearchShipperGroup` to point at the files you want shipped.
 
-```
-  <logstashForwarderGroup>
-    <logstashForwarder servers="logstash.yourdomain.co.uk:5043" ssl_ca="C:\Logs\yourdomain.cer" timeout="42">
-      <watch files="C:\Logs\Service1.log" type="json">
-        <field key="@environment" value="DEV" />
-      </watch>
-      <watch files="C:\Logs\Service2.log" type="log4net">
-        <field key="@environment" value="DEV" />
-      </watch>
-    </logstashForwarder>
-  </logstashForwarderGroup>
+```xml
+  <LogsearchShipperGroup>
+    <LogsearchShipper servers="ingestor.example.com:5043" ssl_ca="C:\Logs\mycert.crt" timeout="23">
+      <fileWatchers>
+       <watch files="myfile.log" type="myfile_type">
+          <field key="field1" value="field1 value" />
+          <field key="field2" value="field2 value" />
+        </watch>
+        <watch files="C:\Logs\myfile.log" type="type/subtype">
+          <field key="key/subkey" value="value/subvalue" />
+        </watch>
+      </fileWatchers>
+    </LogsearchShipper>
+  </LogsearchShipperGroup>
  ```
 
 #### Running from the Command line 
 
 ```
-LogstashForwarder.Service.exe
+LogsearchShipper.Service.exe
 ```
 
 #### Running as a Windows Service
 
 ```
-LogstashForwarder.Service.exe install --sudo
+LogsearchShipper.Service.exe install --sudo
 ```
 
 #### Help
@@ -42,12 +44,12 @@ LogstashForwarder.Service.exe install --sudo
 See
 
 ```
-LogstashForwarder.Service.exe help
+LogsearchShipper.Service.exe help
 ```
 
 ### License
 
-Copyright 2013 City Index
+Copyright 2013-2014 City Index
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
