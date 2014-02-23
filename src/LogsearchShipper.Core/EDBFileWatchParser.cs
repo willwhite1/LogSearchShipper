@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Xml;
 using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace LogsearchShipper.Core
 {
@@ -32,6 +33,14 @@ namespace LogsearchShipper.Core
         }
     }
 
+	public static class SearchExtensionMethods
+	{
+		public static bool RegExContains(this string str, string regEx)
+		{
+			return Regex.Match(str, regEx, RegexOptions.IgnoreCase).Success;
+		}    
+	}
+
 	public class EDBFileWatchParser
 	{
 		private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(EDBFileWatchParser));
@@ -43,23 +52,63 @@ namespace LogsearchShipper.Core
 			_environmentWatchElement = environmentWatchElement;
 		}
 
-		public IEnumerable<FileWatchElement> ToFileWatchCollection ()
+		public List<FileWatchElement> ToFileWatchCollection ()
 		{
+			var environmentDataXml = LoadEDBXml ();
+
+			var servers = from server in environmentDataXml.Descendants ("Servers").Descendants ("Server")
+			              where server.Element ("Name").Value.ToString().RegExContains(_environmentWatchElement.ServerNames)
+			              && server.Element ("NetworkArea").Value.ToString().RegExContains(_environmentWatchElement.NetworkAreas)
+			              select new {
+								Name = server.Element ("Name").Value.ToString(),
+								NetworkArea = server.Element ("NetworkArea").Value.ToString(),
+								Services = 	from service in server.Descendants ("Services").Descendants ("Entity")
+					                        where service.Element ("Name").Value.ToString().RegExContains(_environmentWatchElement.ServiceNames)
+				                           //TODO:  Also extract LogPath1 and LogPath2 	
+				                           select new {
+												Name = service.Element ("Name").Value.ToString(),
+												LogFile = service.Element ("LogPath").Value,
+												LogType = service.Element ("LogPathType").Value
+											}
+			};
+
+
 			var watches = new List<FileWatchElement> ();
-			//TODO
-//			watches.Add (new FileWatchElement { Files = @"\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\log.log", Type = "log4net", Fields = _environmentWatchElement.Fields });
-//			watches.Add (new FileWatchElement { Files = @"c:\foo\bar2.log", Type = "log4net", Fields = _environmentWatchElement.Fields });
+			foreach (var server in servers) {
+				foreach (var service in server.Services) {
+					var fields = new FieldCollection ();
+					fields.Add (new FieldElement{ Key = "@service.name", Value = service.Name }); 
+					foreach (FieldElement field in _environmentWatchElement.Fields) {
+						fields.Add (field);
+					}
+					watches.Add (new FileWatchElement { 
+						Files = service.LogFile, 
+						Type = service.LogType, 
+						Fields = fields
+					});
+					_log.DebugFormat ("Added file watch from EDB: {0} ({1}) => Matched NetworkArea:{2} ~= {3}, ServerName:{4} ~= {5}, ServiceName:{6} ~= {7}",
+						service.LogFile, service.LogType,
+						server.NetworkArea, _environmentWatchElement.NetworkAreas,
+						server.Name, _environmentWatchElement.ServerNames,
+						service.Name, _environmentWatchElement.ServiceNames);
+				}
+			}
 			return watches;
+		}
+
+		private XDocument LoadEDBXml ()
+		{
+			XDocument environmentDataXml;
+			//Use StreamReader to autodetect file encoding - http://stackoverflow.com/a/4569093/13238
+			using (StreamReader sr = new StreamReader (_environmentWatchElement.DataFile.Replace ('\\', Path.DirectorySeparatorChar), true)) {
+				environmentDataXml = XDocument.Load (sr);
+			}
+			return environmentDataXml;
 		}
 
 		public IEnumerable<EDBEnvironment> GenerateLogsearchEnvironmentDiagram ()
 		{
-            XDocument environmentDataXml;
-            //Use StreamReader to autodetect file encoding - http://stackoverflow.com/a/4569093/13238
-            using (StreamReader sr = new StreamReader(_environmentWatchElement.DataFile.Replace('\\', Path.DirectorySeparatorChar), true))
-            {
-                environmentDataXml = XDocument.Load(sr);
-            }
+            var environmentDataXml = LoadEDBXml ();
 
 			/* NB Note how we force LINQ evaluation for each query by calling ToArray().  
 			 * Without this data seems to get duplicated.

@@ -81,22 +81,28 @@ namespace LogsearchShipper.Core.Tests
         }
 
 		[Test]
-		public void ShouldHaveEDBFileWatchWithServerGroupNamesAttribute()
+		public void ShouldHaveEDBFileWatchWithFieldsWithKeyAndValue()
 		{
-			Assert.AreEqual("DMZ|APP", _logsearchShipper.EDBFileWatchers[0].NetworkAreas);
+			Assert.AreEqual("edb_key/subkey", _logsearchShipper.EDBFileWatchers[0].Fields[0].Key);
+			Assert.AreEqual("edb_value/subvalue", _logsearchShipper.EDBFileWatchers[0].Fields[0].Value);
+		}
+
+		[Test]
+		public void ShouldHaveEDBFileWatchWithNetworkAreasAttribute()
+		{
+			Assert.AreEqual("DMZ|APP", _logsearchShipper.EDBFileWatchers[1].NetworkAreas);
+		}
+
+		[Test]
+		public void ShouldHaveEDBFileWatchWithServerNamesAttribute()
+		{
+			Assert.AreEqual("(.*01|.*02)", _logsearchShipper.EDBFileWatchers[1].ServerNames);
 		}
 
 		[Test]
 		public void ShouldHaveEDBFileWatchWithServiceNamesAttribute()
 		{
-			Assert.AreEqual("nolio.*", _logsearchShipper.EDBFileWatchers[0].ServiceNames);
-		}
-
-		[Test]
-		public void ShouldHaveEDBFileWatchWithFieldsWithKeyAndValue()
-		{
-			Assert.AreEqual("edb_key/subkey", _logsearchShipper.EDBFileWatchers[0].Fields[0].Key);
-			Assert.AreEqual("edb_value/subvalue", _logsearchShipper.EDBFileWatchers[0].Fields[0].Value);
+			Assert.AreEqual("nolio.*", _logsearchShipper.EDBFileWatchers[1].ServiceNames);
 		}
 
 	}
