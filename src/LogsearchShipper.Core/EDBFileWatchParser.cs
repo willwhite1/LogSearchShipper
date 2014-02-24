@@ -57,16 +57,17 @@ namespace LogsearchShipper.Core
 			var environmentDataXml = LoadEDBXml ();
 
 			var servers = from server in environmentDataXml.Descendants ("Servers").Descendants ("Server")
-			              where server.Element ("Name").Value.ToString().RegExContains(_environmentWatchElement.ServerNames)
-			              && server.Element ("NetworkArea").Value.ToString().RegExContains(_environmentWatchElement.NetworkAreas)
+			              where server.Element ("Name").Value.RegExContains(_environmentWatchElement.ServerNames)
+			              && server.Element ("NetworkArea").Value.RegExContains(_environmentWatchElement.NetworkAreas)
 			              select new {
-								Name = server.Element ("Name").Value.ToString(),
-								NetworkArea = server.Element ("NetworkArea").Value.ToString(),
+								Name = server.Element ("Name").Value,
+								NetworkArea = server.Element ("NetworkArea").Value,
 								Services = 	from service in server.Descendants ("Services").Descendants ("Entity")
-					                        where service.Element ("Name").Value.ToString().RegExContains(_environmentWatchElement.ServiceNames)
+					                        where service.Element ("Name").Value.RegExContains(_environmentWatchElement.ServiceNames)
+                                            && !service.Element("LogPathType").IsEmpty  //Don't ship logs without a type
 				                           //TODO:  Also extract LogPath1 and LogPath2 	
 				                           select new {
-												Name = service.Element ("Name").Value.ToString(),
+												Name = service.Element ("Name").Value,
 												LogFile = service.Element ("LogPath").Value,
 												LogType = service.Element ("LogPathType").Value
 											}
