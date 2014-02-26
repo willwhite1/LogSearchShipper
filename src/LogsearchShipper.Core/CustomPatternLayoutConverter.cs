@@ -30,11 +30,15 @@ namespace LogsearchShipper.Core
                     Exception = loggingEvent.ExceptionObject
                 });
             }
-            else if (loggingEvent.MessageObject != null)
+            else if (loggingEvent.MessageObject.GetType() != typeof(string))
+            {
+                json = JsonConvert.SerializeObject(loggingEvent.MessageObject, Formatting.None);
+            }
+            else
             {
                 json = JsonConvert.SerializeObject(new
                 {
-                    Message = loggingEvent.RenderedMessage != null ? loggingEvent.MessageObject : loggingEvent.RenderedMessage
+                    Message = loggingEvent.RenderedMessage
                 }, Formatting.None);
             }
 
