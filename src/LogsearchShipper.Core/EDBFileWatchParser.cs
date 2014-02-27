@@ -64,15 +64,14 @@ namespace LogsearchShipper.Core
 								NetworkArea = server.Element ("NetworkArea").Value,
 								Services = 	from service in server.Descendants ("Services").Descendants ("Entity")
 					                        where service.Element ("Name").Value.RegExContains(_environmentWatchElement.ServiceNames)
-                                            && !service.Element("LogPathType").IsEmpty  //Don't ship logs without a type
+                                            && (string)service.Elements("LogPathType").FirstOrDefault() != String.Empty  //Don't ship logs without a type
 				                           //TODO:  Also extract LogPath1 and LogPath2 	
 				                           select new {
 												Name = service.Element ("Name").Value,
-												LogFile = service.Element ("LogPath").Value,
-												LogType = service.Element ("LogPathType").Value
+												LogFile = (string)service.Elements("LogPath").FirstOrDefault(),
+												LogType = (string)service.Elements("LogPathType").FirstOrDefault()
 											}
 			};
-
 
 			var watches = new List<FileWatchElement> ();
 			foreach (var server in servers) {
