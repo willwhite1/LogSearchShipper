@@ -116,12 +116,6 @@ namespace LogsearchShipper.Core
 			 * Without this data seems to get duplicated.
 			 */
 
-			var environments = (from server in environmentDataXml.Descendants ("Servers").Descendants("Server")
-								select new EDBEnvironment {
-									Name = server.Element("Environment").Value
-								}
-			).Distinct (new EDBEnvironmentComparer()).ToArray ();
-
 			var networkAreas = (from server in environmentDataXml.Descendants ("Servers").Descendants("Server")
 			                    select new {
 									Name = server.Element("NetworkArea").Value
@@ -140,20 +134,21 @@ namespace LogsearchShipper.Core
 											select service
 				}).Distinct ().ToArray ();
 
-			var environmentHierarchy = from environment in environments
-			    select new EDBEnvironment
-				{
-					Name = environment.Name,
-					ServerGroups = from serverGroup in networkAreas
-						select new
-						{
-							serverGroup.Name,
-							Servers = from server in servers
-						              where server.Environment == environment.Name
-					                  && server.NetworkArea == serverGroup.Name
-					                  select server
-						}
-				};
+		    var environmentHierarchy = new List<EDBEnvironment>
+		    {
+		        new EDBEnvironment
+		        {
+		            Name = environmentDataXml.Element("Environment").Element("Name").Value,
+		            ServerGroups = from serverGroup in networkAreas
+		                select new
+		                {
+		                    serverGroup.Name,
+		                    Servers = from server in servers
+		                        where server.NetworkArea == serverGroup.Name
+		                        select server
+		                }
+		        }
+		    };
 
 			return environmentHierarchy.ToArray ();
 		}
