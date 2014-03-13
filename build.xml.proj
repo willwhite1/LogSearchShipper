@@ -50,7 +50,9 @@
 			<PackageExclude Include="**\*vshost.exe*" />  
 			<PackageExclude Include="**\*.log*" />  
 			<PackageExclude Include="bin\SampleData\**" />  
-			<PackageExclude Include="**\*.Tests.*" /> 			  
+			<PackageExclude Include="**\*.Tests.*" /> 		
+			<PackageExclude Include="**\nunit.framework.*" /> 
+			<PackageExclude Include="**\*.exe.config" /> 
 	  	</ItemGroup>   
 
 		<ItemGroup>

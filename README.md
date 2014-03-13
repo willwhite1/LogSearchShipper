@@ -1,31 +1,15 @@
 ## logsearch-shipper.NET 
 
-A Windows optimised shipper for getting logs into Logsearch.
+A Windows optimised shipper for getting logs into your Logsearch cluster
 
-Currenty this is just a wrapper aroung the Go elasticsearch/logstash-forwarder that adds .NET style config 
-and the ability to run as a Windows Service.
+### Installing
 
-_NB:  This (currently) only supports Windows.  Run the native elasticsearch/logstash-forwarder on other platforms_
+* Download latest builds from from http://ci-logsearch-shipper.s3-website-eu-west-1.amazonaws.com/
+* Unzip into a new folder
 
 ### Config
 
-Edit `LogsearchShipper.Service.exe.config` and configure the `LogsearchShipperGroup` to point at the files you want shipped.
-
-```xml
-  <LogsearchShipperGroup>
-    <LogsearchShipper servers="ingestor.example.com:5043" ssl_ca="C:\Logs\mycert.crt" timeout="23">
-      <fileWatchers>
-       <watch files="myfile.log" type="myfile_type">
-          <field key="field1" value="field1 value" />
-          <field key="field2" value="field2 value" />
-        </watch>
-        <watch files="C:\Logs\myfile.log" type="type/subtype">
-          <field key="key/subkey" value="value/subvalue" />
-        </watch>
-      </fileWatchers>
-    </LogsearchShipper>
-  </LogsearchShipperGroup>
- ```
+Rename `LogsearchShipper.Service.exe.config.SAMPLE` to `LogsearchShipper.Service.exe.config` and configure the `LogsearchShipperGroup` to point at the files you want shipped.
 
 #### Running from the Command line 
 
