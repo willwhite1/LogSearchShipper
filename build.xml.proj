@@ -36,8 +36,14 @@
 	<PropertyGroup>
 		<BUILD_VERSION>dev</BUILD_VERSION>
 	</PropertyGroup>
-	<UsingTask AssemblyFile="$(SolutionDir)\packages\MSBuildTasks.1.4.0.65\tools\MSBuild.Community.Tasks.dll" TaskName="MSBuild.Community.Tasks.Zip" />
+	<UsingTask AssemblyFile="tools\MSBuildTasks.1.4.0.65\tools\MSBuild.Community.Tasks.dll" TaskName="MSBuild.Community.Tasks.Zip" />
+
 	<Target Name="Package">
+
+		<Message Text="Installing MSBuildCommunityTasks" />
+		<Exec Command="$(NuGetCommand) install MSBuildTasks -Version 1.4.0.65 -OutputDirectory tools"/>
+
+		<Message Text="Packaging binaries into ZIP" />
 		<ItemGroup>  
 			<PackageExclude Include="**\*.mdb" />  
 			<PackageExclude Include="**\*.pdb" />  
