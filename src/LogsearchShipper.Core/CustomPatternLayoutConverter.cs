@@ -22,13 +22,27 @@ namespace LogsearchShipper.Core
 		protected override void Convert(TextWriter writer, log4net.Core.LoggingEvent loggingEvent)
 		{
 			var json = string.Empty;
-			if (loggingEvent.ExceptionObject != null) {
-				json = JsonConvert.SerializeObject (new { Message = loggingEvent.MessageObject, Exception = loggingEvent.ExceptionObject });
-			} else {
-				json = JsonConvert.SerializeObject (loggingEvent.MessageObject, Newtonsoft.Json.Formatting.None);
-			}
+		    if (loggingEvent.ExceptionObject != null)
+		    {
+                json = JsonConvert.SerializeObject(new
+                {
+                    Message = loggingEvent.RenderedMessage,
+                    Exception = loggingEvent.ExceptionObject
+                });
+            }
+            else if (loggingEvent.MessageObject.GetType() != typeof(string))
+            {
+                json = JsonConvert.SerializeObject(loggingEvent.MessageObject, Formatting.None);
+            }
+            else
+            {
+                json = JsonConvert.SerializeObject(new
+                {
+                    Message = loggingEvent.RenderedMessage
+                }, Formatting.None);
+            }
 
-			writer.Write(json.Trim(new [] { '{','}'}));
+		    writer.Write(json.Trim(new [] { '{','}'}));
 		}
 	}
 

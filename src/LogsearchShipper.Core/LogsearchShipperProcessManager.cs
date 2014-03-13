@@ -295,12 +295,26 @@ namespace LogsearchShipper.Core
             _log.DebugFormat("Running {0} {1}", GoLogsearchShipperFile, startInfo.Arguments);
 			_process = Process.Start(startInfo);
 
-            _process.OutputDataReceived += (s, e) => _logLogstashForwarder.Info(e.Data);
+	        _process.OutputDataReceived += LogGoLogstashForwarderOutput;
 			_process.BeginOutputReadLine();
 
-            _process.ErrorDataReceived += (s, e) => _logLogstashForwarder.Info(e.Data);
+            _process.ErrorDataReceived += LogGoLogstashForwarderOutput;
 			_process.BeginErrorReadLine();
 		}
+
+	    private void LogGoLogstashForwarderOutput(object s, DataReceivedEventArgs e)
+	    {
+	        if (e.Data == null) return;
+
+            if (e.Data.Contains("Registrar received"))
+	        {
+	            _logLogstashForwarder.Debug(e.Data);
+	        }
+	        else
+	        {
+	            _logLogstashForwarder.Info(e.Data);
+	        }
+	    }
 	}
 }
 

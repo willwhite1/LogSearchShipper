@@ -73,5 +73,29 @@
       <PorV>Virtual</PorV>
       <Services />
     </Server>
+    <Server>
+      <Name>PKH-ENV2-SHARED01</Name>
+      <Description>A server that also appears in the ENV2 environment</Description>
+      <Domain>cityindex.co.uk</Domain>
+      <Environment>ENV2</Environment>
+      <NetworkArea>APP</NetworkArea>
+      <PorV>Virtual</PorV>
+      <Services>
+        <Entity xsi:type="WindowsService">
+          <Name>nolioagent2</Name>
+          <ServiceName>Nolio Agent 2.0</ServiceName>
+          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+          <BundlePath />
+          <LogPath>\\PKH-ENV2-SHARED01\Logs\Nolio\all.log</LogPath>
+          <LogPathType>log4j</LogPathType>
+          <LogPath1 />
+          <LogPath1Type />
+          <LogPath2 />
+          <LogPath2Type />
+          <SystemArea>CORE</SystemArea>
+          <State>running</State>
+        </Entity>
+      </Services>
+    </Server>
   </Servers>
 </Environment>

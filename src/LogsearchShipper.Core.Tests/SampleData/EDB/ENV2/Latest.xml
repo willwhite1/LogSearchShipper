@@ -10,7 +10,22 @@
       <Environment>STG</Environment>
       <NetworkArea>APP</NetworkArea>
       <PorV>Virtual</PorV>
-      <Services />
+      <Services>
+        <Entity xsi:type="WindowsService">
+          <Name>nolioagent2</Name>
+          <ServiceName>Nolio Agent 2.0</ServiceName>
+          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+          <BundlePath />
+          <LogPath>\\PKH-STG-EKDBQAT\Logs\Nolio\all.log</LogPath>
+          <LogPathType>log4j</LogPathType>
+          <LogPath1 />
+          <LogPath1Type />
+          <LogPath2 />
+          <LogPath2Type />
+          <SystemArea>CORE</SystemArea>
+          <State>running</State>
+        </Entity>
+      </Services>
     </Server>
     <Server>
       <Name>PKH-STG-WEB01</Name>
@@ -27,9 +42,23 @@
           <BinaryPath>D:\websites\edb.cityindex.co.uk</BinaryPath>
           <LogPath>\\PKH-STG-WEB01\Logs\EDBDataSerializer</LogPath>
           <LogPathType />
-          <LogPath1>\\PKH-STG-WEB01\</LogPath1>
+          <LogPath1 />
           <LogPath1Type />
-          <LogPath2>\\PKH-STG-WEB01\</LogPath2>
+          <LogPath2 />
+          <LogPath2Type />
+          <SystemArea>CORE</SystemArea>
+          <State>running</State>
+        </Entity>
+		<Entity xsi:type="WindowsService">
+          <Name>nolioagent2</Name>
+          <ServiceName>Nolio Agent 2.0</ServiceName>
+          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+          <BundlePath />
+          <LogPath>\\PKH-STG-WEB01\Logs\Nolio\all.log</LogPath>
+          <LogPathType>log4j</LogPathType>
+          <LogPath1 />
+          <LogPath1Type />
+          <LogPath2 />
           <LogPath2Type />
           <SystemArea>CORE</SystemArea>
           <State>running</State>
@@ -43,25 +72,70 @@
       <Environment>STG</Environment>
       <NetworkArea>APP</NetworkArea>
       <PorV>Virtual</PorV>
-      <Services />
+      <Services>
+        <Entity xsi:type="WindowsService">
+          <Name>nolioagent2</Name>
+          <ServiceName>Nolio Agent 2.0</ServiceName>
+          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+          <BundlePath />
+          <LogPath>\\PKH-STG-PRICE01\Logs\Nolio\all.log</LogPath>
+          <LogPathType>log4j</LogPathType>
+          <LogPath1 />
+          <LogPath1Type />
+          <LogPath2 />
+          <LogPath2Type />
+          <SystemArea>CORE</SystemArea>
+          <State>running</State>
+        </Entity>
+      </Services>
     </Server>
     <Server>
-      <Name>PKH-STG-EXP</Name>
+      <Name>PKH-STG-EXP01</Name>
       <Description>Experian</Description>
       <Domain>cityindex.co.uk</Domain>
       <Environment>STG</Environment>
       <NetworkArea>APP</NetworkArea>
       <PorV>Virtual</PorV>
-      <Services />
+      <Services>
+        <Entity xsi:type="WindowsService">
+          <Name>nolioagent2</Name>
+          <ServiceName>Nolio Agent 2.0</ServiceName>
+          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+          <BundlePath />
+          <LogPath>\\PKH-STG-EXP01\Logs\Nolio\all.log</LogPath>
+          <LogPathType>log4j</LogPathType>
+          <LogPath1 />
+          <LogPath1Type />
+          <LogPath2 />
+          <LogPath2Type />
+          <SystemArea>CORE</SystemArea>
+          <State>running</State>
+        </Entity>
+      </Services>
     </Server>
     <Server>
-      <Name>PKH-STG-EKWBDEV</Name>
+      <Name>PKH-STG-WEB02</Name>
       <Description>Ektron Dev Web</Description>
       <Domain>cityindex.co.uk</Domain>
       <Environment>STG</Environment>
       <NetworkArea>APP</NetworkArea>
       <PorV>Virtual</PorV>
-      <Services />
+      <Services>
+        <Entity xsi:type="WindowsService">
+          <Name>nolioagent2</Name>
+          <ServiceName>Nolio Agent 2.0</ServiceName>
+          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+          <BundlePath />
+          <LogPath>\\PKH-STG-WEB02\Logs\Nolio\all.log</LogPath>
+          <LogPathType>log4j</LogPathType>
+          <LogPath1 />
+          <LogPath1Type />
+          <LogPath2 />
+          <LogPath2Type />
+          <SystemArea>CORE</SystemArea>
+          <State>running</State>
+        </Entity>
+      </Services>
     </Server>
     <Server>
       <Name>PKH-STG-EKDBDEV</Name>
@@ -70,7 +144,22 @@
       <Environment>STG</Environment>
       <NetworkArea>DB</NetworkArea>
       <PorV>Virtual</PorV>
-      <Services />
+      <Services>
+        <Entity xsi:type="WindowsService">
+          <Name>nolioagent2</Name>
+          <ServiceName>Nolio Agent 2.0</ServiceName>
+          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+          <BundlePath />
+          <LogPath>\\PKH-STG-EKDBDEV\Logs\Nolio\all.log</LogPath>
+          <LogPathType>log4j</LogPathType>
+          <LogPath1 />
+          <LogPath1Type />
+          <LogPath2 />
+          <LogPath2Type />
+          <SystemArea>CORE</SystemArea>
+          <State>running</State>
+        </Entity>
+      </Services>
     </Server>
     <Server>
       <Name>PKH-STG-EKWBQAT</Name>
@@ -79,7 +168,22 @@
       <Environment>STG</Environment>
       <NetworkArea>APP</NetworkArea>
       <PorV>Virtual</PorV>
-      <Services />
+      <Services>
+        <Entity xsi:type="WindowsService">
+          <Name>nolioagent2</Name>
+          <ServiceName>Nolio Agent 2.0</ServiceName>
+          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+          <BundlePath />
+          <LogPath>\\PKH-STG-EKWBQAT\Logs\Nolio\all.log</LogPath>
+          <LogPathType>log4j</LogPathType>
+          <LogPath1 />
+          <LogPath1Type />
+          <LogPath2 />
+          <LogPath2Type />
+          <SystemArea>CORE</SystemArea>
+          <State>running</State>
+        </Entity>
+      </Services>
     </Server>
   </Servers>
 </Environment>
