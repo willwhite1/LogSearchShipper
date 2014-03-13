@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <Configuration>Release</Configuration>
-    <Platform>Any CPU</Platform>
-    <SolutionDir>src\</SolutionDir>
-  </PropertyGroup>
 
-	<Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-
-  <Target Name="Build">
-    <MSBuild Projects="src/LogsearchShipper.sln" Targets="Rebuild" 
-             Properties="Configuration=$(Configuration);Platform=$(Platform)" />
-  </Target>
+<!-- /t:Build -->
 
 	<PropertyGroup>
-        <NUnitCommand Condition=" '$(OS)' == 'Windows_NT'">"tools\NUnit.Runners.lite.2.6.3.20131019\nunit-console.exe"</NUnitCommand>
-        <NUnitCommand Condition=" '$(OS)' != 'Windows_NT' ">mono --runtime=v4.0.30319 tools/NUnit.Runners.lite.2.6.3.20131019/nunit-console.exe</NUnitCommand>
+		<Configuration>Release</Configuration>
+		<Platform>Any CPU</Platform>
+		<SolutionDir>src\</SolutionDir>
+	</PropertyGroup>
+
+	<Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+	<Target Name="Build">
+		<MSBuild Projects="src/LogsearchShipper.sln" Targets="Rebuild" 
+				 Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+	</Target>
+
+<!-- /t:RunTests -->
+
+	<PropertyGroup>
+		<NUnitCommand Condition=" '$(OS)' == 'Windows_NT'">"tools\NUnit.Runners.lite.2.6.3.20131019\nunit-console.exe"</NUnitCommand>
+		<NUnitCommand Condition=" '$(OS)' != 'Windows_NT' ">mono --runtime=v4.0.30319 tools/NUnit.Runners.lite.2.6.3.20131019/nunit-console.exe</NUnitCommand>
 	</PropertyGroup>
 	<ItemGroup>
 		<TestAssembly Include="bin\*.Tests.dll" />
@@ -27,4 +31,29 @@
 		<Exec Command="$(NUnitCommand) @(TestAssembly) -result=TestResults.xml"/>
 	</Target>
 
+<!-- /t:Package /p:BUILD_VERSION=42 -->
+
+	<PropertyGroup>
+		<BUILD_VERSION>dev</BUILD_VERSION>
+	</PropertyGroup>
+	<UsingTask AssemblyFile="$(SolutionDir)\packages\MSBuildTasks.1.4.0.65\tools\MSBuild.Community.Tasks.dll" TaskName="MSBuild.Community.Tasks.Zip" />
+	<Target Name="Package">
+		<ItemGroup>  
+			<PackageExclude Include="**\*.mdb" />  
+			<PackageExclude Include="**\*.pdb" />  
+			<PackageExclude Include="**\*vshost.exe*" />  
+			<PackageExclude Include="**\*.log*" />  
+			<PackageExclude Include="bin\SampleData\**" />  
+			<PackageExclude Include="**\*.Tests.*" /> 			  
+	  	</ItemGroup>   
+
+		<ItemGroup>
+			<PackageFiles Include="bin\**\*.*" Exclude="@(PackageExclude)" />
+		</ItemGroup>
+
+		<Zip Files="@(PackageFiles)"
+		  ZipFileName="logsearch-shipper.NET.v-$(BUILD_VERSION).zip"
+		  WorkingDirectory="bin\"
+		  ZipLevel="9" />
+	</Target>
 </Project>
