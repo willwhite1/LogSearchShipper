@@ -45,22 +45,25 @@
 
 		<Message Text="Packaging binaries into ZIP" />
 		<ItemGroup>  
-			<PackageExclude Include="**\*.mdb" />  
-			<PackageExclude Include="**\*.pdb" />  
-			<PackageExclude Include="**\*vshost.exe*" />  
-			<PackageExclude Include="**\*.log*" />  
+			<PackageExclude Include="bin\*.mdb" />  
+			<PackageExclude Include="bin\*.pdb" />  
+			<PackageExclude Include="bin\*vshost.exe*" />  
+			<PackageExclude Include="bin\*.log*" />  
 			<PackageExclude Include="bin\SampleData\**" />  
-			<PackageExclude Include="**\*.Tests.*" /> 		
-			<PackageExclude Include="**\nunit.framework.*" /> 
-			<PackageExclude Include="**\*.exe.config" /> 
+			<PackageExclude Include="bin\*.Tests.*" /> 		
+			<PackageExclude Include="bin\nunit.framework.*" /> 
+			<PackageExclude Include="bin\*.exe.config" /> 
 	  	</ItemGroup>   
 
 		<ItemGroup>
+			<PackageFilesNoExclude Include="bin\**\*.*" />
 			<PackageFiles Include="bin\**\*.*" Exclude="@(PackageExclude)" />
 		</ItemGroup>
 
-		<Message Text="@(PackageFiles)" />
-		
+		<Message Text="PackageFilesNoExclude: @(PackageFilesNoExclude)" />
+		<Message Text="PackageExclude: @(PackageExclude)" />
+		<Message Text="PackageFiles: @(PackageFiles)" />
+
 		<Zip Files="@(PackageFiles)"
 		  ZipFileName="logsearch-shipper.NET.v-$(BUILD_VERSION).zip"
 		  WorkingDirectory="bin\"
