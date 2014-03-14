@@ -59,6 +59,8 @@
 			<PackageFiles Include="bin\**\*.*" Exclude="@(PackageExclude)" />
 		</ItemGroup>
 
+		<Message Text="@(PackageFiles)" />
+		
 		<Zip Files="@(PackageFiles)"
 		  ZipFileName="logsearch-shipper.NET.v-$(BUILD_VERSION).zip"
 		  WorkingDirectory="bin\"
