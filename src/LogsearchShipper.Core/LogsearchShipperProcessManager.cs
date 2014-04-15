@@ -285,7 +285,7 @@ namespace LogsearchShipper.Core
 		{
 			var startInfo = new ProcessStartInfo(GoLogsearchShipperFile)
 			{
-                Arguments = "-from-beginning=true -config " + ConfigFile,
+                Arguments = "-from-beginning=false -config " + ConfigFile,
 				UseShellExecute = false,
 				RedirectStandardInput = true,
 				RedirectStandardOutput = true,
