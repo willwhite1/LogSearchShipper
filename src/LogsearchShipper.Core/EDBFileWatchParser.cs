@@ -64,12 +64,14 @@ namespace LogsearchShipper.Core
 								NetworkArea = server.Element ("NetworkArea").Value,
 								Services = 	from service in server.Descendants ("Services").Descendants ("Entity")
 					                        where service.Element ("Name").Value.RegExContains(_environmentWatchElement.ServiceNames)
-                                            && (string)service.Elements("LogPathType").FirstOrDefault() != String.Empty  //Don't ship logs without a type
-				                           //TODO:  Also extract LogPath1 and LogPath2 	
-				                           select new {
+				                            select new {
 												Name = service.Element ("Name").Value,
 												LogFile = (string)service.Elements("LogPath").FirstOrDefault(),
-												LogType = (string)service.Elements("LogPathType").FirstOrDefault()
+												LogType = (string)service.Elements("LogPathType").FirstOrDefault(),
+                                                LogFile1 = (string)service.Elements("LogPath1").FirstOrDefault(),
+                                                LogType1 = (string)service.Elements("LogPathType1").FirstOrDefault(),
+                                                LogFile2 = (string)service.Elements("LogPath2").FirstOrDefault(),
+                                                LogType2 = (string)service.Elements("LogPathType2").FirstOrDefault()
 											}
 			};
 
@@ -83,22 +85,46 @@ namespace LogsearchShipper.Core
 					foreach (FieldElement field in _environmentWatchElement.Fields) {
 						fields.Add (field);
 					}
-					watches.Add (new FileWatchElement { 
-						Files = service.LogFile, 
-						Type = service.LogType, 
-						Fields = fields
-					});
-					_log.DebugFormat ("Added file watch from EDB: {0} ({1}) => Matched NetworkArea:{2} ~= {3}, ServerName:{4} ~= {5}, ServiceName:{6} ~= {7}",
-						service.LogFile, service.LogType,
-						server.NetworkArea, _environmentWatchElement.NetworkAreas,
-						server.Name, _environmentWatchElement.ServerNames,
-						service.Name, _environmentWatchElement.ServiceNames);
+
+                    AddFileWatchElementForLogFile(service.LogFile, service.LogType, watches, fields, server.NetworkArea, server.Name, service.Name); 
+                    AddFileWatchElementForLogFile(service.LogFile1, service.LogType1, watches, fields, server.NetworkArea, server.Name, service.Name); 
+                    AddFileWatchElementForLogFile(service.LogFile2, service.LogType2, watches, fields, server.NetworkArea, server.Name, service.Name); 
 				}
 			}
 			return watches;
 		}
 
-		private XDocument LoadEDBXml ()
+	    private void AddFileWatchElementForLogFile(string logFile, string logType, 
+            ICollection<FileWatchElement> watches, FieldCollection fields, 
+            string serverNetworkArea, string serverName, string serviceName)
+	    {
+	        if (!string.IsNullOrEmpty(logType) && !string.IsNullOrWhiteSpace(logType)) //Don't ship logs without a type or with an empty type
+	        {
+	            watches.Add(new FileWatchElement
+	            {
+	                Files = logFile,
+	                Type = logType,
+	                Fields = fields
+	            });
+	            _log.DebugFormat(
+	                "Added file watch from EDB: {0} ({1}) => Matched NetworkArea:{2} ~= {3}, ServerName:{4} ~= {5}, ServiceName:{6} ~= {7}",
+	                logFile, logType,
+	                serverNetworkArea, _environmentWatchElement.NetworkAreas,
+	                serverName, _environmentWatchElement.ServerNames,
+	                serviceName, _environmentWatchElement.ServiceNames);
+	        }
+	        else
+	        {
+	            if (!string.IsNullOrEmpty(logFile))
+	            {
+                    _log.DebugFormat(
+                        "Ignored file watch from EDB because it has an empty type: {0} ({1})",
+                        logFile, logType);
+	            }
+	        }
+	    }
+
+	    private XDocument LoadEDBXml ()
 		{
 			XDocument environmentDataXml;
 			//Use StreamReader to autodetect file encoding - http://stackoverflow.com/a/4569093/13238

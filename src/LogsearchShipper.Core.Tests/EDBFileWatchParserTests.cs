@@ -41,11 +41,11 @@ namespace LogsearchShipper.Core.Tests
 			var edbFileWatchParser = new EDBFileWatchParser (config.EDBFileWatchers [1]); 
 			var fileWatches = edbFileWatchParser.ToFileWatchCollection ();
 
-			Assert.AreEqual (4, fileWatches.Count, "edbFileWatch filters not working correctly");
+			Assert.AreEqual (6, fileWatches.Count, "edbFileWatch filters not working correctly");
 
 			Assert.AreEqual ("\\\\PKH-STG-WEB01\\Logs\\Nolio\\all.log", fileWatches [0].Files);
 			Assert.AreEqual ("log4j", fileWatches [0].Type);
-
+            
             Assert.AreEqual("@shipper.host", fileWatches[0].Fields[0].Key);
             Assert.AreEqual(Environment.MachineName, fileWatches[0].Fields[0].Value);
 
@@ -57,6 +57,12 @@ namespace LogsearchShipper.Core.Tests
 
 			Assert.AreEqual ("@environment", fileWatches [0].Fields[3].Key);
 			Assert.AreEqual ("ENV2", fileWatches [0].Fields[3].Value);
+
+            Assert.AreEqual("\\\\PKH-STG-WEB01\\Logs\\Nolio\\include1.log", fileWatches[1].Files);
+            Assert.AreEqual("log4j1", fileWatches[1].Type);
+
+            Assert.AreEqual("\\\\PKH-STG-PRICE01\\Logs\\Nolio\\include2.log", fileWatches[3].Files);
+            Assert.AreEqual("log4j2", fileWatches[3].Type);
 		}
 	}
 }
