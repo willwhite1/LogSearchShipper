@@ -153,6 +153,7 @@ namespace LogsearchShipper.Core
 			               select new {
 								Name = server.Element ("Name").Value,
 								Description = (string)server.Elements("Description").FirstOrDefault(),
+                                Tags = (string)server.Elements("Tags").FirstOrDefault(),
 								Domain = server.Element ("Domain").Value,
 								Environment = server.Element ("Environment").Value,
 								NetworkArea = server.Element ("NetworkArea").Value,
