@@ -69,9 +69,9 @@ namespace LogsearchShipper.Core
 												LogFile = (string)service.Elements("LogPath").FirstOrDefault(),
 												LogType = (string)service.Elements("LogPathType").FirstOrDefault(),
                                                 LogFile1 = (string)service.Elements("LogPath1").FirstOrDefault(),
-                                                LogType1 = (string)service.Elements("LogPathType1").FirstOrDefault(),
+                                                LogType1 = (string)service.Elements("LogPath1Type").FirstOrDefault(),
                                                 LogFile2 = (string)service.Elements("LogPath2").FirstOrDefault(),
-                                                LogType2 = (string)service.Elements("LogPathType2").FirstOrDefault()
+                                                LogType2 = (string)service.Elements("LogPath2Type").FirstOrDefault()
 											}
 			};
 

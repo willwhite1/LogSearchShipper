@@ -57,7 +57,7 @@
           <LogPath>\\PKH-STG-WEB01\Logs\Nolio\all.log</LogPath>
           <LogPathType>log4j</LogPathType>
           <LogPath1>\\PKH-STG-WEB01\Logs\Nolio\include1.log</LogPath1>
-          <LogPathType1>log4j1</LogPathType1>
+          <LogPath1Type>log4j1</LogPath1Type>
           <LogPath2>\\PKH-STG-WEB01\Logs\Nolio\ignore-whitespace-type.log</LogPath2>
           <LogPath2Type>  </LogPath2Type>
           <SystemArea>CORE</SystemArea>
@@ -83,7 +83,7 @@
           <LogPath1>\\PKH-STG-PRICE01\Logs\Nolio\ignore-null-type.log</LogPath1>
           <LogPath1Type />
           <LogPath2>\\PKH-STG-PRICE01\Logs\Nolio\include2.log</LogPath2>
-          <LogPathType2>log4j2</LogPathType2>
+          <LogPath2Type>log4j2</LogPath2Type>
           <SystemArea>CORE</SystemArea>
           <State>running</State>
         </Entity>
