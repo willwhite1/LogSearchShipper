@@ -13,32 +13,12 @@
   </configSections>
 
   <LogsearchShipperGroup>
-    <LogsearchShipper servers="ingestor.example.com:5043" ssl_ca="C:\Logs\mycert.crt" timeout="23">
+    <LogsearchShipper servers="ingestor.cityindex.logsearch.io:443" ssl_ca="C:\Keys\ingestor.cityindex.logsearch.io.crt" timeout="23">
       <fileWatchers>
-       <watch files="myfile.log" type="myfile_type">
-          <field key="field1" value="field1 value" />
-          <field key="field2" value="field2 value" />
-        </watch>
-        <watch files="C:\Logs\myfile.log" type="type/subtype">
-          <field key="key/subkey" value="value/subvalue" />
+        <watch files="DummyServiceWithLogRolling.log" type="plain">
+          <field key="@environment" value="TEST" />
         </watch>
       </fileWatchers>
-      <edbFileWatchers>
-        <watch
-	        dataFile="SampleData\EDB\ENV1\Latest.xml"
-            logEnvironmentDiagramDataEveryMinutes="42"
-	    >
-          <field key="edb_key/subkey" value="edb_value/subvalue" />
-        </watch>
-		<watch
-	        dataFile="SampleData\EDB\ENV2\Latest.xml"
-	        networkAreas="DMZ|APP"
-	        serverNames="(.*01|.*02)"
-	        serviceNames="nolio.*" 
-	    >
-          <field key="@environment" value="ENV2" />
-        </watch>
-      </edbFileWatchers>
     </LogsearchShipper>
   </LogsearchShipperGroup>
 
@@ -103,5 +83,5 @@
       <appender-ref ref="RollingFileAppender" />
     </root>
   </log4net>
-  
+
 </configuration>
