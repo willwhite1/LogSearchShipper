@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Management;
 using NUnit.Framework;
 
 namespace IntegrationTests
@@ -35,10 +36,6 @@ namespace IntegrationTests
             }
             finally
             {
-                //TODO:  Fix shutdown process - seems to leave rogue processes:
-                // * DummyServiceWithLogRolling.exe
-                // * LogsearchShipper.Service.exe
-                // * tmp????.tmp-go-logstash-forwarder.exe
                 ShutdownProcess(shipper);
                 ShutdownProcess(processWithLogFileRolling);
                 
@@ -58,18 +55,40 @@ namespace IntegrationTests
             return process;
         }
 
-        private void ShutdownProcess(Process _process)
+        private void ShutdownProcess(Process process)
         {
-            if (_process == null) return;
+            if (process == null) return;
 
-            _process.StandardInput.Close(); // send Ctrl-C to logstash-forwarder so it can clean up
-            _process.CancelOutputRead();
-            _process.WaitForExit(5 * 1000);
-            if (!_process.HasExited)
+            process.StandardInput.Close(); // send Ctrl-C to logstash-forwarder so it can clean up
+            process.CancelOutputRead();
+            process.WaitForExit(5 * 1000);
+            if (!process.HasExited)
             {
-                _process.Kill();
+                KillProcessAndChildren(process.Id);
             }
         }
+
+        private static void KillProcessAndChildren(int pid)
+        {
+            var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
+            var moc = searcher.Get();
+            foreach (var cur in moc)
+            {
+                var mo = (ManagementObject)cur;
+                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
+            }
+
+            try
+            {
+                var proc = Process.GetProcessById(pid);
+                proc.Kill();
+            }
+            catch (ArgumentException)
+            {
+                // Process has already exited
+            }
+        }
+
         private static void DeleteOldLogFiles()
         {
             foreach (FileInfo f in new DirectoryInfo(Environment.CurrentDirectory).GetFiles("DummyServiceWithLogRolling.log.*"))
