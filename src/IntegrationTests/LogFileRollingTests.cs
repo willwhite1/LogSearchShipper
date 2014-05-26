@@ -62,7 +62,7 @@ namespace IntegrationTests
         {
             if (_process == null) return;
 
-            _process.StandardInput.WriteLine(char.ConvertFromUtf32(3)); // send Ctrl-C to logstash-forwarder so it can clean up
+            _process.StandardInput.Close(); // send Ctrl-C to logstash-forwarder so it can clean up
             _process.CancelOutputRead();
             _process.WaitForExit(5 * 1000);
             if (!_process.HasExited)
