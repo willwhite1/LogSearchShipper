@@ -54,6 +54,8 @@
 			<PackageExclude Include="bin\*.Tests.*" /> 		
 			<PackageExclude Include="bin\nunit.framework.*" /> 
 			<PackageExclude Include="bin\*.exe.config" /> 
+			<PackageExclude Include="bin\DummyServiceWithLogRolling.*" /> 
+			<PackageExclude Include="bin\IntegrationTests.*" /> 
 	  	</ItemGroup>   
 
 		<ItemGroup>
