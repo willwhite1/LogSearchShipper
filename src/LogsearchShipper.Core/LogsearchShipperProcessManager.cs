@@ -93,7 +93,7 @@ namespace LogsearchShipper.Core
                 throw new NotSupportedException("LogsearchShipperProcessManager only supports Windows");
 
 			var tempFile = Path.GetTempFileName();
-			var exeFile = tempFile + "-go-logstash-forwarder.exe";
+			var exeFile = String.Format(@"{0}\go-logstash-forwarder-{1}.exe",Path.GetDirectoryName(tempFile), Path.GetFileNameWithoutExtension(tempFile));
             File.Move(tempFile, exeFile);
 
             using (var fStream = new FileStream(exeFile, FileMode.Create))
@@ -240,22 +240,34 @@ namespace LogsearchShipper.Core
 		}
 
 	    public void Stop()
-		{
-			if (_process == null)
-				return;
+	    {
+	        const int waitForGoLogstashForwarderToExitSeconds = 60;
 
-            _process.StandardInput.WriteLine(char.ConvertFromUtf32(3)); // send Ctrl-C to logstash-forwarder so it can clean up
-			_process.WaitForExit (5 * 1000);
+            _log.Info("Stopping and cleaning up go-logstash-forwarder process.");
+
+	        if (_process == null)
+	        {
+                _log.Info("go-logstash-forwarder process doesn't exist - nothing to Stop.");
+                return;
+	        }
+
+	        _log.Info("sending Ctrl-C to go-logstash-forwarder process so it can clean up");
+            _process.StandardInput.WriteLine(char.ConvertFromUtf32(3));
+
+            _log.InfoFormat("Waiting for {0}sec for go-logstash-forwarder process to shut down gracefully", waitForGoLogstashForwarderToExitSeconds);
+            _process.WaitForExit(waitForGoLogstashForwarderToExitSeconds * 1000);
             if (!_process.HasExited)
             {
+                _log.WarnFormat("Killing go-logstash-forwarder process since it didn't exit within {0}sec",waitForGoLogstashForwarderToExitSeconds);
                 _process.Kill();
             }
 
             //TODO:  Figure out why logstash-forwarder isn't doing this cleanup itself.  It must be something to do with the way we're terminating the process above
             if (File.Exists(".logstash-forwarder.new") && File.GetLastWriteTime(".logstash-forwarder.new") > File.GetLastWriteTime(".logstash-forwarder"))
             {
-                File.Copy(".logstash-forwarder", ".logstash-forwarder.old", true);
-                File.Copy(".logstash-forwarder.new", ".logstash-forwarder", true);
+                _log.Warn("go-logstash-forwarder didn't cleaup after itself correctly.");
+                //File.Copy(".logstash-forwarder", ".logstash-forwarder.old", true);
+                //File.Copy(".logstash-forwarder.new", ".logstash-forwarder", true);
             }
            
             //Cleanup
@@ -263,12 +275,14 @@ namespace LogsearchShipper.Core
 	        {
                 System.Threading.Thread.Sleep(TimeSpan.FromMilliseconds(100));
                 File.Delete(GoLogsearchShipperFile);
+                _log.InfoFormat("Deleting {0}", GoLogsearchShipperFile);
 	        }
 	        catch (Exception)
 	        {
                 //Wait a bit more, then try again
 	            try
 	            {
+                    _log.InfoFormat("Failed to delete {0}.  Waiting 1 sec, then trying again", GoLogsearchShipperFile);
                     System.Threading.Thread.Sleep(TimeSpan.FromMilliseconds(1000));
                     File.Delete(GoLogsearchShipperFile);
 	            }
@@ -278,7 +292,8 @@ namespace LogsearchShipper.Core
 	            }
                 
 	        }
-            
+
+            _log.Info("Successfully stopped and cleaned up go-logstash-forwarder process");
 		}
 
 	    private void StartProcess()

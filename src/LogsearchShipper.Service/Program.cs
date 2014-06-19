@@ -6,21 +6,15 @@ namespace LogsearchShipper.Service
 {
 	class MainClass
 	{
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(MainClass));
+
 		public static void Main (string[] args)
 		{
 		    log4net.Config.XmlConfigurator.Configure();
 
             HostFactory.Run(x =>
             {
-                x.Service<LogsearchShipperService>(s =>
-                {
-                    s.ConstructUsing(name => new LogsearchShipperService());
-                    s.WhenStarted(tc =>
-                    {
-                        tc.Start();
-                    });
-                    s.WhenStopped(tc => tc.Stop());
-                });
+                x.Service<LogsearchShipperService>();
                 x.RunAsNetworkService();
                 x.StartAutomatically();
 
@@ -39,18 +33,27 @@ namespace LogsearchShipper.Service
 		}
 	}
 
-    public class LogsearchShipperService
+    public class LogsearchShipperService: ServiceControl
     {
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(LogsearchShipperService));
         private LogsearchShipperProcessManager _LogsearchShipperProcessManager;
-        public void Start()
+
+        public bool Start(HostControl hostControl)
         {
             _LogsearchShipperProcessManager = new LogsearchShipperProcessManager();
             _LogsearchShipperProcessManager.Start();
+
+            return true;
         }
 
-        public void Stop()
+        public bool Stop(HostControl hostControl)
         {
+            
+            _log.Debug("Stop: Calling LogsearchShipperProcessManager.Stop()");
             _LogsearchShipperProcessManager.Stop();
+            _log.Debug("Stop: LogsearchShipperProcessManager.Stop() completed"); 
+           
+            return true;
         }
     }
 }
