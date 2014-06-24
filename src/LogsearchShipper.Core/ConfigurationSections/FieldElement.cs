@@ -8,36 +8,23 @@ namespace LogsearchShipper.Core.ConfigurationSections
 		[ConfigurationProperty("key", IsRequired = true)]
 		public String Key
 		{
-			get
-			{
-				return (String)this["key"];
-			}
-			set
-			{
-				this["key"] = value;
-			}
+			get { return (String) this["key"]; }
+			set { this["key"] = value; }
 		}
 
 		[ConfigurationProperty("value", IsRequired = true)]
 		public String Value
 		{
-			get
-			{
-				return (String)this["value"];
-			}
-			set
-			{
-				this["value"] = value;
-			}
+			get { return (String) this["value"]; }
+			set { this["value"] = value; }
 		}
-
 	}
 
 	public class FieldCollection : ConfigurationElementCollection
 	{
 		public FieldCollection()
 		{
-			var field = (FieldElement)CreateNewElement();
+			var field = (FieldElement) CreateNewElement();
 			if (field.Key != "")
 			{
 				Add(field);
@@ -46,28 +33,12 @@ namespace LogsearchShipper.Core.ConfigurationSections
 
 		public override ConfigurationElementCollectionType CollectionType
 		{
-			get
-			{
-				return ConfigurationElementCollectionType.BasicMap;
-			}
-		}
-
-		protected override ConfigurationElement CreateNewElement()
-		{
-			return new FieldElement();
-		}
-
-		protected override Object GetElementKey(ConfigurationElement element)
-		{
-			return ((FieldElement)element).Key;
+			get { return ConfigurationElementCollectionType.BasicMap; }
 		}
 
 		public FieldElement this[int index]
 		{
-			get
-			{
-				return (FieldElement)BaseGet(index);
-			}
+			get { return (FieldElement) BaseGet(index); }
 			set
 			{
 				if (BaseGet(index) != null)
@@ -78,12 +49,24 @@ namespace LogsearchShipper.Core.ConfigurationSections
 			}
 		}
 
-		new public FieldElement this[string name]
+		public new FieldElement this[string name]
 		{
-			get
-			{
-				return (FieldElement)BaseGet(name);
-			}
+			get { return (FieldElement) BaseGet(name); }
+		}
+
+		protected override string ElementName
+		{
+			get { return "field"; }
+		}
+
+		protected override ConfigurationElement CreateNewElement()
+		{
+			return new FieldElement();
+		}
+
+		protected override Object GetElementKey(ConfigurationElement element)
+		{
+			return ((FieldElement) element).Key;
 		}
 
 		public int IndexOf(FieldElement field)
@@ -95,6 +78,7 @@ namespace LogsearchShipper.Core.ConfigurationSections
 		{
 			BaseAdd(field);
 		}
+
 		protected override void BaseAdd(ConfigurationElement element)
 		{
 			BaseAdd(element, false);
@@ -120,12 +104,5 @@ namespace LogsearchShipper.Core.ConfigurationSections
 		{
 			BaseClear();
 		}
-
-		protected override string ElementName
-		{
-			get { return "field"; }
-		}
 	}
-
-
 }
