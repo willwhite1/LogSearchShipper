@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
+
 using NUnit.Framework;
 
 namespace IntegrationTests
@@ -11,18 +12,25 @@ namespace IntegrationTests
 	[TestFixture]
 	class IntegrationTest
 	{
+		[TestFixtureTearDown]
+		public void TearDown()
+		{
+			StopShipperService();
+		}
+
 		[Test]
 		public void TestIntegration()
 		{
-			_basePath = Path.Combine(Environment.CurrentDirectory, "LogSearchShipper.Test.Logs");
+			_basePath = Path.Combine(Environment.CurrentDirectory, "LogSearchShipper.Test");
 			if (!Directory.Exists(_basePath))
 				Directory.CreateDirectory(_basePath);
 			Cleanup();
 
+			StartShipperService();
+
 			while (_currentIteration < MaxIterationsCount)
 				RunTestIteration();
 		}
-
 
 		private void Cleanup()
 		{
@@ -41,6 +49,8 @@ namespace IntegrationTests
 		void SimpleTest()
 		{
 			var path = GetTestPath("SimpleTest");
+
+			WriteLogFiles(path);
 		}
 
 		private string[] WriteLogFiles(string path)
@@ -74,7 +84,7 @@ namespace IntegrationTests
 			{
 				var id = Guid.NewGuid().ToString();
 				var message = string.Format(
-					"{{\"@timestamp\":\"{0}\",\"message\":\"{1}\",\"group_id\":\"{2}\",\"@source.name\":\"LogSearchShipper.Test\"," + 
+					"{{\"@timestamp\":\"{0}\",\"message\":\"{1}\",\"group_id\":\"{2}\",\"@source.name\":\"LogSearchShipper.Test\"," +
 					"\"logger\":\"Test\",\"level\":\"INFO\"}}",
 					DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), id, _currentIterationId);
 				buf.AppendLine(message);
@@ -83,6 +93,29 @@ namespace IntegrationTests
 			}
 			ids = tmp.ToArray();
 			return buf.ToString();
+		}
+
+		void StartShipperService()
+		{
+			var exeFile = "LogsearchShipper.Service.exe";
+			var exeFileCopy = Path.Combine(_basePath, exeFile);
+			File.Copy(exeFile, exeFileCopy);
+
+			File.Copy("LogsearchShipper.Service.exe.config.ShipDummyService", Path.Combine(_basePath, "LogsearchShipper.Service.exe.config"));
+
+			foreach (var file in Directory.GetFiles(Environment.CurrentDirectory, "*.dll"))
+			{
+				var newFile = Path.Combine(_basePath, Path.GetFileName(file));
+				File.Copy(file, newFile);
+			}
+
+			_shipperProcess = Utils.StartProcess(exeFileCopy, "-instance:integrationtest002");
+		}
+
+		void StopShipperService()
+		{
+			Utils.ShutdownProcess(_shipperProcess);
+			_shipperProcess = null;
 		}
 
 		string GetTestPath(string testName)
@@ -97,6 +130,8 @@ namespace IntegrationTests
 		private string _currentIterationId;
 
 		private string _basePath;
+
+		private Process _shipperProcess;
 
 		private const int MaxIterationsCount = 3;
 		private const int LinesPerFile = 1000;
