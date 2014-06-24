@@ -14,7 +14,7 @@ namespace IntegrationTests
 		[Test]
 		public void TestIntegration()
 		{
-			_basePath = Path.Combine(".", "LogSearchShipper.Test.Logs");
+			_basePath = Path.Combine(Environment.CurrentDirectory, "LogSearchShipper.Test.Logs");
 			if (!Directory.Exists(_basePath))
 				Directory.CreateDirectory(_basePath);
 			Cleanup();
@@ -26,15 +26,7 @@ namespace IntegrationTests
 
 		private void Cleanup()
 		{
-			foreach (var file in Directory.GetFiles(_basePath, "*.*", SearchOption.AllDirectories))
-			{
-				File.Delete(file);
-			}
-
-			foreach (var directory in Directory.GetDirectories(_basePath))
-			{
-				Directory.Delete(directory);
-			}
+			Utils.Cleanup(_basePath);
 		}
 
 		void RunTestIteration()

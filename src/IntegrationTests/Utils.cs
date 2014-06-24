@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Management;
 using System.Text;
@@ -62,6 +63,20 @@ namespace IntegrationTests
 			catch (ArgumentException)
 			{
 				// Process has already exited
+			}
+		}
+
+		public static void Cleanup(string path)
+		{
+			foreach (var file in Directory.GetFiles(path, "*.*"))
+			{
+				File.Delete(file);
+			}
+
+			foreach (var directory in Directory.GetDirectories(path))
+			{
+				Cleanup(directory);
+				Directory.Delete(directory);
 			}
 		}
 	}
