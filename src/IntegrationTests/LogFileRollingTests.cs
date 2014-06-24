@@ -23,8 +23,8 @@ namespace IntegrationTests
             File.Move("LogsearchShipper.Service.exe.config.ShipDummyService", "LogsearchShipper.Service.exe.config");
             try
             {
-                shipper = StartProcess(Environment.CurrentDirectory + @"\LogsearchShipper.Service.exe", "-instance:integrationtest001");
-                processWithLogFileRolling = StartProcess(Environment.CurrentDirectory + @"\DummyServiceWithLogRolling.exe", "");
+                shipper = Utils.StartProcess(Environment.CurrentDirectory + @"\LogsearchShipper.Service.exe", "-instance:integrationtest001");
+                processWithLogFileRolling = Utils.StartProcess(Environment.CurrentDirectory + @"\DummyServiceWithLogRolling.exe", "");
 
                 System.Threading.Thread.Sleep(TimeSpan.FromSeconds(10));
 
@@ -36,57 +36,13 @@ namespace IntegrationTests
             }
             finally
             {
-                ShutdownProcess(shipper);
-                ShutdownProcess(processWithLogFileRolling);
+                Utils.ShutdownProcess(shipper);
+                Utils.ShutdownProcess(processWithLogFileRolling);
                 
                 File.Delete("LogsearchShipper.Service.exe.config");
                 File.Move("LogsearchShipper.Service.exe.config.bak", "LogsearchShipper.Service.exe.config");
             }
            
-        }
-
-        private Process StartProcess(string processPath, string processArgs)
-        {
-            var process = new Process { StartInfo = { FileName = processPath, Arguments = processArgs, CreateNoWindow = true, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardInput = true} };
-            process.OutputDataReceived += (sender, args) => Console.WriteLine("{0}: {1}", processPath, args.Data);
-            process.Start();
-            process.BeginOutputReadLine();
-
-            return process;
-        }
-
-        private void ShutdownProcess(Process process)
-        {
-            if (process == null) return;
-
-            process.StandardInput.Close(); // send Ctrl-C to logstash-forwarder so it can clean up
-            process.CancelOutputRead();
-            process.WaitForExit(5 * 1000);
-            if (!process.HasExited)
-            {
-                KillProcessAndChildren(process.Id);
-            }
-        }
-
-        private static void KillProcessAndChildren(int pid)
-        {
-            var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
-            var moc = searcher.Get();
-            foreach (var cur in moc)
-            {
-                var mo = (ManagementObject)cur;
-                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
-            }
-
-            try
-            {
-                var proc = Process.GetProcessById(pid);
-                proc.Kill();
-            }
-            catch (ArgumentException)
-            {
-                // Process has already exited
-            }
         }
 
         private static void DeleteOldLogFiles()
