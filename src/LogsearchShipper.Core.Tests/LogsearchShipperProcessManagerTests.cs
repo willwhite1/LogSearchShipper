@@ -1,51 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 
 namespace LogsearchShipper.Core.Tests
 {
-    [TestFixture]
-    public class LogsearchShipperProcessManagerTests
-    {
-        private LogsearchShipperProcessManager _logsearchShipperProcessManager;
+	[TestFixture]
+	public class LogsearchShipperProcessManagerTests
+	{
+		[SetUp]
+		public void Setup()
+		{
+			_logsearchShipperProcessManager = new LogsearchShipperProcessManager();
+		}
 
-        [SetUp]
-        public void Setup()
-        {
-            _logsearchShipperProcessManager = new LogsearchShipperProcessManager();
-        }
+		[TearDown]
+		public void TearDown()
+		{
+			_logsearchShipperProcessManager.Stop();
+		}
 
-        [TearDown]
-        public void TearDown()
-        {
-            _logsearchShipperProcessManager.Stop();
-        }
+		private LogsearchShipperProcessManager _logsearchShipperProcessManager;
 
-        [Test, Ignore("Needs valid logstash ingestor to connect to")]
-		[Platform(Exclude="Mono")]
-        public void ShouldLaunchNxLogProcess()
-        {
-            
-			_logsearchShipperProcessManager.Start();
+		[Test]
+		public void ShouldCorrectlyGenerateNXLogConfigFromAppConfigSettings()
+		{
+			_logsearchShipperProcessManager.SetupConfigFile();
+			string config = File.ReadAllText(_logsearchShipperProcessManager.ConfigFile);
+			Console.WriteLine(config);
 
-            var processes = Process.GetProcessesByName("nxlog.exe");
-            
-            Assert.AreEqual(1, processes.Count(), "a NXLog process wasn't started");
-        }
-
-        [Test]
-        public void ShouldCorrectlyGenerateNXLogConfigFromAppConfigSettings()
-        {
-
-            _logsearchShipperProcessManager.SetupConfigFile();
-            var config = File.ReadAllText(_logsearchShipperProcessManager.ConfigFile);
-            Console.WriteLine(config);
-
-            /* We're expecting a config that looks like this:
+			/* We're expecting a config that looks like this:
             * 
 define ROOT C:\Dev\logsearch-shipper.NET\vendor\nxlog
 
@@ -99,23 +84,34 @@ LogLevel INFO
 	Exec	$path = file_name(); $type = "log4net"; $host="PKH-PPE-APP10"; $service="PriceHistoryService"; $Message = $raw_event;
 </Input>
             */
-            
-            StringAssert.Contains("define ROOT ", config);
-            StringAssert.Contains(@"Moduledir %ROOT%\modules", config);
-            StringAssert.Contains(@"CacheDir %ROOT%\data", config);
-            StringAssert.Contains(@"Pidfile %ROOT%\data\nxlog.pid", config);
-            StringAssert.Contains(@"SpoolDir %ROOT%\data", config);
-            StringAssert.Contains("LogLevel INFO", config);
-    
-            StringAssert.Contains("<Extension syslog>", config);
-            StringAssert.Contains("Module      xm_syslog", config);
 
-            StringAssert.Contains("<Output out>", config);
-            StringAssert.Contains("Module	om_tcp", config);
+			StringAssert.Contains("define ROOT ", config);
+			StringAssert.Contains(@"Moduledir %ROOT%\modules", config);
+			StringAssert.Contains(@"CacheDir %ROOT%\data", config);
+			StringAssert.Contains(@"Pidfile %ROOT%\data\nxlog.pid", config);
+			StringAssert.Contains(@"SpoolDir %ROOT%\data", config);
+			StringAssert.Contains("LogLevel INFO", config);
 
-            StringAssert.Contains("Host	ingestor.example.com", config);
-            StringAssert.Contains("Port	443", config);
-            StringAssert.Contains("Exec	to_syslog_ietf();", config);
-        }
-    }
+			StringAssert.Contains("<Extension syslog>", config);
+			StringAssert.Contains("Module      xm_syslog", config);
+
+			StringAssert.Contains("<Output out>", config);
+			StringAssert.Contains("Module	om_tcp", config);
+
+			StringAssert.Contains("Host	ingestor.example.com", config);
+			StringAssert.Contains("Port	443", config);
+			StringAssert.Contains("Exec	to_syslog_ietf();", config);
+		}
+
+		[Test, Ignore("Needs valid logstash ingestor to connect to")]
+		[Platform(Exclude = "Mono")]
+		public void ShouldLaunchNxLogProcess()
+		{
+			_logsearchShipperProcessManager.Start();
+
+			Process[] processes = Process.GetProcessesByName("nxlog.exe");
+
+			Assert.AreEqual(1, processes.Count(), "a NXLog process wasn't started");
+		}
+	}
 }
