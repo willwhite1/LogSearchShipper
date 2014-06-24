@@ -27,89 +27,95 @@ namespace LogsearchShipper.Core.Tests
 
         [Test, Ignore("Needs valid logstash ingestor to connect to")]
 		[Platform(Exclude="Mono")]
-        public void ShouldLaunchGoLogsearchShipperProcess()
+        public void ShouldLaunchNxLogProcess()
         {
             
 			_logsearchShipperProcessManager.Start();
 
-            var processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(_logsearchShipperProcessManager.GoLogsearchShipperFile));
+            var processes = Process.GetProcessesByName("nxlog.exe");
             
-            Assert.AreEqual(1, processes.Count(), "a logstash-forwarder process wasn't started");
+            Assert.AreEqual(1, processes.Count(), "a NXLog process wasn't started");
         }
 
         [Test]
-        public void ShouldCorrectlyGenerateGoLogsearchShipperConfigFromAppConfigSettings()
+        public void ShouldCorrectlyGenerateNXLogConfigFromAppConfigSettings()
         {
 
             _logsearchShipperProcessManager.SetupConfigFile();
             var config = File.ReadAllText(_logsearchShipperProcessManager.ConfigFile);
-			// Console.WriteLine(config);
+            Console.WriteLine(config);
 
             /* We're expecting a config that looks like this:
             * 
-            {
-            "network": {
-            "servers": [ "endpoint.example.com:5034" ],
-            "ssl ca": "C:\\Logs\\mycert.crt",
-            "timeout": 23
-            },
-            "files": [
-            {
-                "paths": [ "myfile.log" ],
-                "fields": {
-                "@type": "myfile_type",
-                "field1": "field1 value"
-                "field2": "field2 value"
-                }
-            },
-            {
-                "paths": [ "C:\\Logs\\myfile.log" ],
-                "fields": {
-                "@type": "type/subtype",
-                "key/subkey": "value/subvalue"
-                }
-            },
-            {
-                "paths": [ "\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\log.log" ],
-                "fields": {
-	                "@type": "log4net",
-	                "edb_key/subkey": "edb_value/subvalue"
-                }
-            },
-            {
-                "paths": [ "\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\PriceHistoryStats.log" ],
-                "fields": {
-	                "@type": "log4net_stats",
-	                "edb_key/subkey": "edb_value/subvalue"
-                }
-            },
-            {
-                "paths": [ "\\ENV1-DB01\Logs\Nolio\all.log" ],
-                "fields": {
-	                "@type": "log4j",
-	                "edb_key/subkey": "edb_value/subvalue"
-                }
-            }
-            ]
-        }
+define ROOT C:\Dev\logsearch-shipper.NET\vendor\nxlog
+
+Moduledir %ROOT%\modules
+CacheDir %ROOT%\data
+Pidfile %ROOT%\data\nxlog.pid
+SpoolDir %ROOT%\data
+LogLevel INFO
+
+<Extension syslog>
+    Module      xm_syslog
+</Extension>
+
+<Output out>
+    Module	om_tcp
+    Host	endpoint.example.com
+    Port	5514
+    Exec	to_syslog_ietf();
+	Exec    log_debug("Sending syslog data: " + $raw_event);
+    #OutputType	Syslog_TLS
+</Output>
+
+<Route 1>
+    Path        file0, file1, file2, file3, file4 => out
+</Route>
+
+<Input file0>
+    Module	im_file
+    File	"myfile.log"
+    ReadFromLast TRUE
+	SavePos	TRUE
+	CloseWhenIdle TRUE
+	Exec	$path = file_name(); $type = "myfile_type"; $field1="field1 value"; $field2="field2 value" $Message = $raw_event;
+</Input>
+
+<Input file1>
+    Module	im_file
+    File	"C:\\Logs\\myfile.log"
+    ReadFromLast TRUE
+	SavePos	TRUE
+	CloseWhenIdle TRUE
+	Exec	$path = file_name(); $type = "type/subtype"; $field1="field1 value"; $Message = $raw_event;
+</Input>
+             
+<Input file2>
+    Module	im_file
+    File	"\\\\PKH-PPE-APP10\\logs\\Apps\\PriceHistoryService\\log.log"
+    ReadFromLast TRUE
+	SavePos	TRUE
+	CloseWhenIdle TRUE
+	Exec	$path = file_name(); $type = "log4net"; $host="PKH-PPE-APP10"; $service="PriceHistoryService"; $Message = $raw_event;
+</Input>
             */
+            
+            StringAssert.Contains("define ROOT ", config);
+            StringAssert.Contains(@"Moduledir %ROOT%\modules", config);
+            StringAssert.Contains(@"CacheDir %ROOT%\data", config);
+            StringAssert.Contains(@"Pidfile %ROOT%\data\nxlog.pid", config);
+            StringAssert.Contains(@"SpoolDir %ROOT%\data", config);
+            StringAssert.Contains("LogLevel INFO", config);
+    
+            StringAssert.Contains("<Extension syslog>", config);
+            StringAssert.Contains("Module      xm_syslog", config);
 
-			StringAssert.Contains("\"servers\": [ \"ingestor.example.com:5043\" ]", config);
-            StringAssert.Contains("\"ssl ca\": \"C:\\\\Logs\\\\mycert.crt\"", config);
-            StringAssert.Contains("\"timeout\": 23", config);
-            StringAssert.Contains("\"@type\": \"myfile_type\"", config);
-            StringAssert.Contains("\"paths\": [ \"myfile.log\" ]", config);
-            StringAssert.Contains("\"field1\": \"field1 value\"", config);
-            StringAssert.Contains("\"field2\": \"field2 value\"", config);
+            StringAssert.Contains("<Output out>", config);
+            StringAssert.Contains("Module	om_tcp", config);
 
-            StringAssert.Contains("\"paths\": [ \"C:\\\\Logs\\\\myfile.log\" ]", config);
-            StringAssert.Contains("\"@type\": \"type/subtype\"", config);
-            StringAssert.Contains("\"key/subkey\": \"value/subvalue\"", config);
-
-			//TODO
-//			StringAssert.Contains("\"paths\": [ \"\\\\\\\\PKH-PPE-APP10\\\\logs\\\\Apps\\\\PriceHistoryService\\\\log.log\" ]", config);
-//			StringAssert.Contains("\"@type\": \"log4net\"", config);
-//			StringAssert.Contains("\"edb_key/subkey\": \"edb_value/subvalue\"", config);
+            StringAssert.Contains("Host	ingestor.example.com", config);
+            StringAssert.Contains("Port	443", config);
+            StringAssert.Contains("Exec	to_syslog_ietf();", config);
         }
     }
 }

@@ -5,18 +5,31 @@ namespace LogsearchShipper.Core.ConfigurationSections
 {
 	public class LogsearchShipperSection : ConfigurationSection
 	{
-		[ConfigurationProperty("servers", IsRequired = true)]
-		public String Servers
-		{
-			get
-			{
-				return (String)this["servers"];
-			}
-			set
-			{
-				this["servers"] = value;
-			}
-		}
+        [ConfigurationProperty("ingestor_host", IsRequired = true)]
+        public String IngestorHost
+        {
+            get
+            {
+                return (String)this["ingestor_host"];
+            }
+            set
+            {
+                this["ingestor_host"] = value;
+            }
+        }
+
+        [ConfigurationProperty("ingestor_port", IsRequired = true)]
+        public int IngestorPort
+        {
+            get
+            {
+                return Convert.ToInt32(this["ingestor_port"]);
+            }
+            set
+            {
+                this["ingestor_port"] = value;
+            }
+        }
 
 		[ConfigurationProperty("ssl_ca", IsRequired = true)]
 		public String SSL_CA
@@ -28,19 +41,6 @@ namespace LogsearchShipper.Core.ConfigurationSections
 			set
 			{
 				this["ssl_ca"] = value;
-			}
-		}
-
-		[ConfigurationProperty("timeout", IsRequired = true)]
-		public int Timeout
-		{
-			get
-			{
-				return Convert.ToInt32(this["timeout"]);
-			}
-			set
-			{
-				this["timeout"] = value;
 			}
 		}
 
@@ -61,6 +61,7 @@ namespace LogsearchShipper.Core.ConfigurationSections
 				return (EDBFileWatchCollection)base["edbFileWatchers"];
 			}
 		}
+
 	}
 
 
