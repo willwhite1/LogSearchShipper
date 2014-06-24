@@ -1,189 +1,190 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
 <Environment xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Name>STG</Name>
-  <Description>Manual generated environment entity - 02/13/2014</Description>
-  <Servers>
-    <Server>
-      <Name>PKH-STG-EKDBQAT</Name>
-      <Description>Ektron QAT DB</Description>
-      <Domain>cityindex.co.uk</Domain>
-      <Environment>STG</Environment>
-      <NetworkArea>APP</NetworkArea>
-      <PorV>Virtual</PorV>
-      <Services>
-        <Entity xsi:type="WindowsService">
-          <Name>nolioagent2</Name>
-          <ServiceName>Nolio Agent 2.0</ServiceName>
-          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
-          <BundlePath />
-          <LogPath>\\PKH-STG-EKDBQAT\Logs\Nolio\all.log</LogPath>
-          <LogPathType>log4j</LogPathType>
-          <LogPath1 />
-          <LogPath1Type />
-          <LogPath2 />
-          <LogPath2Type />
-          <SystemArea>CORE</SystemArea>
-          <State>running</State>
-        </Entity>
-      </Services>
-    </Server>
-    <Server>
-      <Name>PKH-STG-WEB01</Name>
-      <Description>EDB</Description>
-      <Domain>cityindex.co.uk</Domain>
-      <Environment>STG</Environment>
-      <NetworkArea>DMZ</NetworkArea>
-      <PorV>Virtual</PorV>
-      <Services>
-        <Entity xsi:type="WebService">
-          <Name>edb.cityindex.co.uk</Name>
-          <Website>edb.cityindex.co.uk</Website>
-          <ApplicationUri>http://edb-stg.cityindex.co.uk</ApplicationUri>
-          <BinaryPath>D:\websites\edb.cityindex.co.uk</BinaryPath>
-          <LogPath>\\PKH-STG-WEB01\Logs\EDBDataSerializer</LogPath>
-          <LogPathType />
-          <LogPath1 />
-          <LogPath1Type />
-          <LogPath2 />
-          <LogPath2Type />
-          <SystemArea>CORE</SystemArea>
-          <State>running</State>
-        </Entity>
-		<Entity xsi:type="WindowsService">
-          <Name>nolioagent2</Name>
-          <ServiceName>Nolio Agent 2.0</ServiceName>
-          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
-          <BundlePath />
-          <LogPath>\\PKH-STG-WEB01\Logs\Nolio\all.log</LogPath>
-          <LogPathType>log4j</LogPathType>
-          <LogPath1>\\PKH-STG-WEB01\Logs\Nolio\include1.log</LogPath1>
-          <LogPath1Type>log4j1</LogPath1Type>
-          <LogPath2>\\PKH-STG-WEB01\Logs\Nolio\ignore-whitespace-type.log</LogPath2>
-          <LogPath2Type>  </LogPath2Type>
-          <SystemArea>CORE</SystemArea>
-          <State>running</State>
-        </Entity>
-      </Services>
-    </Server>
-    <Server>
-      <Name>PKH-STG-PRICE01</Name>
-      <Description>Republisher</Description>
-      <Domain>cityindex.co.uk</Domain>
-      <Environment>STG</Environment>
-      <NetworkArea>APP</NetworkArea>
-      <PorV>Virtual</PorV>
-      <Services>
-        <Entity xsi:type="WindowsService">
-          <Name>nolioagent2</Name>
-          <ServiceName>Nolio Agent 2.0</ServiceName>
-          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
-          <BundlePath />
-          <LogPath>\\PKH-STG-PRICE01\Logs\Nolio\all.log</LogPath>
-          <LogPathType>log4j</LogPathType>
-          <LogPath1>\\PKH-STG-PRICE01\Logs\Nolio\ignore-null-type.log</LogPath1>
-          <LogPath1Type />
-          <LogPath2>\\PKH-STG-PRICE01\Logs\Nolio\include2.log</LogPath2>
-          <LogPath2Type>log4j2</LogPath2Type>
-          <SystemArea>CORE</SystemArea>
-          <State>running</State>
-        </Entity>
-      </Services>
-    </Server>
-    <Server>
-      <Name>PKH-STG-EXP01</Name>
-      <Description>Experian</Description>
-      <Domain>cityindex.co.uk</Domain>
-      <Environment>STG</Environment>
-      <NetworkArea>APP</NetworkArea>
-      <PorV>Virtual</PorV>
-      <Services>
-        <Entity xsi:type="WindowsService">
-          <Name>nolioagent2</Name>
-          <ServiceName>Nolio Agent 2.0</ServiceName>
-          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
-          <BundlePath />
-          <LogPath>\\PKH-STG-EXP01\Logs\Nolio\all.log</LogPath>
-          <LogPathType>log4j</LogPathType>
-          <LogPath1 />
-          <LogPath1Type />
-          <LogPath2 />
-          <LogPath2Type />
-          <SystemArea>CORE</SystemArea>
-          <State>running</State>
-        </Entity>
-      </Services>
-    </Server>
-    <Server>
-      <Name>PKH-STG-WEB02</Name>
-      <Description>Ektron Dev Web</Description>
-      <Domain>cityindex.co.uk</Domain>
-      <Environment>STG</Environment>
-      <NetworkArea>APP</NetworkArea>
-      <PorV>Virtual</PorV>
-      <Services>
-        <Entity xsi:type="WindowsService">
-          <Name>nolioagent2</Name>
-          <ServiceName>Nolio Agent 2.0</ServiceName>
-          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
-          <BundlePath />
-          <LogPath>\\PKH-STG-WEB02\Logs\Nolio\all.log</LogPath>
-          <LogPathType>log4j</LogPathType>
-          <LogPath1 />
-          <LogPath1Type />
-          <LogPath2 />
-          <LogPath2Type />
-          <SystemArea>CORE</SystemArea>
-          <State>running</State>
-        </Entity>
-      </Services>
-    </Server>
-    <Server>
-      <Name>PKH-STG-EKDBDEV</Name>
-      <Description>Ektron Dev DB</Description>
-      <Domain>cityindex.co.uk</Domain>
-      <Environment>STG</Environment>
-      <NetworkArea>DB</NetworkArea>
-      <PorV>Virtual</PorV>
-      <Services>
-        <Entity xsi:type="WindowsService">
-          <Name>nolioagent2</Name>
-          <ServiceName>Nolio Agent 2.0</ServiceName>
-          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
-          <BundlePath />
-          <LogPath>\\PKH-STG-EKDBDEV\Logs\Nolio\all.log</LogPath>
-          <LogPathType>log4j</LogPathType>
-          <LogPath1 />
-          <LogPath1Type />
-          <LogPath2 />
-          <LogPath2Type />
-          <SystemArea>CORE</SystemArea>
-          <State>running</State>
-        </Entity>
-      </Services>
-    </Server>
-    <Server>
-      <Name>PKH-STG-EKWBQAT</Name>
-      <Description>Ektron QAT Web</Description>
-      <Domain>cityindex.co.uk</Domain>
-      <Environment>STG</Environment>
-      <NetworkArea>APP</NetworkArea>
-      <PorV>Virtual</PorV>
-      <Services>
-        <Entity xsi:type="WindowsService">
-          <Name>nolioagent2</Name>
-          <ServiceName>Nolio Agent 2.0</ServiceName>
-          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
-          <BundlePath />
-          <LogPath>\\PKH-STG-EKWBQAT\Logs\Nolio\all.log</LogPath>
-          <LogPathType>log4j</LogPathType>
-          <LogPath1 />
-          <LogPath1Type />
-          <LogPath2 />
-          <LogPath2Type />
-          <SystemArea>CORE</SystemArea>
-          <State>running</State>
-        </Entity>
-      </Services>
-    </Server>
-  </Servers>
+	<Name>STG</Name>
+	<Description>Manual generated environment entity - 02/13/2014</Description>
+	<Servers>
+		<Server>
+			<Name>PKH-STG-EKDBQAT</Name>
+			<Description>Ektron QAT DB</Description>
+			<Domain>cityindex.co.uk</Domain>
+			<Environment>STG</Environment>
+			<NetworkArea>APP</NetworkArea>
+			<PorV>Virtual</PorV>
+			<Services>
+				<Entity xsi:type="WindowsService">
+					<Name>nolioagent2</Name>
+					<ServiceName>Nolio Agent 2.0</ServiceName>
+					<BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+					<BundlePath />
+					<LogPath>\\PKH-STG-EKDBQAT\Logs\Nolio\all.log</LogPath>
+					<LogPathType>log4j</LogPathType>
+					<LogPath1 />
+					<LogPath1Type />
+					<LogPath2 />
+					<LogPath2Type />
+					<SystemArea>CORE</SystemArea>
+					<State>running</State>
+				</Entity>
+			</Services>
+		</Server>
+		<Server>
+			<Name>PKH-STG-WEB01</Name>
+			<Description>EDB</Description>
+			<Domain>cityindex.co.uk</Domain>
+			<Environment>STG</Environment>
+			<NetworkArea>DMZ</NetworkArea>
+			<PorV>Virtual</PorV>
+			<Services>
+				<Entity xsi:type="WebService">
+					<Name>edb.cityindex.co.uk</Name>
+					<Website>edb.cityindex.co.uk</Website>
+					<ApplicationUri>http://edb-stg.cityindex.co.uk</ApplicationUri>
+					<BinaryPath>D:\websites\edb.cityindex.co.uk</BinaryPath>
+					<LogPath>\\PKH-STG-WEB01\Logs\EDBDataSerializer</LogPath>
+					<LogPathType />
+					<LogPath1 />
+					<LogPath1Type />
+					<LogPath2 />
+					<LogPath2Type />
+					<SystemArea>CORE</SystemArea>
+					<State>running</State>
+				</Entity>
+				<Entity xsi:type="WindowsService">
+					<Name>nolioagent2</Name>
+					<ServiceName>Nolio Agent 2.0</ServiceName>
+					<BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+					<BundlePath />
+					<LogPath>\\PKH-STG-WEB01\Logs\Nolio\all.log</LogPath>
+					<LogPathType>log4j</LogPathType>
+					<LogPath1>\\PKH-STG-WEB01\Logs\Nolio\include1.log</LogPath1>
+					<LogPath1Type>log4j1</LogPath1Type>
+					<LogPath2>\\PKH-STG-WEB01\Logs\Nolio\ignore-whitespace-type.log</LogPath2>
+					<LogPath2Type>  </LogPath2Type>
+					<SystemArea>CORE</SystemArea>
+					<State>running</State>
+				</Entity>
+			</Services>
+		</Server>
+		<Server>
+			<Name>PKH-STG-PRICE01</Name>
+			<Description>Republisher</Description>
+			<Domain>cityindex.co.uk</Domain>
+			<Environment>STG</Environment>
+			<NetworkArea>APP</NetworkArea>
+			<PorV>Virtual</PorV>
+			<Services>
+				<Entity xsi:type="WindowsService">
+					<Name>nolioagent2</Name>
+					<ServiceName>Nolio Agent 2.0</ServiceName>
+					<BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+					<BundlePath />
+					<LogPath>\\PKH-STG-PRICE01\Logs\Nolio\all.log</LogPath>
+					<LogPathType>log4j</LogPathType>
+					<LogPath1>\\PKH-STG-PRICE01\Logs\Nolio\ignore-null-type.log</LogPath1>
+					<LogPath1Type />
+					<LogPath2>\\PKH-STG-PRICE01\Logs\Nolio\include2.log</LogPath2>
+					<LogPath2Type>log4j2</LogPath2Type>
+					<SystemArea>CORE</SystemArea>
+					<State>running</State>
+				</Entity>
+			</Services>
+		</Server>
+		<Server>
+			<Name>PKH-STG-EXP01</Name>
+			<Description>Experian</Description>
+			<Domain>cityindex.co.uk</Domain>
+			<Environment>STG</Environment>
+			<NetworkArea>APP</NetworkArea>
+			<PorV>Virtual</PorV>
+			<Services>
+				<Entity xsi:type="WindowsService">
+					<Name>nolioagent2</Name>
+					<ServiceName>Nolio Agent 2.0</ServiceName>
+					<BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+					<BundlePath />
+					<LogPath>\\PKH-STG-EXP01\Logs\Nolio\all.log</LogPath>
+					<LogPathType>log4j</LogPathType>
+					<LogPath1 />
+					<LogPath1Type />
+					<LogPath2 />
+					<LogPath2Type />
+					<SystemArea>CORE</SystemArea>
+					<State>running</State>
+				</Entity>
+			</Services>
+		</Server>
+		<Server>
+			<Name>PKH-STG-WEB02</Name>
+			<Description>Ektron Dev Web</Description>
+			<Domain>cityindex.co.uk</Domain>
+			<Environment>STG</Environment>
+			<NetworkArea>APP</NetworkArea>
+			<PorV>Virtual</PorV>
+			<Services>
+				<Entity xsi:type="WindowsService">
+					<Name>nolioagent2</Name>
+					<ServiceName>Nolio Agent 2.0</ServiceName>
+					<BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+					<BundlePath />
+					<LogPath>\\PKH-STG-WEB02\Logs\Nolio\all.log</LogPath>
+					<LogPathType>log4j</LogPathType>
+					<LogPath1 />
+					<LogPath1Type />
+					<LogPath2 />
+					<LogPath2Type />
+					<SystemArea>CORE</SystemArea>
+					<State>running</State>
+				</Entity>
+			</Services>
+		</Server>
+		<Server>
+			<Name>PKH-STG-EKDBDEV</Name>
+			<Description>Ektron Dev DB</Description>
+			<Domain>cityindex.co.uk</Domain>
+			<Environment>STG</Environment>
+			<NetworkArea>DB</NetworkArea>
+			<PorV>Virtual</PorV>
+			<Services>
+				<Entity xsi:type="WindowsService">
+					<Name>nolioagent2</Name>
+					<ServiceName>Nolio Agent 2.0</ServiceName>
+					<BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+					<BundlePath />
+					<LogPath>\\PKH-STG-EKDBDEV\Logs\Nolio\all.log</LogPath>
+					<LogPathType>log4j</LogPathType>
+					<LogPath1 />
+					<LogPath1Type />
+					<LogPath2 />
+					<LogPath2Type />
+					<SystemArea>CORE</SystemArea>
+					<State>running</State>
+				</Entity>
+			</Services>
+		</Server>
+		<Server>
+			<Name>PKH-STG-EKWBQAT</Name>
+			<Description>Ektron QAT Web</Description>
+			<Domain>cityindex.co.uk</Domain>
+			<Environment>STG</Environment>
+			<NetworkArea>APP</NetworkArea>
+			<PorV>Virtual</PorV>
+			<Services>
+				<Entity xsi:type="WindowsService">
+					<Name>nolioagent2</Name>
+					<ServiceName>Nolio Agent 2.0</ServiceName>
+					<BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+					<BundlePath />
+					<LogPath>\\PKH-STG-EKWBQAT\Logs\Nolio\all.log</LogPath>
+					<LogPathType>log4j</LogPathType>
+					<LogPath1 />
+					<LogPath1Type />
+					<LogPath2 />
+					<LogPath2Type />
+					<SystemArea>CORE</SystemArea>
+					<State>running</State>
+				</Entity>
+			</Services>
+		</Server>
+	</Servers>
 </Environment>
