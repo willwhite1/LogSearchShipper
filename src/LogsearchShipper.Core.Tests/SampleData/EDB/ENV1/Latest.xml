@@ -1,103 +1,104 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
 <Environment xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Name>ENV1</Name>
-  <Description>Description of ENV1</Description>
-  <Servers>
-    <Server>
-      <Name>ENV1-APP01</Name>
-      <Description>The app server</Description>
-      <Domain>example.org</Domain>
-      <Environment>ENV1</Environment>
-      <NetworkArea>APP</NetworkArea>
-      <PorV>Physical</PorV>
-      <Services>
-        <Entity xsi:type="WindowsService">
-          <Name>PriceHistoryServiceHost</Name>
-          <ServiceName>Price History Service Host</ServiceName>
-          <Tags>service_tag1,service_tag2</Tags>
-          <BinaryPath>"D:\Apps\PriceHistoryServiceHost\PriceHistoryServiceHost.exe"</BinaryPath>
-          <BundlePath />
-          <LogPath>\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\log.log</LogPath>
-          <LogPathType>log4net</LogPathType>
-          <LogPath1>\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\PriceHistoryStats.log</LogPath1>
-          <LogPath1Type>log4net_stats</LogPath1Type>
-          <LogPath2>\\PKH-PPE-APP10\</LogPath2>
-          <LogPath2Type />
-          <SystemArea>CORE</SystemArea>
-          <State>stopped</State>
-        </Entity>
-        <Entity xsi:type="WebService">
-          <Name>ENV1-APP01 webservices</Name>
-          <Website>ENV1-APP01 webservices</Website>
-          <ApplicationUri>/</ApplicationUri>
-          <BinaryPath>D:\Websites\ROOT01</BinaryPath>
-          <LogPath>\\ENV1-APP01\Logs\u*.log</LogPath>
-          <LogPathType>IIS7</LogPathType>
-          <LogPath1>\\ENV1-APP01\</LogPath1>
-          <LogPath1Type />
-          <LogPath2>\\ENV1-APP01\</LogPath2>
-          <LogPath2Type />
-          <SystemArea>CORE</SystemArea>
-          <State>running</State>
-        </Entity>
-      </Services>
-    </Server>
-    <Server>
-      <Name>ENV1-DB01</Name>
-      <Domain>example.org</Domain>
-      <Environment>ENV1</Environment>
-      <NetworkArea>DB</NetworkArea>
-      <PorV>Physical</PorV>
-      <Services>
-        <Entity xsi:type="WindowsService">
-          <Name>nolioagent2</Name>
-          <ServiceName>Nolio Agent 2.0</ServiceName>
-          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
-          <BundlePath />
-          <LogPath>\\ENV1-DB01\Logs\Nolio\all.log</LogPath>
-          <LogPathType>log4j</LogPathType>
-          <LogPath1>\\ENV1-DB01\</LogPath1>
-          <LogPath1Type />
-          <LogPath2>\\ENV1-DB01\</LogPath2>
-          <LogPath2Type />
-          <SystemArea>CORE</SystemArea>
-          <State>running</State>
-        </Entity>
-      </Services>
-    </Server>
-	<Server>
-      <Name>ENV1-NO-SERVICES</Name>
-      <Description>A server with no services</Description>
-      <Domain>example.org</Domain>
-      <Environment>ENV1</Environment>
-      <NetworkArea>APP</NetworkArea>
-      <PorV>Virtual</PorV>
-      <Services />
-    </Server>
-    <Server>
-      <Name>PKH-ENV2-SHARED01</Name>
-      <Description>A server that also appears in the ENV2 environment</Description>
-      <Tags>server_tag1,server_tag2</Tags>
-      <Domain>cityindex.co.uk</Domain>
-      <Environment>ENV2</Environment>
-      <NetworkArea>APP</NetworkArea>
-      <PorV>Virtual</PorV>
-      <Services>
-        <Entity xsi:type="WindowsService">
-          <Name>nolioagent2</Name>
-          <ServiceName>Nolio Agent 2.0</ServiceName>
-          <BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
-          <BundlePath />
-          <LogPath>\\PKH-ENV2-SHARED01\Logs\Nolio\all.log</LogPath>
-          <LogPathType>log4j</LogPathType>
-          <LogPath1 />
-          <LogPath1Type />
-          <LogPath2 />
-          <LogPath2Type />
-          <SystemArea>CORE</SystemArea>
-          <State>running</State>
-        </Entity>
-      </Services>
-    </Server>
-  </Servers>
+	<Name>ENV1</Name>
+	<Description>Description of ENV1</Description>
+	<Servers>
+		<Server>
+			<Name>ENV1-APP01</Name>
+			<Description>The app server</Description>
+			<Domain>example.org</Domain>
+			<Environment>ENV1</Environment>
+			<NetworkArea>APP</NetworkArea>
+			<PorV>Physical</PorV>
+			<Services>
+				<Entity xsi:type="WindowsService">
+					<Name>PriceHistoryServiceHost</Name>
+					<ServiceName>Price History Service Host</ServiceName>
+					<Tags>service_tag1,service_tag2</Tags>
+					<BinaryPath>"D:\Apps\PriceHistoryServiceHost\PriceHistoryServiceHost.exe"</BinaryPath>
+					<BundlePath />
+					<LogPath>\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\log.log</LogPath>
+					<LogPathType>log4net</LogPathType>
+					<LogPath1>\\PKH-PPE-APP10\logs\Apps\PriceHistoryService\PriceHistoryStats.log</LogPath1>
+					<LogPath1Type>log4net_stats</LogPath1Type>
+					<LogPath2>\\PKH-PPE-APP10\</LogPath2>
+					<LogPath2Type />
+					<SystemArea>CORE</SystemArea>
+					<State>stopped</State>
+				</Entity>
+				<Entity xsi:type="WebService">
+					<Name>ENV1-APP01 webservices</Name>
+					<Website>ENV1-APP01 webservices</Website>
+					<ApplicationUri>/</ApplicationUri>
+					<BinaryPath>D:\Websites\ROOT01</BinaryPath>
+					<LogPath>\\ENV1-APP01\Logs\u*.log</LogPath>
+					<LogPathType>IIS7</LogPathType>
+					<LogPath1>\\ENV1-APP01\</LogPath1>
+					<LogPath1Type />
+					<LogPath2>\\ENV1-APP01\</LogPath2>
+					<LogPath2Type />
+					<SystemArea>CORE</SystemArea>
+					<State>running</State>
+				</Entity>
+			</Services>
+		</Server>
+		<Server>
+			<Name>ENV1-DB01</Name>
+			<Domain>example.org</Domain>
+			<Environment>ENV1</Environment>
+			<NetworkArea>DB</NetworkArea>
+			<PorV>Physical</PorV>
+			<Services>
+				<Entity xsi:type="WindowsService">
+					<Name>nolioagent2</Name>
+					<ServiceName>Nolio Agent 2.0</ServiceName>
+					<BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+					<BundlePath />
+					<LogPath>\\ENV1-DB01\Logs\Nolio\all.log</LogPath>
+					<LogPathType>log4j</LogPathType>
+					<LogPath1>\\ENV1-DB01\</LogPath1>
+					<LogPath1Type />
+					<LogPath2>\\ENV1-DB01\</LogPath2>
+					<LogPath2Type />
+					<SystemArea>CORE</SystemArea>
+					<State>running</State>
+				</Entity>
+			</Services>
+		</Server>
+		<Server>
+			<Name>ENV1-NO-SERVICES</Name>
+			<Description>A server with no services</Description>
+			<Domain>example.org</Domain>
+			<Environment>ENV1</Environment>
+			<NetworkArea>APP</NetworkArea>
+			<PorV>Virtual</PorV>
+			<Services />
+		</Server>
+		<Server>
+			<Name>PKH-ENV2-SHARED01</Name>
+			<Description>A server that also appears in the ENV2 environment</Description>
+			<Tags>server_tag1,server_tag2</Tags>
+			<Domain>cityindex.co.uk</Domain>
+			<Environment>ENV2</Environment>
+			<NetworkArea>APP</NetworkArea>
+			<PorV>Virtual</PorV>
+			<Services>
+				<Entity xsi:type="WindowsService">
+					<Name>nolioagent2</Name>
+					<ServiceName>Nolio Agent 2.0</ServiceName>
+					<BinaryPath>D:\Nolio\NolioAgent\bin\nolio_w.exe -s D:\Nolio\NolioAgent\conf\wrapper.conf</BinaryPath>
+					<BundlePath />
+					<LogPath>\\PKH-ENV2-SHARED01\Logs\Nolio\all.log</LogPath>
+					<LogPathType>log4j</LogPathType>
+					<LogPath1 />
+					<LogPath1Type />
+					<LogPath2 />
+					<LogPath2Type />
+					<SystemArea>CORE</SystemArea>
+					<State>running</State>
+				</Entity>
+			</Services>
+		</Server>
+	</Servers>
 </Environment>
