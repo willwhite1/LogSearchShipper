@@ -11,7 +11,18 @@ namespace IntegrationTests
 	{
 		public static Process StartProcess(string processPath, string processArgs)
 		{
-			var process = new Process { StartInfo = { FileName = processPath, Arguments = processArgs, CreateNoWindow = true, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardInput = true } };
+			var process = new Process
+				{
+					StartInfo =
+					{
+						FileName = processPath,
+						Arguments = processArgs,
+						CreateNoWindow = true,
+						UseShellExecute = false,
+						RedirectStandardOutput = true,
+						RedirectStandardInput = true,
+					}
+				};
 			process.OutputDataReceived += (sender, args) => Console.WriteLine("{0}: {1}", processPath, args.Data);
 			process.Start();
 			process.BeginOutputReadLine();
@@ -21,7 +32,8 @@ namespace IntegrationTests
 
 		public static void ShutdownProcess(Process process)
 		{
-			if (process == null) return;
+			if (process == null)
+				return;
 
 			process.StandardInput.Close(); // send Ctrl-C to logstash-forwarder so it can clean up
 			process.CancelOutputRead();
@@ -32,7 +44,7 @@ namespace IntegrationTests
 			}
 		}
 
-		public static void KillProcessAndChildren(int pid)
+		private static void KillProcessAndChildren(int pid)
 		{
 			var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
 			var moc = searcher.Get();
