@@ -6,7 +6,7 @@ using System.Text;
 using Nest;
 using Newtonsoft.Json.Linq;
 
-namespace LogsearchShipper.Core.Tests
+namespace IntegrationTests
 {
 	static class EsUtil
 	{

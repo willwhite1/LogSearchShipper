@@ -4,7 +4,7 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 
-namespace LogsearchShipper.Core.Tests
+namespace IntegrationTests
 {
 	static class AppSettings
 	{
