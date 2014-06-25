@@ -12,14 +12,15 @@ namespace IntegrationTests
 	{
 		private const int SegmentSize = 1024;
 
-		public static List<Record> GetRecords(DateTime startTime, DateTime endTime, string fieldName)
+		public static List<Record> GetRecords(string groupId, string fieldName)
 		{
 			var settings = new ConnectionSettings(new Uri(AppSettings.EsServerUrl));
 			var client = new ElasticClient(settings);
 
 			var indexNames = new List<string>();
-			var curDay = startTime.Date;
-			while (curDay <= endTime.Date)
+
+			var curDay = DateTime.UtcNow.Date - TimeSpan.FromDays(3);
+			while (curDay <= DateTime.UtcNow.Date)
 			{
 				var indexName = "logstash-" + curDay.ToString("yyyy.MM.dd");
 				indexNames.Add(indexName);
@@ -44,7 +45,7 @@ namespace IntegrationTests
 								BaseQuery query = null;
 								query &= q.Filtered(s => s.Filter(fs => fs.Exists(fieldName)));
 								query &= q.Term("@environment", "STRESS_TEST");
-								query &= q.Range(range => range.OnField("@timestamp").From(startTime).To(endTime));
+								query &= q.Term("group_id", groupId);
 								return query;
 							}
 						)

@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace IntegrationTests
@@ -50,7 +52,9 @@ namespace IntegrationTests
 		{
 			var path = GetTestPath("SimpleTest");
 
-			WriteLogFiles(path);
+			var ids = WriteLogFiles(path);
+
+			var records = EsUtil.GetRecords(_currentIterationId, "@message");
 		}
 
 		private string[] WriteLogFiles(string path)
@@ -93,6 +97,39 @@ namespace IntegrationTests
 			}
 			ids = tmp.ToArray();
 			return buf.ToString();
+		}
+
+		void Validate(ICollection<Record> records, IEnumerable<string> ids)
+		{
+			var recordIdsCount = new Dictionary<string, int>();
+			foreach (var record in records)
+			{
+				var vals = (JObject)JsonConvert.DeserializeObject((string)record.Value);
+				var id = vals.Properties().First(val => val.Name == "message").Value.ToString();
+
+				int count;
+				if (!recordIdsCount.TryGetValue(id, out count))
+					recordIdsCount.Add(id, 1);
+				else
+					recordIdsCount[id] = ++count;
+			}
+
+			int duplicatesCount = 0, missingCount = 0;
+
+			foreach (var id in ids)
+			{
+				int count;
+				if (!recordIdsCount.TryGetValue(id, out count))
+					missingCount++;
+				else if (count > 1)
+					duplicatesCount++;
+			}
+
+			if (missingCount != 0 || duplicatesCount != 0)
+			{
+				var message = string.Format("total - {0}, missing - {1}, duplicates - {2}", records.Count, missingCount, duplicatesCount);
+				throw new Exception(message);
+			}
 		}
 
 		void StartShipperService()
