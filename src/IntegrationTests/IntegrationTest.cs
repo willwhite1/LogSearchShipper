@@ -66,7 +66,7 @@ namespace IntegrationTests
 				File.WriteAllText(filePath, GetLog(out curIds));
 				ids.AddRange(curIds);
 
-				var newName = filePath + "." + i;
+				var newName = filePath + "." + i + ".log";
 				File.Move(filePath, newName);
 
 				i++;
@@ -101,7 +101,7 @@ namespace IntegrationTests
 			var exeFileCopy = Path.Combine(_basePath, exeFile);
 			File.Copy(exeFile, exeFileCopy);
 
-			File.Copy("LogsearchShipper.Service.exe.config.ShipDummyService", Path.Combine(_basePath, "LogsearchShipper.Service.exe.config"));
+			File.Copy("LogsearchShipper.Service.exe.config.Test", Path.Combine(_basePath, "LogsearchShipper.Service.exe.config"));
 
 			foreach (var file in Directory.GetFiles(Environment.CurrentDirectory, "*.dll"))
 			{

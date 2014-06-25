@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <configSections>
+    <sectionGroup name="LogsearchShipperGroup">
+      <section
+        name="LogsearchShipper"
+        type="LogsearchShipper.Core.ConfigurationSections.LogsearchShipperSection, LogsearchShipper.Core"
+        allowLocation="true"
+        allowDefinition="Everywhere"
+      />
+    </sectionGroup>
+    <section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler, log4net" />
+  </configSections>
+
+  <LogsearchShipperGroup>
+    <LogsearchShipper servers="ingestor.cityindex.logsearch.io:443" ssl_ca="C:\Keys\ingestor.cityindex.logsearch.io.crt" timeout="23">
+      <fileWatchers>
+        <watch files="*.log" type="plain">
+          <field key="@environment" value="TEST" />
+        </watch>
+      </fileWatchers>
+    </LogsearchShipper>
+  </LogsearchShipperGroup>
+
+  <log4net>
+    <appender name="ConsoleAppender" type="log4net.Appender.ConsoleAppender">
+      <filter type="log4net.Filter.LoggerMatchFilter">
+        <loggerToMatch value="EnvironmentDiagramLogger" />
+        <acceptOnMatch value="false" />
+      </filter>
+      <layout type="log4net.Layout.PatternLayout">
+        <conversionPattern value="%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline" />
+      </layout>
+    </appender>
+    <appender name="RollingFileAppender" type="log4net.Appender.RollingFileAppender">
+      <file value="LogsearchShipper.log" />
+      <filter type="log4net.Filter.LoggerMatchFilter">
+        <loggerToMatch value="EnvironmentDiagramLogger" />
+        <acceptOnMatch value="false" />
+      </filter>
+      <appendToFile value="true" />
+      <maximumFileSize value="10MB" />
+      <maxSizeRollBackups value="2" />
+      <layout type="log4net.Layout.PatternLayout">
+        <IgnoresException value="False" />
+        <converter>
+          <name value="event_as_json" />
+          <type value="LogsearchShipper.Core.JSONFragmentPatternConverter, LogsearchShipper.Core" />
+        </converter>
+        <converter>
+          <name value="iso8601_date" />
+          <type value="LogsearchShipper.Core.ISO8601DatePatternConverter, LogsearchShipper.Core" />
+        </converter>
+        <conversionPattern value='{"@timestamp":"%iso8601_date",%event_as_json,"logger":"%logger","level":"%level"}%n' />
+      </layout>
+    </appender>
+    <appender name="EnvironmentDiagramRollingFileAppender" type="log4net.Appender.RollingFileAppender">
+      <file value="EnvironmentDiagramData.log" />
+      <filter type="log4net.Filter.LoggerMatchFilter">
+        <loggerToMatch value="EnvironmentDiagramLogger" />
+      </filter>
+      <filter type="log4net.Filter.DenyAllFilter" />
+      <appendToFile value="true" />
+      <maximumFileSize value="10MB" />
+      <maxSizeRollBackups value="2" />
+      <layout type="log4net.Layout.PatternLayout">
+        <IgnoresException value="False" />
+        <converter>
+          <name value="event_as_json" />
+          <type value="LogsearchShipper.Core.JSONFragmentPatternConverter, LogsearchShipper.Core" />
+        </converter>
+        <converter>
+          <name value="iso8601_date" />
+          <type value="LogsearchShipper.Core.ISO8601DatePatternConverter, LogsearchShipper.Core" />
+        </converter>
+        <conversionPattern value='{"@timestamp":"%iso8601_date",%event_as_json,"logger":"%logger","level":"%level"}%n' />
+      </layout>
+    </appender>
+    <root>
+      <level value="DEBUG" />
+      <appender-ref ref="ConsoleAppender" />
+      <appender-ref ref="EnvironmentDiagramRollingFileAppender" />
+      <appender-ref ref="RollingFileAppender" />
+    </root>
+  </log4net>
+
+</configuration>
