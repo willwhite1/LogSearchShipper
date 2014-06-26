@@ -157,7 +157,7 @@ namespace IntegrationTests
 
 		string GetTestPath(string testName)
 		{
-			var res = Path.Combine(_basePath, _currentIteration.ToString(), testName);
+			var res = Path.Combine(_basePath, "logs", _currentIteration.ToString(), testName);
 			if (!Directory.Exists(res))
 				Directory.CreateDirectory(res);
 			return res;

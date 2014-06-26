@@ -15,7 +15,7 @@
   <LogsearchShipperGroup>
     <LogsearchShipper servers="ingestor.cityindex.logsearch.io:443" ssl_ca="C:\Keys\ingestor.cityindex.logsearch.io.crt" timeout="23">
       <fileWatchers>
-        <watch files="*.log" type="plain">
+        <watch files="logs\*\*\*" type="plain">
           <field key="@environment" value="TEST" />
         </watch>
       </fileWatchers>
@@ -23,6 +23,11 @@
   </LogsearchShipperGroup>
 
   <log4net>
+    <appender name="ConsoleAppender" type="log4net.Appender.ConsoleAppender">
+      <layout type="log4net.Layout.PatternLayout">
+        <conversionPattern value="%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline" />
+      </layout>
+    </appender>
   </log4net>
 
 </configuration>
