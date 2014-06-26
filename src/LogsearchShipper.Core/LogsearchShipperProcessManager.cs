@@ -225,6 +225,7 @@ SpoolDir %ROOT%\data
 		///         ReadFromLast TRUE
 		///         SavePos	TRUE
 		///         CloseWhenIdle TRUE
+		///         DirCheckInterval 30
 		///         Exec	$path = file_name(); $type = "myfile_type"; $field1="field1 value"; $field2="field2 value" $Message =
 		///         $raw_event;
 		///     </Input>
@@ -251,6 +252,7 @@ SpoolDir %ROOT%\data
 	ReadFromLast TRUE
 	SavePos	TRUE
 	CloseWhenIdle TRUE
+	DirCheckInterval 30
 	Exec	$path = file_name(); $name = ""logsearch-shipper.NET""; $module = ""nxlog""; $type = ""{2}""; ",
 					i,
 					watch.Files.Replace(@"\",@"\\"),
