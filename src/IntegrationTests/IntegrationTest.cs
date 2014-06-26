@@ -54,7 +54,7 @@ namespace IntegrationTests
 
 			var ids = WriteLogFiles(path);
 
-			var records = EsUtil.GetRecords(_currentIterationId, "@message");
+			var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentIterationId, "@message");
 		}
 
 		private string[] WriteLogFiles(string path)

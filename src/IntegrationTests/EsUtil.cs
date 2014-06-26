@@ -12,7 +12,7 @@ namespace IntegrationTests
 	{
 		private const int SegmentSize = 1024;
 
-		public static List<Record> GetRecords(string groupId, string fieldName)
+		public static List<Record> GetRecords(string sourceName, string groupId, string fieldName)
 		{
 			var settings = new ConnectionSettings(new Uri(AppSettings.EsServerUrl));
 			var client = new ElasticClient(settings);
@@ -44,7 +44,7 @@ namespace IntegrationTests
 							{
 								BaseQuery query = null;
 								query &= q.Filtered(s => s.Filter(fs => fs.Exists(fieldName)));
-								query &= q.Term("@environment", "STRESS_TEST");
+								query &= q.Term("@source.name", sourceName);
 								query &= q.Term("group_id", groupId);
 								return query;
 							}
