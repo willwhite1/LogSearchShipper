@@ -116,7 +116,7 @@ namespace LogsearchShipper.Core
 				archive.ExtractToDirectory(NXLogFolder);
 			}
 
-			_log.Debug(string.Format("NXLogFolder => {0}", NXLogFolder));
+			_log.Info(string.Format("NXLogFolder => {0}", NXLogFolder));
 		}
 
 		/// <summary>
@@ -180,33 +180,38 @@ namespace LogsearchShipper.Core
 			ExtractEDBFileWatchers(LogsearchShipperConfig, watches);
 
 			string config = string.Format(@"
-define ROOT {0}
+LogLevel {0}
 
+define ROOT {1}
 Moduledir %ROOT%\modules
 CacheDir %ROOT%\data
 Pidfile %ROOT%\data\nxlog.pid
 SpoolDir %ROOT%\data
-LogLevel INFO
 
 <Extension syslog>
-    Module      xm_syslog
+		Module	xm_syslog
 </Extension>
 
 <Output out>
-    Module	om_tcp
-    Host	{1}
-    Port	{2}
-    Exec	to_syslog_ietf();
-	Exec    log_debug(""Sending syslog data: "" + $raw_event);
+		Module	om_tcp
+		Host	{2}
+		Port	{3}
+		Exec	to_syslog_ietf();
+		Exec	log_debug(""Sending syslog data: "" + $raw_event);
 </Output>
 
-{3}
-", NXLogFolder,
+{4}
+", 
+				_log.IsDebugEnabled  ? "DEBUG" : "INFO", 
+				NXLogFolder,
 				LogsearchShipperConfig.IngestorHost, LogsearchShipperConfig.IngestorPort,
-				GenerateFilesSection(watches));
+				GenerateFilesSection(watches)
+			);
 
 			ConfigFile = Path.Combine(NXLogFolder, "nxlog.conf");
 			File.WriteAllText(ConfigFile, config);
+			_log.DebugFormat("NXLog config file: {0}", ConfigFile);
+			_log.Debug(config);
 		}
 
 		/// <summary>
@@ -241,14 +246,14 @@ LogLevel INFO
 				FileWatchElement watch = watches[i];
 				filesSection += string.Format(@"
 <Input file{0}>
-    Module	im_file
-    File	""{1}""
-    ReadFromLast TRUE
+	Module	im_file
+	File	""{1}""
+	ReadFromLast TRUE
 	SavePos	TRUE
 	CloseWhenIdle TRUE
-	Exec	$path = file_name(); $type = ""{2}""; ",
+	Exec	$path = file_name(); $name = ""logsearch-shipper.NET""; $module = ""nxlog""; $type = ""{2}""; ",
 					i,
-					watch.Files.Replace(@"\", @"\\"),
+					watch.Files.Replace(@"\",@"\\"),
 					watch.Type);
 
 				foreach (FieldElement field in watch.Fields)
@@ -321,7 +326,7 @@ LogLevel INFO
 
 		public void Stop()
 		{
-			const int waitForGoLogstashForwarderToExitSeconds = 60;
+			const int waitForGoLogstashForwarderToExitSeconds = 30;
 
 			_log.Info("Stopping and cleaning up nxlog.exe process.");
 
@@ -334,8 +339,7 @@ LogLevel INFO
 			_log.Info("sending Ctrl-C to nxlog.exe process so it can clean up");
 			_process.StandardInput.WriteLine(char.ConvertFromUtf32(3));
 
-			_log.InfoFormat("Waiting for {0}sec for nxlog.exe process to shut down gracefully",
-				waitForGoLogstashForwarderToExitSeconds);
+			_log.InfoFormat("Waiting for {0}sec for nxlog.exe process to shut down gracefully", waitForGoLogstashForwarderToExitSeconds);
 			_process.WaitForExit(waitForGoLogstashForwarderToExitSeconds*1000);
 			if (!_process.HasExited)
 			{
@@ -381,7 +385,7 @@ LogLevel INFO
 				RedirectStandardError = true,
 				CreateNoWindow = true,
 			};
-			_log.DebugFormat("Running {0} {1}", nxlogExe, startInfo.Arguments);
+			_log.InfoFormat("Running {0} {1}", nxlogExe, startInfo.Arguments);
 			_process = Process.Start(startInfo);
 
 			_process.OutputDataReceived += LogNxLogOutput;
@@ -393,9 +397,13 @@ LogLevel INFO
 
 		private void LogNxLogOutput(object s, DataReceivedEventArgs e)
 		{
-			if (e.Data == null) return;
+			if (string.IsNullOrEmpty(e.Data)) return;
 
-			if (e.Data.Contains("DEBUG"))
+			if (e.Data.Contains("WARNING"))
+			{
+				_logNxLog.Warn(e.Data);
+			}
+			else if (e.Data.Contains("DEBUG"))
 			{
 				_logNxLog.Debug(e.Data);
 			}
