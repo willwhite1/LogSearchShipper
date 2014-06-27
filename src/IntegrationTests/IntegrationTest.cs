@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-
+using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -54,6 +54,8 @@ namespace IntegrationTests
 
 			var ids = WriteLogFiles(path);
 
+			Thread.Sleep(TimeSpan.FromMinutes(1));
+
 			var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentIterationId, "@message");
 		}
 
@@ -88,7 +90,7 @@ namespace IntegrationTests
 			{
 				var id = Guid.NewGuid().ToString();
 				var message = string.Format(
-					"{{\"@timestamp\":\"{0}\",\"message\":\"{1}\",\"group_id\":\"{2}\",\"@source.name\":\"LogSearchShipper.Test\"," +
+					"{{\"@timestamp\":\"{0}\",\"message\":\"{1}\",\"source\":\"{2}\",\"@source.name\":\"LogSearchShipper.Test\"," +
 					"\"logger\":\"Test\",\"level\":\"INFO\"}}",
 					DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), id, _currentIterationId);
 				buf.AppendLine(message);
@@ -171,7 +173,7 @@ namespace IntegrationTests
 		private Process _shipperProcess;
 
 		private const int MaxIterationsCount = 3;
-		private const int LinesPerFile = 1000;
-		private const int LogFilesCount = 10;
+		private const int LinesPerFile = 100;
+		private const int LogFilesCount = 100;
 	}
 }

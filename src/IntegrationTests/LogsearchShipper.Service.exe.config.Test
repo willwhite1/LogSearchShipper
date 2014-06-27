@@ -13,10 +13,10 @@
   </configSections>
 
   <LogsearchShipperGroup>
-    <LogsearchShipper servers="ingestor.cityindex.logsearch.io:443" ssl_ca="C:\Keys\ingestor.cityindex.logsearch.io.crt" timeout="23">
+    <LogsearchShipper servers="ingestor.meta.logsearch.io:5043" ssl_ca="C:\Keys\ingestor.meta.logsearch.io.crt" timeout="23">
       <fileWatchers>
         <watch files="logs\*\*\*" type="plain">
-          <field key="@environment" value="TEST" />
+          <field key="@environment" value="LogSearchShipper.Test" />
         </watch>
       </fileWatchers>
     </LogsearchShipper>
