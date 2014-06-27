@@ -403,7 +403,11 @@ SpoolDir %ROOT%\data
 		{
 			if (string.IsNullOrEmpty(e.Data)) return;
 
-			if (e.Data.Contains("WARNING"))
+			if (e.Data.Contains("ERROR"))
+			{
+				_logNxLog.Error(e.Data);
+			}
+			else if (e.Data.Contains("WARNING"))
 			{
 				_logNxLog.Warn(e.Data);
 			}
