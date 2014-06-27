@@ -264,7 +264,8 @@ SpoolDir %ROOT%\data
 				{
 					filesSection += string.Format(@"${0} = ""{1}""; ", field.Key, field.Value);
 				}
-				filesSection += @"$Message = $raw_event;
+				// Limit maximum message size to just less than 1MB; or NXLog dies
+				filesSection += @"$Message = substr($raw_event, 0, 1048542);
 </Input>
 ";
 			}
