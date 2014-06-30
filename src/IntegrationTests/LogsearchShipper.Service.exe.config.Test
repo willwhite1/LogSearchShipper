@@ -17,6 +17,7 @@
       <fileWatchers>
         <watch files="logs\*\*\*" type="plain">
           <field key="@environment" value="LogSearchShipper.Test" />
+          <field key="@type" value="json" />
         </watch>
       </fileWatchers>
     </LogsearchShipper>
