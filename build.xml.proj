@@ -63,7 +63,7 @@
 		</ItemGroup>
 
 		<Zip Files="@(PackageFiles)"
-		  ZipFileName="logsearch-shipper.NET.v-$(BUILD_VERSION).zip"
+		  ZipFileName="logsearchShipperNET-$(BUILD_VERSION).zip"
 		  WorkingDirectory="bin\"
 		  ZipLevel="9" />
 	</Target>
