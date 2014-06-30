@@ -54,9 +54,10 @@ namespace IntegrationTests
 
 			var ids = WriteLogFiles(path);
 
-			Thread.Sleep(TimeSpan.FromMinutes(1));
+			Thread.Sleep(TimeSpan.FromMinutes(3));
 
-			var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentIterationId, "@message");
+			var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentIterationId, "message");
+			Console.WriteLine("###############################################" + records.Count);
 		}
 
 		private string[] WriteLogFiles(string path)
@@ -90,7 +91,7 @@ namespace IntegrationTests
 			{
 				var id = Guid.NewGuid().ToString();
 				var message = string.Format(
-					"{{\"@timestamp\":\"{0}\",\"message\":\"{1}\",\"source\":\"{2}\",\"@source.name\":\"LogSearchShipper.Test\"," +
+					"{{\"@timestamp\":\"{0}\",\"message\":\"{1}\",\"group_id\":\"{2}\",\"@source.name\":\"LogSearchShipper.Test\"," +
 					"\"logger\":\"Test\",\"level\":\"INFO\"}}",
 					DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), id, _currentIterationId);
 				buf.AppendLine(message);
