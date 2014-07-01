@@ -28,7 +28,9 @@ namespace LogsearchShipper.Core
 					Exception = loggingEvent.ExceptionObject
 				});
 			}
-			else if (loggingEvent.MessageObject.GetType() != typeof (string))
+			else if (	loggingEvent.MessageObject.GetType() != typeof(string) 
+						&&	loggingEvent.MessageObject.GetType() != typeof(log4net.Util.SystemStringFormat)
+							)
 			{
 				json = JsonConvert.SerializeObject(loggingEvent.MessageObject, Formatting.None);
 			}

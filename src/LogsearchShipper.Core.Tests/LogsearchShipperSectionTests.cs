@@ -91,21 +91,21 @@ namespace LogsearchShipper.Core.Tests
 		}
 
 		[Test]
+		public void ShouldHaveIngestorHostAttribute()
+		{
+			Assert.AreEqual("ingestor.example.com", _logsearchShipper.IngestorHost);
+		}
+
+		[Test]
+		public void ShouldHaveIngestorPortAttribute()
+		{
+			Assert.AreEqual(443, _logsearchShipper.IngestorPort);
+		}
+
+		[Test]
 		public void ShouldHaveSSLCAAttribute()
 		{
 			StringAssert.Contains("mycert.crt", _logsearchShipper.SSL_CA);
-		}
-
-		[Test]
-		public void ShouldHaveServersAttribute()
-		{
-			Assert.AreEqual("ingestor.example.com:5043", _logsearchShipper.Servers);
-		}
-
-		[Test]
-		public void ShouldHaveTimeoutAttribute()
-		{
-			Assert.AreEqual(23, _logsearchShipper.Timeout);
 		}
 	}
 }

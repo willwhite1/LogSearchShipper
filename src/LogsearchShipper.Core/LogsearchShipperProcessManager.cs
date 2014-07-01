@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading;
-using System.Web;
 using log4net;
 using LogsearchShipper.Core.ConfigurationSections;
 using LogsearchShipper.Core.Resources;
@@ -16,18 +15,32 @@ namespace LogsearchShipper.Core
 	public class LogsearchShipperProcessManager
 	{
 		private static readonly ILog _log = LogManager.GetLogger(typeof (LogsearchShipperProcessManager));
-		private static readonly ILog _logLogstashForwarder = LogManager.GetLogger("go-logstash-forwarder.exe");
-
+		private static readonly ILog _logNxLog = LogManager.GetLogger("nxlog.exe:");
 		private static Process _process;
+
 		private readonly Dictionary<string, Timer> _environmentDiagramLoggingTimers = new Dictionary<string, Timer>();
 		private readonly List<FileSystemWatcher> _watchedConfigFiles = new List<FileSystemWatcher>();
+		private string _nxLogFolder;
+
 		public string ConfigFile { get; private set; }
-		public string GoLogsearchShipperFile { get; private set; }
+
+		public string NXLogFolder
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(_nxLogFolder))
+				{
+					_nxLogFolder = Path.Combine(Path.GetTempPath(), "nxlog-" + Guid.NewGuid().ToString("N"));
+					Directory.CreateDirectory(_nxLogFolder);
+				}
+				return _nxLogFolder;
+			}
+		}
 
 		public void Start()
 		{
+			ExtractNXLog();
 			SetupConfigFile();
-			ExtractGoLogsearchShipper();
 			StartProcess();
 
 			var configChanging = new CodeBlockLocker {isBusy = false};
@@ -47,7 +60,6 @@ namespace LogsearchShipper.Core
 					_log.Debug("Updating config and restarting shipping...");
 					Stop();
 					SetupConfigFile();
-					ExtractGoLogsearchShipper();
 					StartProcess();
 
 					configChanging.isBusy = false;
@@ -87,52 +99,74 @@ namespace LogsearchShipper.Core
 			return false;
 		}
 
-		private void ExtractGoLogsearchShipper()
+		private void ExtractNXLog()
 		{
 			if (!Environment.OSVersion.VersionString.Contains("Windows"))
 				throw new NotSupportedException("LogsearchShipperProcessManager only supports Windows");
 
-			string tempFile = Path.GetTempFileName();
-			string exeFile = tempFile + "-go-logstash-forwarder.exe";
-			File.Move(tempFile, exeFile);
-
-			using (var fStream = new FileStream(exeFile, FileMode.Create))
+			string zipFile = Path.Combine(NXLogFolder, "nxlog.zip");
+			using (var fStream = new FileStream(zipFile, FileMode.Create))
 			{
-				fStream.Write(Resource.go_logstash_forwarder_exe,
-					0, Resource.go_logstash_forwarder_exe.Length);
+				fStream.Write(Resource.nxlog_ce_2_7_1191_zip,
+					0, Resource.nxlog_ce_2_7_1191_zip.Length);
 			}
 
-			_log.Debug(string.Format("go-logstash-forwarder.exe => {0}", exeFile));
+			using (ZipArchive archive = ZipFile.Open(zipFile, ZipArchiveMode.Update))
+			{
+				archive.ExtractToDirectory(NXLogFolder);
+			}
 
-			GoLogsearchShipperFile = exeFile;
+			_log.Info(string.Format("NXLogFolder => {0}", NXLogFolder));
 		}
 
 		/// <summary>
-		///     We're expecting a config that looks like this:
-		///     {
-		///     "network": {
-		///     "servers": [ "endpoint.example.com:5034" ],
-		///     "ssl ca": "C:\\Logs\\mycert.crt",
-		///     "timeout": 23
-		///     }
-		///     ,"files": [
-		///     {
-		///     "paths": [ "myfile.log" ],
-		///     "fields": {
-		///     "@type": "myfile_type",
-		///     "field1": "field1 value"
-		///     "field2": "field2 value"
-		///     }
-		///     },
-		///     {
-		///     "paths": [ "C:\\Logs\\myfile.log" ],
-		///     "fields": {
-		///     "@type": "type\/subtype",
-		///     "key\/subkey": "value\/subvalue"
-		///     }
-		///     }
-		///     ]
-		///     }
+		///     We're expecting a config that looks something like this:
+		///     define ROOT C:\Dev\logsearch-shipper.NET\vendor\nxlog
+		///     Moduledir %ROOT%\modules
+		///     CacheDir %ROOT%\data
+		///     Pidfile %ROOT%\data\nxlog.pid
+		///     SpoolDir %ROOT%\data
+		///     LogLevel INFO
+		///     <Extension syslog>
+		///         Module	xm_syslog
+		///     </Extension>
+		///     <Output out>
+		///         Module	om_tcp
+		///         Host	endpoint.example.com
+		///         Port	5514
+		///         Exec	to_syslog_ietf();
+		///         Exec    log_debug("Sending syslog data: " + $raw_event);
+		///         #OutputType	Syslog_TLS
+		///     </Output>
+		///     <Route 1>
+		///         Path        file0, file1, file2, file3, file4 => out
+		///     </Route>
+		///     <Input file0>
+		///         Module	im_file
+		///         File	"myfile.log"
+		///         ReadFromLast TRUE
+		///         SavePos	TRUE
+		///         CloseWhenIdle TRUE
+		///         Exec	$path = file_name(); $type = "myfile_type"; $field1="field1 value"; $field2="field2 value" $Message =
+		///         $raw_event;
+		///     </Input>
+		///     <Input file1>
+		///         Module	im_file
+		///         File	"C:\\Logs\\myfile.log"
+		///         ReadFromLast TRUE
+		///         SavePos	TRUE
+		///         CloseWhenIdle TRUE
+		///         Exec	$path = file_name(); $type = "type/subtype"; $field1="field1 value"; $Message = $raw_event;
+		///     </Input>
+		///     <Input file2>
+		///         Module	im_file
+		///         File	"\\\\PKH-PPE-APP10\\logs\\Apps\\PriceHistoryService\\log.log"
+		///         ReadFromLast TRUE
+		///         SavePos	TRUE
+		///         CloseWhenIdle TRUE
+		///         Exec	$path = file_name(); $type = "log4net"; $host="PKH-PPE-APP10"; $service="PriceHistoryService"; $Message =
+		///         $raw_event;
+		///     </Input>
 		/// </summary>
 		internal void SetupConfigFile()
 		{
@@ -145,12 +179,100 @@ namespace LogsearchShipper.Core
 			ExtractFileWatchers(LogsearchShipperConfig, watches);
 			ExtractEDBFileWatchers(LogsearchShipperConfig, watches);
 
-			string config = string.Format("{{\n{0}\n{1}}}",
-				GenerateNetworkSection(LogsearchShipperConfig),
-				GenerateFilesSection(watches));
+			string config = string.Format(@"
+LogLevel {0}
 
-			ConfigFile = Path.GetTempFileName();
+define ROOT {1}
+Moduledir %ROOT%\modules
+CacheDir %ROOT%\data
+Pidfile %ROOT%\data\nxlog.pid
+SpoolDir %ROOT%\data
+
+<Extension syslog>
+		Module	xm_syslog
+</Extension>
+
+<Output out>
+		Module	om_tcp
+		Host	{2}
+		Port	{3}
+		Exec	to_syslog_ietf();
+		Exec	log_debug(""Sending syslog data: "" + $raw_event);
+</Output>
+
+{4}
+", 
+				_log.IsDebugEnabled  ? "DEBUG" : "INFO", 
+				NXLogFolder,
+				LogsearchShipperConfig.IngestorHost, LogsearchShipperConfig.IngestorPort,
+				GenerateFilesSection(watches)
+			);
+
+			ConfigFile = Path.Combine(NXLogFolder, "nxlog.conf");
 			File.WriteAllText(ConfigFile, config);
+			_log.DebugFormat("NXLog config file: {0}", ConfigFile);
+			_log.Debug(config);
+		}
+
+		/// <summary>
+		///     Generates a config block similar to the below:
+		///     <Route 1>
+		///         Path        file0, file1, file2, file3, file4 => out
+		///     </Route>
+		///     <Input file0>
+		///         Module	im_file
+		///         File	"myfile.log"
+		///         ReadFromLast TRUE
+		///         SavePos	TRUE
+		///         CloseWhenIdle TRUE
+		///         PollInterval 5
+		///         DirCheckInterval 30
+		///         Exec	$path = file_name(); $type = "myfile_type"; $field1="field1 value"; $field2="field2 value" $Message =
+		///         $raw_event;
+		///     </Input>
+		///     <Input file1>
+		///         ...
+		/// </summary>
+		/// <param name="watches"></param>
+		/// <returns></returns>
+		private static string GenerateFilesSection(List<FileWatchElement> watches)
+		{
+			string routeSection = @"
+<Route 1>
+   Path     ";
+			string filesSection = "";
+
+			for (int i = 0; i < watches.Count; i++)
+			{
+				routeSection += "file" + i + ",";
+				FileWatchElement watch = watches[i];
+				filesSection += string.Format(@"
+<Input file{0}>
+	Module	im_file
+	File	""{1}""
+	ReadFromLast TRUE
+	SavePos	TRUE
+	CloseWhenIdle TRUE
+	PollInterval 5
+	DirCheckInterval 10
+	Exec	$path = file_name(); $name = ""logsearch-shipper.NET""; $module = ""nxlog""; $type = ""{2}""; ",
+					i,
+					watch.Files.Replace(@"\",@"\\"),
+					watch.Type);
+
+				foreach (FieldElement field in watch.Fields)
+				{
+					filesSection += string.Format(@"${0} = ""{1}""; ", field.Key, field.Value);
+				}
+				// Limit maximum message size to just less than 1MB; or NXLog dies with: ERROR string limit (1048576 bytes) reached
+				filesSection += @"$Message = substr($raw_event, 0, 1040000);
+</Input>
+";
+			}
+			routeSection = routeSection.TrimEnd(new[] {','}) + " => out";
+			routeSection += "\n</Route>";
+
+			return routeSection + "\n" + filesSection;
 		}
 
 		private static void ExtractFileWatchers(LogsearchShipperSection LogsearchShipperConfig, List<FileWatchElement> watches)
@@ -206,120 +328,97 @@ namespace LogsearchShipper.Core
 			LogManager.GetLogger("EnvironmentDiagramLogger").Info(new {Environments = environments});
 		}
 
-		private static string GenerateNetworkSection(LogsearchShipperSection LogsearchShipperConfig)
-		{
-			string networkSection =
-				@"""network"": {
-    ""servers"": [ ""{0}"" ],
-    ""ssl ca"": ""{1}"",
-    ""timeout"": {2}
-  },".Replace("{0}", HttpUtility.JavaScriptStringEncode(LogsearchShipperConfig.Servers))
-					.Replace("{1}", HttpUtility.JavaScriptStringEncode(LogsearchShipperConfig.SSL_CA))
-					.Replace("{2}",
-						HttpUtility.JavaScriptStringEncode(LogsearchShipperConfig.Timeout.ToString(CultureInfo.InvariantCulture)));
-			return networkSection;
-		}
-
-		private static string GenerateFilesSection(List<FileWatchElement> watches)
-		{
-			string filesSection = " \"files\": [\n";
-			for (int i = 0; i < watches.Count; i++)
-			{
-				FileWatchElement watch = watches[i];
-				filesSection += "  {\n";
-				filesSection += "    \"paths\": [ \"" + HttpUtility.JavaScriptStringEncode(watch.Files) + "\" ],\n";
-				filesSection += "    \"fields\": {\n";
-				filesSection += "      \"@type\": \"" + HttpUtility.JavaScriptStringEncode(watch.Type) + "\"\n";
-				foreach (FieldElement field in watch.Fields)
-				{
-					filesSection += "      ,\"" + HttpUtility.JavaScriptStringEncode(field.Key) + "\": \"" +
-					                HttpUtility.JavaScriptStringEncode(field.Value) + "\"\n";
-				}
-				filesSection += "    }\n";
-				filesSection += "  }";
-				if (i < watches.Count - 1)
-				{
-					filesSection += ",";
-				}
-				filesSection += "\n";
-			}
-			filesSection += "]\n";
-			return filesSection;
-		}
 
 		public void Stop()
 		{
-			if (_process == null)
-				return;
+			const int waitForGoLogstashForwarderToExitSeconds = 30;
 
-			_process.StandardInput.WriteLine(char.ConvertFromUtf32(3)); // send Ctrl-C to logstash-forwarder so it can clean up
-			_process.WaitForExit(5*1000);
-			if (!_process.HasExited)
+			_log.Info("Stopping and cleaning up nxlog.exe process.");
+
+			if (_process == null)
 			{
-				_process.Kill();
+				_log.Info("nxlog.exe process doesn't exist - nothing to Stop.");
+				return;
 			}
 
-			//TODO:  Figure out why logstash-forwarder isn't doing this cleanup itself.  It must be something to do with the way we're terminating the process above
-			if (File.Exists(".logstash-forwarder.new") &&
-			    File.GetLastWriteTime(".logstash-forwarder.new") > File.GetLastWriteTime(".logstash-forwarder"))
+			_log.Info("sending Ctrl-C to nxlog.exe process so it can clean up");
+			_process.StandardInput.WriteLine(char.ConvertFromUtf32(3));
+
+			_log.InfoFormat("Waiting for {0}sec for nxlog.exe process to shut down gracefully", waitForGoLogstashForwarderToExitSeconds);
+			_process.WaitForExit(waitForGoLogstashForwarderToExitSeconds*1000);
+			if (!_process.HasExited)
 			{
-				File.Copy(".logstash-forwarder", ".logstash-forwarder.old", true);
-				File.Copy(".logstash-forwarder.new", ".logstash-forwarder", true);
+				_log.WarnFormat("Killing nxlog.exe process since it didn't exit within {0}sec",
+					waitForGoLogstashForwarderToExitSeconds);
+				_process.Kill();
 			}
 
 			//Cleanup
 			try
 			{
 				Thread.Sleep(TimeSpan.FromMilliseconds(100));
-				File.Delete(GoLogsearchShipperFile);
+				Directory.Delete(NXLogFolder, true);
+				_log.InfoFormat("Deleting folder {0}", NXLogFolder);
 			}
 			catch (Exception)
 			{
 				//Wait a bit more, then try again
 				try
 				{
+					_log.InfoFormat("Failed to delete {0}.  Waiting 1 sec, then trying again", NXLogFolder);
 					Thread.Sleep(TimeSpan.FromMilliseconds(1000));
-					File.Delete(GoLogsearchShipperFile);
+					Directory.Delete(NXLogFolder, true);
 				}
 				catch (Exception e)
 				{
-					_log.Warn(string.Format("Unable to delete {0}.  Giving up.", GoLogsearchShipperFile), e);
+					_log.Warn(string.Format("Unable to delete {0}.  Giving up.", NXLogFolder), e);
 				}
 			}
+
+			_log.Info("Successfully stopped and cleaned up nxlog.exe process");
 		}
 
 		private void StartProcess()
 		{
-			var startInfo = new ProcessStartInfo(GoLogsearchShipperFile)
+			string nxlogExe = Path.Combine(NXLogFolder, "nxlog.exe");
+			var startInfo = new ProcessStartInfo(nxlogExe)
 			{
-				Arguments = "-from-beginning=false -config " + ConfigFile,
+				Arguments = "-f -c " + ConfigFile,
 				UseShellExecute = false,
 				RedirectStandardInput = true,
 				RedirectStandardOutput = true,
 				RedirectStandardError = true,
 				CreateNoWindow = true,
 			};
-			_log.DebugFormat("Running {0} {1}", GoLogsearchShipperFile, startInfo.Arguments);
+			_log.InfoFormat("Running {0} {1}", nxlogExe, startInfo.Arguments);
 			_process = Process.Start(startInfo);
 
-			_process.OutputDataReceived += LogGoLogstashForwarderOutput;
+			_process.OutputDataReceived += LogNxLogOutput;
 			_process.BeginOutputReadLine();
 
-			_process.ErrorDataReceived += LogGoLogstashForwarderOutput;
+			_process.ErrorDataReceived += LogNxLogOutput;
 			_process.BeginErrorReadLine();
 		}
 
-		private void LogGoLogstashForwarderOutput(object s, DataReceivedEventArgs e)
+		private void LogNxLogOutput(object s, DataReceivedEventArgs e)
 		{
-			if (e.Data == null) return;
+			if (string.IsNullOrEmpty(e.Data)) return;
 
-			if (e.Data.Contains("Registrar received"))
+			if (e.Data.Contains("ERROR"))
 			{
-				_logLogstashForwarder.Debug(e.Data);
+				_logNxLog.Error(e.Data);
+			}
+			else if (e.Data.Contains("WARNING"))
+			{
+				_logNxLog.Warn(e.Data);
+			}
+			else if (e.Data.Contains("DEBUG"))
+			{
+				_logNxLog.Debug(e.Data);
 			}
 			else
 			{
-				_logLogstashForwarder.Info(e.Data);
+				_logNxLog.Info(e.Data);
 			}
 		}
 

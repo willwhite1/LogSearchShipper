@@ -38,17 +38,14 @@ namespace LogsearchShipper.Core.Tests
 			Assert.AreEqual("\\\\PKH-STG-WEB01\\Logs\\Nolio\\all.log", fileWatches[0].Files);
 			Assert.AreEqual("log4j", fileWatches[0].Type);
 
-			Assert.AreEqual("@shipper.host", fileWatches[0].Fields[0].Key);
-			Assert.AreEqual(Environment.MachineName, fileWatches[0].Fields[0].Value);
+			Assert.AreEqual("host", fileWatches[0].Fields[0].Key);
+			Assert.AreEqual("PKH-STG-WEB01", fileWatches[0].Fields[0].Value);
 
-			Assert.AreEqual("@source.service", fileWatches[0].Fields[1].Key);
+			Assert.AreEqual("service", fileWatches[0].Fields[1].Key);
 			Assert.AreEqual("nolioagent2", fileWatches[0].Fields[1].Value);
 
-			Assert.AreEqual("@source.host", fileWatches[0].Fields[2].Key);
-			Assert.AreEqual("PKH-STG-WEB01", fileWatches[0].Fields[2].Value);
-
-			Assert.AreEqual("@environment", fileWatches[0].Fields[3].Key);
-			Assert.AreEqual("ENV2", fileWatches[0].Fields[3].Value);
+			Assert.AreEqual("environment", fileWatches[0].Fields[2].Key);
+			Assert.AreEqual("ENV2", fileWatches[0].Fields[2].Value);
 
 			Assert.AreEqual("\\\\PKH-STG-WEB01\\Logs\\Nolio\\include1.log", fileWatches[1].Files);
 			Assert.AreEqual("log4j1", fileWatches[1].Type);
