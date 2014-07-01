@@ -29,6 +29,10 @@
         <conversionPattern value="%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline" />
       </layout>
     </appender>
+    <root>
+      <level value="DEBUG" />
+      <appender-ref ref="ConsoleAppender" />
+    </root>
   </log4net>
 
 </configuration>
