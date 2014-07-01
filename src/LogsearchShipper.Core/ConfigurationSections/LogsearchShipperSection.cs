@@ -5,11 +5,18 @@ namespace LogsearchShipper.Core.ConfigurationSections
 {
 	public class LogsearchShipperSection : ConfigurationSection
 	{
-		[ConfigurationProperty("servers", IsRequired = true)]
-		public String Servers
+		[ConfigurationProperty("ingestor_host", IsRequired = true)]
+		public String IngestorHost
 		{
-			get { return (String) this["servers"]; }
-			set { this["servers"] = value; }
+			get { return (String) this["ingestor_host"]; }
+			set { this["ingestor_host"] = value; }
+		}
+
+		[ConfigurationProperty("ingestor_port", IsRequired = true)]
+		public int IngestorPort
+		{
+			get { return Convert.ToInt32(this["ingestor_port"]); }
+			set { this["ingestor_port"] = value; }
 		}
 
 		[ConfigurationProperty("ssl_ca", IsRequired = true)]
@@ -17,13 +24,6 @@ namespace LogsearchShipper.Core.ConfigurationSections
 		{
 			get { return (String) this["ssl_ca"]; }
 			set { this["ssl_ca"] = value; }
-		}
-
-		[ConfigurationProperty("timeout", IsRequired = true)]
-		public int Timeout
-		{
-			get { return Convert.ToInt32(this["timeout"]); }
-			set { this["timeout"] = value; }
 		}
 
 		[ConfigurationProperty("fileWatchers", IsDefaultCollection = false)]
