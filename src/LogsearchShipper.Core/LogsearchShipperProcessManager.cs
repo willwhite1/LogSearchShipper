@@ -128,7 +128,7 @@ namespace LogsearchShipper.Core
 		///     SpoolDir %ROOT%\data
 		///     LogLevel INFO
 		///     <Extension syslog>
-		///         Module      xm_syslog
+		///         Module	xm_syslog
 		///     </Extension>
 		///     <Output out>
 		///         Module	om_tcp

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using log4net;
 using NUnit.Framework;
 
 namespace LogsearchShipper.Core.Tests
@@ -90,10 +91,11 @@ LogLevel INFO
 			StringAssert.Contains(@"CacheDir %ROOT%\data", config);
 			StringAssert.Contains(@"Pidfile %ROOT%\data\nxlog.pid", config);
 			StringAssert.Contains(@"SpoolDir %ROOT%\data", config);
-			StringAssert.Contains("LogLevel INFO", config);
+			var log4NetLogLevel = LogManager.GetLogger(typeof (LogsearchShipperProcessManager)).IsDebugEnabled  ? "DEBUG" : "INFO";
+			StringAssert.Contains(string.Format("LogLevel {0}", log4NetLogLevel), config);
 
 			StringAssert.Contains("<Extension syslog>", config);
-			StringAssert.Contains("Module      xm_syslog", config);
+			StringAssert.Contains("Module	xm_syslog", config);
 
 			StringAssert.Contains("<Output out>", config);
 			StringAssert.Contains("Module	om_tcp", config);
