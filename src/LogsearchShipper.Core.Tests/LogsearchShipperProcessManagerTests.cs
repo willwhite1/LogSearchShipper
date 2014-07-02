@@ -25,6 +25,19 @@ namespace LogsearchShipper.Core.Tests
 		private LogsearchShipperProcessManager _logsearchShipperProcessManager;
 
 		[Test]
+		public void ShouldCreateDataFolderIfItDoesntExist()
+		{
+			if (Directory.Exists(_logsearchShipperProcessManager.LogsearchShipperConfig.DataFolder))
+			{
+					Directory.Delete(_logsearchShipperProcessManager.LogsearchShipperConfig.DataFolder);
+			}
+
+			var dataFolder = _logsearchShipperProcessManager.NXLogDataFolder;  //this should create it
+
+				Assert.IsTrue(Directory.Exists(dataFolder), string.Format("DataFolder {0} should have been created, but wasn't", dataFolder));
+		}
+
+		[Test]
 		public void ShouldCorrectlyGenerateNXLogConfigFromAppConfigSettings()
 		{
 			_logsearchShipperProcessManager.SetupConfigFile();
