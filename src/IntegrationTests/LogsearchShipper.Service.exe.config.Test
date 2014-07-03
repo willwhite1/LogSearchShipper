@@ -13,9 +13,9 @@
   </configSections>
 
   <LogsearchShipperGroup>
-    <LogsearchShipper ingestor_host="54.194.76.47" ingestor_port="5514" ssl_ca="C:\Keys\ingestor.meta.logsearch.io.crt">
+    <LogsearchShipper data_folder="data" ingestor_host="54.194.76.47" ingestor_port="5514" ssl_ca="C:\Keys\ingestor.meta.logsearch.io.crt">
       <fileWatchers>
-        <watch files="D:\projects\City Index\LogSearch\logsearch-shipper.NET\bin\LogSearchShipper.Test\logs\*.*" type="plain">
+        <watch files="..\logs\*.*" type="plain">
           <field key="environment" value="LogSearchShipper.Test" />
           <field key="type" value="json" />
         </watch>
