@@ -144,7 +144,6 @@ SpoolDir %DATA_FOLDER%
 		Host	{3}
 		Port	{4}
 		Exec	to_syslog_ietf();
-		Exec	log_debug(""Sending syslog data: "" + $raw_event);
 </Output>
 
 {5}
