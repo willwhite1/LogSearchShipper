@@ -18,7 +18,7 @@ Change the settings to fit your environment
   </configSections>
 
   <LogsearchShipperGroup>
-    <LogsearchShipper servers="ingestor.you-logsearch-cluster.com:5043" ssl_ca="C:\Keys\ingestor.crt" timeout="23">
+    <LogsearchShipper data_folder="data" ingestor_host="ingestor.you-logsearch-cluster.com" ingestor_port="5514" ssl_ca="C:\Keys\ingestor.crt">
 		<fileWatchers>
 			<watch files="C:\Logs\MonitorRunner.log" type="json">
 				<field key="@environment" value="DEV" />

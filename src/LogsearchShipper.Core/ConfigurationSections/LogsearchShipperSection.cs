@@ -19,6 +19,13 @@ namespace LogsearchShipper.Core.ConfigurationSections
 			set { this["ingestor_port"] = value; }
 		}
 
+		[ConfigurationProperty("data_folder", IsRequired = true)]
+		public String DataFolder
+		{
+				get { return (String)this["data_folder"]; }
+				set { this["data_folder"] = value; }
+		}
+
 		[ConfigurationProperty("ssl_ca", IsRequired = true)]
 		public String SSL_CA
 		{

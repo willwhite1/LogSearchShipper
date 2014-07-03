@@ -91,6 +91,12 @@ namespace LogsearchShipper.Core.Tests
 		}
 
 		[Test]
+		public void ShouldHaveDataFolder()
+		{
+				StringAssert.Contains("data", _logsearchShipper.DataFolder);
+		}
+
+		[Test]
 		public void ShouldHaveIngestorHostAttribute()
 		{
 			Assert.AreEqual("ingestor.example.com", _logsearchShipper.IngestorHost);

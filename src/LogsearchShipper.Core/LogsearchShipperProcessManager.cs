@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using log4net;
 using LogsearchShipper.Core.ConfigurationSections;
@@ -21,10 +22,22 @@ namespace LogsearchShipper.Core
 		private readonly Dictionary<string, Timer> _environmentDiagramLoggingTimers = new Dictionary<string, Timer>();
 		private readonly List<FileSystemWatcher> _watchedConfigFiles = new List<FileSystemWatcher>();
 		private string _nxLogFolder;
+		private string _nxLogDataFolder;
 
 		public string ConfigFile { get; private set; }
 
-		public string NXLogFolder
+		public LogsearchShipperSection LogsearchShipperConfig
+		{
+			get
+			{
+				var LogsearchShipperConfig =
+					ConfigurationManager.GetSection("LogsearchShipperGroup/LogsearchShipper") as LogsearchShipperSection;
+				Debug.Assert(LogsearchShipperConfig != null, "LogsearchShipperConfig != null");
+				return LogsearchShipperConfig;
+			}
+		}
+
+		public string NXLogBinFolder
 		{
 			get
 			{
@@ -35,6 +48,118 @@ namespace LogsearchShipper.Core
 				}
 				return _nxLogFolder;
 			}
+		}
+
+		public string NXLogDataFolder
+		{
+				get
+				{
+					if (!string.IsNullOrEmpty(_nxLogDataFolder)) return _nxLogDataFolder;
+
+					if (!Directory.Exists(LogsearchShipperConfig.DataFolder))
+					{
+							Directory.CreateDirectory(LogsearchShipperConfig.DataFolder);
+					}
+
+					_nxLogDataFolder = LogsearchShipperConfig.DataFolder;
+					
+					return _nxLogDataFolder;
+				}
+		}
+
+		/// <summary>
+		///     We're expecting a config that looks something like this:
+		///     define BIN_FOLDER C:\Users\Andrei\AppData\Local\Temp\nxlog-81f27590cf4a4095915358b867c030af
+		///     define DATA_FOLDER C:\Dev\logsearch-shipper.NET\data
+		///     Moduledir %BIN_FOLDER%\modules
+		///     CacheDir %DATA_FOLDER%
+		///     Pidfile %DATA_FOLDER%\nxlog.pid
+		///     SpoolDir %DATA_FOLDER%
+		///     LogLevel INFO
+		///     <Extension syslog>
+		///         Module	xm_syslog
+		///     </Extension>
+		///     <Output out>
+		///         Module	om_tcp
+		///         Host	endpoint.example.com
+		///         Port	5514
+		///         Exec	to_syslog_ietf();
+		///         Exec    log_debug("Sending syslog data: " + $raw_event);
+		///         #OutputType	Syslog_TLS
+		///     </Output>
+		///     <Route 1>
+		///         Path        file0, file1, file2, file3, file4 => out
+		///     </Route>
+		///     <Input file0>
+		///         Module	im_file
+		///         File	"myfile.log"
+		///         ReadFromLast TRUE
+		///         SavePos	TRUE
+		///         CloseWhenIdle TRUE
+		///         Exec	$path = file_name(); $type = "myfile_type"; $field1="field1 value"; $field2="field2 value" $Message =
+		///         $raw_event;
+		///     </Input>
+		///     <Input file1>
+		///         Module	im_file
+		///         File	"C:\\Logs\\myfile.log"
+		///         ReadFromLast TRUE
+		///         SavePos	TRUE
+		///         CloseWhenIdle TRUE
+		///         Exec	$path = file_name(); $type = "type/subtype"; $field1="field1 value"; $Message = $raw_event;
+		///     </Input>
+		///     <Input file2>
+		///         Module	im_file
+		///         File	"\\\\PKH-PPE-APP10\\logs\\Apps\\PriceHistoryService\\log.log"
+		///         ReadFromLast TRUE
+		///         SavePos	TRUE
+		///         CloseWhenIdle TRUE
+		///         Exec	$path = file_name(); $type = "log4net"; $host="PKH-PPE-APP10"; $service="PriceHistoryService"; $Message =
+		///         $raw_event;
+		///     </Input>
+		/// </summary>
+		internal void SetupConfigFile()
+		{
+			var watches = new List<FileWatchElement>();
+
+			ExtractFileWatchers(LogsearchShipperConfig, watches);
+			ExtractEDBFileWatchers(LogsearchShipperConfig, watches);
+
+			string config = string.Format(@"
+LogLevel {0}
+
+define BIN_FOLDER {1}
+ModuleDir %BIN_FOLDER%\modules
+
+define DATA_FOLDER {2}
+CacheDir %DATA_FOLDER%
+PidFile %DATA_FOLDER%\nxlog.pid
+SpoolDir %DATA_FOLDER%
+
+<Extension syslog>
+		Module	xm_syslog
+</Extension>
+
+<Output out>
+		Module	om_tcp
+		Host	{3}
+		Port	{4}
+		Exec	to_syslog_ietf();
+		Exec	log_debug(""Sending syslog data: "" + $raw_event);
+</Output>
+
+{5}
+", 
+				_log.IsDebugEnabled  ? "DEBUG" : "INFO", 
+				NXLogBinFolder,
+				NXLogDataFolder,
+				LogsearchShipperConfig.IngestorHost, LogsearchShipperConfig.IngestorPort,
+				GenerateFilesSection(watches)
+				);
+
+			ConfigFile = Path.Combine(NXLogDataFolder, "nxlog.conf");
+			File.WriteAllText(ConfigFile, config);
+			_log.DebugFormat("NXLog config file: {0}", ConfigFile);
+			_log.Debug(config);
 		}
 
 		public void Start()
@@ -104,7 +229,7 @@ namespace LogsearchShipper.Core
 			if (!Environment.OSVersion.VersionString.Contains("Windows"))
 				throw new NotSupportedException("LogsearchShipperProcessManager only supports Windows");
 
-			string zipFile = Path.Combine(NXLogFolder, "nxlog.zip");
+			string zipFile = Path.Combine(NXLogBinFolder, "nxlog.zip");
 			using (var fStream = new FileStream(zipFile, FileMode.Create))
 			{
 				fStream.Write(Resource.nxlog_ce_2_7_1191_zip,
@@ -113,105 +238,10 @@ namespace LogsearchShipper.Core
 
 			using (ZipArchive archive = ZipFile.Open(zipFile, ZipArchiveMode.Update))
 			{
-				archive.ExtractToDirectory(NXLogFolder);
+				archive.ExtractToDirectory(NXLogBinFolder);
 			}
 
-			_log.Info(string.Format("NXLogFolder => {0}", NXLogFolder));
-		}
-
-		/// <summary>
-		///     We're expecting a config that looks something like this:
-		///     define ROOT C:\Dev\logsearch-shipper.NET\vendor\nxlog
-		///     Moduledir %ROOT%\modules
-		///     CacheDir %ROOT%\data
-		///     Pidfile %ROOT%\data\nxlog.pid
-		///     SpoolDir %ROOT%\data
-		///     LogLevel INFO
-		///     <Extension syslog>
-		///         Module	xm_syslog
-		///     </Extension>
-		///     <Output out>
-		///         Module	om_tcp
-		///         Host	endpoint.example.com
-		///         Port	5514
-		///         Exec	to_syslog_ietf();
-		///         Exec    log_debug("Sending syslog data: " + $raw_event);
-		///         #OutputType	Syslog_TLS
-		///     </Output>
-		///     <Route 1>
-		///         Path        file0, file1, file2, file3, file4 => out
-		///     </Route>
-		///     <Input file0>
-		///         Module	im_file
-		///         File	"myfile.log"
-		///         ReadFromLast TRUE
-		///         SavePos	TRUE
-		///         CloseWhenIdle TRUE
-		///         Exec	$path = file_name(); $type = "myfile_type"; $field1="field1 value"; $field2="field2 value" $Message =
-		///         $raw_event;
-		///     </Input>
-		///     <Input file1>
-		///         Module	im_file
-		///         File	"C:\\Logs\\myfile.log"
-		///         ReadFromLast TRUE
-		///         SavePos	TRUE
-		///         CloseWhenIdle TRUE
-		///         Exec	$path = file_name(); $type = "type/subtype"; $field1="field1 value"; $Message = $raw_event;
-		///     </Input>
-		///     <Input file2>
-		///         Module	im_file
-		///         File	"\\\\PKH-PPE-APP10\\logs\\Apps\\PriceHistoryService\\log.log"
-		///         ReadFromLast TRUE
-		///         SavePos	TRUE
-		///         CloseWhenIdle TRUE
-		///         Exec	$path = file_name(); $type = "log4net"; $host="PKH-PPE-APP10"; $service="PriceHistoryService"; $Message =
-		///         $raw_event;
-		///     </Input>
-		/// </summary>
-		internal void SetupConfigFile()
-		{
-			var LogsearchShipperConfig =
-				ConfigurationManager.GetSection("LogsearchShipperGroup/LogsearchShipper") as LogsearchShipperSection;
-			Debug.Assert(LogsearchShipperConfig != null, "LogsearchShipperConfig != null");
-
-			var watches = new List<FileWatchElement>();
-
-			ExtractFileWatchers(LogsearchShipperConfig, watches);
-			ExtractEDBFileWatchers(LogsearchShipperConfig, watches);
-
-			string config = string.Format(@"
-LogLevel {0}
-
-define ROOT {1}
-Moduledir %ROOT%\modules
-CacheDir %ROOT%\data
-Pidfile %ROOT%\data\nxlog.pid
-SpoolDir %ROOT%\data
-
-<Extension syslog>
-		Module	xm_syslog
-</Extension>
-
-<Output out>
-		Module	om_tcp
-		Host	{2}
-		Port	{3}
-		Exec	to_syslog_ietf();
-		Exec	log_debug(""Sending syslog data: "" + $raw_event);
-</Output>
-
-{4}
-", 
-				_log.IsDebugEnabled  ? "DEBUG" : "INFO", 
-				NXLogFolder,
-				LogsearchShipperConfig.IngestorHost, LogsearchShipperConfig.IngestorPort,
-				GenerateFilesSection(watches)
-			);
-
-			ConfigFile = Path.Combine(NXLogFolder, "nxlog.conf");
-			File.WriteAllText(ConfigFile, config);
-			_log.DebugFormat("NXLog config file: {0}", ConfigFile);
-			_log.Debug(config);
+			_log.Info(string.Format("NXLogBinFolder => {0}", NXLogBinFolder));
 		}
 
 		/// <summary>
@@ -357,21 +387,21 @@ SpoolDir %ROOT%\data
 			try
 			{
 				Thread.Sleep(TimeSpan.FromMilliseconds(100));
-				Directory.Delete(NXLogFolder, true);
-				_log.InfoFormat("Deleting folder {0}", NXLogFolder);
+				Directory.Delete(NXLogBinFolder, true);
+				_log.InfoFormat("Deleting folder {0}", NXLogBinFolder);
 			}
 			catch (Exception)
 			{
 				//Wait a bit more, then try again
 				try
 				{
-					_log.InfoFormat("Failed to delete {0}.  Waiting 1 sec, then trying again", NXLogFolder);
+					_log.InfoFormat("Failed to delete {0}.  Waiting 1 sec, then trying again", NXLogBinFolder);
 					Thread.Sleep(TimeSpan.FromMilliseconds(1000));
-					Directory.Delete(NXLogFolder, true);
+					Directory.Delete(NXLogBinFolder, true);
 				}
 				catch (Exception e)
 				{
-					_log.Warn(string.Format("Unable to delete {0}.  Giving up.", NXLogFolder), e);
+					_log.Warn(string.Format("Unable to delete {0}.  Giving up.", NXLogBinFolder), e);
 				}
 			}
 
@@ -380,7 +410,7 @@ SpoolDir %ROOT%\data
 
 		private void StartProcess()
 		{
-			string nxlogExe = Path.Combine(NXLogFolder, "nxlog.exe");
+			string nxlogExe = Path.Combine(NXLogBinFolder, "nxlog.exe");
 			var startInfo = new ProcessStartInfo(nxlogExe)
 			{
 				Arguments = "-f -c " + ConfigFile,
