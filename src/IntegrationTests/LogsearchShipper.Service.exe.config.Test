@@ -30,7 +30,8 @@
       </layout>
     </appender>
     <root>
-      <level value="DEBUG" />
+      <levelMin value="INFO" />
+      <levelMax value="FATAL" />
       <appender-ref ref="ConsoleAppender" />
     </root>
   </log4net>
