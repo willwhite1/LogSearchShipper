@@ -128,11 +128,11 @@ namespace LogsearchShipper.Core
 LogLevel {0}
 
 define BIN_FOLDER {1}
-Moduledir %BIN_FOLDER%\modules
+ModuleDir %BIN_FOLDER%\modules
 
 define DATA_FOLDER {2}
 CacheDir %DATA_FOLDER%
-Pidfile %DATA_FOLDER%\nxlog.pid
+PidFile %DATA_FOLDER%\nxlog.pid
 SpoolDir %DATA_FOLDER%
 
 <Extension syslog>
@@ -156,7 +156,7 @@ SpoolDir %DATA_FOLDER%
 				GenerateFilesSection(watches)
 				);
 
-			ConfigFile = Path.Combine(NXLogBinFolder, "nxlog.conf");
+			ConfigFile = Path.Combine(NXLogDataFolder, "nxlog.conf");
 			File.WriteAllText(ConfigFile, config);
 			_log.DebugFormat("NXLog config file: {0}", ConfigFile);
 			_log.Debug(config);

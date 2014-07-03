@@ -29,12 +29,19 @@ namespace LogsearchShipper.Core.Tests
 		{
 			if (Directory.Exists(_logsearchShipperProcessManager.LogsearchShipperConfig.DataFolder))
 			{
-					Directory.Delete(_logsearchShipperProcessManager.LogsearchShipperConfig.DataFolder);
+					Directory.Delete(_logsearchShipperProcessManager.LogsearchShipperConfig.DataFolder, true);
 			}
 
 			var dataFolder = _logsearchShipperProcessManager.NXLogDataFolder;  //this should create it
 
 				Assert.IsTrue(Directory.Exists(dataFolder), string.Format("DataFolder {0} should have been created, but wasn't", dataFolder));
+		}
+
+		[Test]
+		public void ShouldStoreConfigFileInDataFolder()
+		{
+				_logsearchShipperProcessManager.SetupConfigFile();
+				Assert.AreEqual(Path.Combine(_logsearchShipperProcessManager.NXLogDataFolder,"nxlog.conf"), _logsearchShipperProcessManager.ConfigFile);
 		}
 
 		[Test]
@@ -52,13 +59,13 @@ namespace LogsearchShipper.Core.Tests
 		[Test]
 		public void ShouldGenerateNXLogConfigWithCorrectModuledir()
 		{
-				AssertConfigContains(@"Moduledir %BIN_FOLDER%\modules");
+				AssertConfigContains(@"ModuleDir %BIN_FOLDER%\modules");
 		}
 
 		[Test]
 		public void ShouldGenerateNXLogConfigWithCorrectPidfile()
 		{
-				AssertConfigContains(@"Pidfile %DATA_FOLDER%\nxlog.pid");
+				AssertConfigContains(@"PidFile %DATA_FOLDER%\nxlog.pid");
 		}
 
 		[Test]
