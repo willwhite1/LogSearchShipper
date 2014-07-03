@@ -37,7 +37,7 @@ namespace LogsearchShipper.Core
 			}
 		}
 
-		public string NXLogFolder
+		public string NXLogBinFolder
 		{
 			get
 			{
@@ -69,11 +69,12 @@ namespace LogsearchShipper.Core
 
 		/// <summary>
 		///     We're expecting a config that looks something like this:
-		///     define ROOT C:\Dev\logsearch-shipper.NET\vendor\nxlog
-		///     Moduledir %ROOT%\modules
-		///     CacheDir %ROOT%\data
-		///     Pidfile %ROOT%\data\nxlog.pid
-		///     SpoolDir %ROOT%\data
+		///     define BIN_FOLDER C:\Users\Andrei\AppData\Local\Temp\nxlog-81f27590cf4a4095915358b867c030af
+		///     define DATA_FOLDER C:\Dev\logsearch-shipper.NET\data
+		///     Moduledir %BIN_FOLDER%\modules
+		///     CacheDir %DATA_FOLDER%
+		///     Pidfile %DATA_FOLDER%\nxlog.pid
+		///     SpoolDir %DATA_FOLDER%
 		///     LogLevel INFO
 		///     <Extension syslog>
 		///         Module	xm_syslog
@@ -126,11 +127,13 @@ namespace LogsearchShipper.Core
 			string config = string.Format(@"
 LogLevel {0}
 
-define ROOT {1}
-Moduledir %ROOT%\modules
-CacheDir %ROOT%\data
-Pidfile %ROOT%\data\nxlog.pid
-SpoolDir %ROOT%\data
+define BIN_FOLDER {1}
+Moduledir %BIN_FOLDER%\modules
+
+define DATA_FOLDER {2}
+CacheDir %DATA_FOLDER%
+Pidfile %DATA_FOLDER%\nxlog.pid
+SpoolDir %DATA_FOLDER%
 
 <Extension syslog>
 		Module	xm_syslog
@@ -138,21 +141,22 @@ SpoolDir %ROOT%\data
 
 <Output out>
 		Module	om_tcp
-		Host	{2}
-		Port	{3}
+		Host	{3}
+		Port	{4}
 		Exec	to_syslog_ietf();
 		Exec	log_debug(""Sending syslog data: "" + $raw_event);
 </Output>
 
-{4}
+{5}
 ", 
 				_log.IsDebugEnabled  ? "DEBUG" : "INFO", 
-				NXLogFolder,
+				NXLogBinFolder,
+				NXLogDataFolder,
 				LogsearchShipperConfig.IngestorHost, LogsearchShipperConfig.IngestorPort,
 				GenerateFilesSection(watches)
-			);
+				);
 
-			ConfigFile = Path.Combine(NXLogFolder, "nxlog.conf");
+			ConfigFile = Path.Combine(NXLogBinFolder, "nxlog.conf");
 			File.WriteAllText(ConfigFile, config);
 			_log.DebugFormat("NXLog config file: {0}", ConfigFile);
 			_log.Debug(config);
@@ -225,7 +229,7 @@ SpoolDir %ROOT%\data
 			if (!Environment.OSVersion.VersionString.Contains("Windows"))
 				throw new NotSupportedException("LogsearchShipperProcessManager only supports Windows");
 
-			string zipFile = Path.Combine(NXLogFolder, "nxlog.zip");
+			string zipFile = Path.Combine(NXLogBinFolder, "nxlog.zip");
 			using (var fStream = new FileStream(zipFile, FileMode.Create))
 			{
 				fStream.Write(Resource.nxlog_ce_2_7_1191_zip,
@@ -234,10 +238,10 @@ SpoolDir %ROOT%\data
 
 			using (ZipArchive archive = ZipFile.Open(zipFile, ZipArchiveMode.Update))
 			{
-				archive.ExtractToDirectory(NXLogFolder);
+				archive.ExtractToDirectory(NXLogBinFolder);
 			}
 
-			_log.Info(string.Format("NXLogFolder => {0}", NXLogFolder));
+			_log.Info(string.Format("NXLogBinFolder => {0}", NXLogBinFolder));
 		}
 
 		/// <summary>
@@ -383,21 +387,21 @@ SpoolDir %ROOT%\data
 			try
 			{
 				Thread.Sleep(TimeSpan.FromMilliseconds(100));
-				Directory.Delete(NXLogFolder, true);
-				_log.InfoFormat("Deleting folder {0}", NXLogFolder);
+				Directory.Delete(NXLogBinFolder, true);
+				_log.InfoFormat("Deleting folder {0}", NXLogBinFolder);
 			}
 			catch (Exception)
 			{
 				//Wait a bit more, then try again
 				try
 				{
-					_log.InfoFormat("Failed to delete {0}.  Waiting 1 sec, then trying again", NXLogFolder);
+					_log.InfoFormat("Failed to delete {0}.  Waiting 1 sec, then trying again", NXLogBinFolder);
 					Thread.Sleep(TimeSpan.FromMilliseconds(1000));
-					Directory.Delete(NXLogFolder, true);
+					Directory.Delete(NXLogBinFolder, true);
 				}
 				catch (Exception e)
 				{
-					_log.Warn(string.Format("Unable to delete {0}.  Giving up.", NXLogFolder), e);
+					_log.Warn(string.Format("Unable to delete {0}.  Giving up.", NXLogBinFolder), e);
 				}
 			}
 
@@ -406,7 +410,7 @@ SpoolDir %ROOT%\data
 
 		private void StartProcess()
 		{
-			string nxlogExe = Path.Combine(NXLogFolder, "nxlog.exe");
+			string nxlogExe = Path.Combine(NXLogBinFolder, "nxlog.exe");
 			var startInfo = new ProcessStartInfo(nxlogExe)
 			{
 				Arguments = "-f -c " + ConfigFile,

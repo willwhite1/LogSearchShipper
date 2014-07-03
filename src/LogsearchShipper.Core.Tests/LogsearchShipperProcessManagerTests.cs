@@ -38,84 +38,66 @@ namespace LogsearchShipper.Core.Tests
 		}
 
 		[Test]
-		public void ShouldCorrectlyGenerateNXLogConfigFromAppConfigSettings()
+		public void ShouldGenerateNXLogConfigWithCorrectBIN_FOLDER()
+		{
+			AssertConfigContains("define BIN_FOLDER {0}", _logsearchShipperProcessManager.NXLogBinFolder);
+		}
+
+		[Test]
+		public void ShouldGenerateNXLogConfigWithCorrectDATA_FOLDER()
+		{
+				AssertConfigContains("define DATA_FOLDER {0}", _logsearchShipperProcessManager.NXLogDataFolder);
+		}
+
+		[Test]
+		public void ShouldGenerateNXLogConfigWithCorrectModuledir()
+		{
+				AssertConfigContains(@"Moduledir %BIN_FOLDER%\modules");
+		}
+
+		[Test]
+		public void ShouldGenerateNXLogConfigWithCorrectPidfile()
+		{
+				AssertConfigContains(@"Pidfile %DATA_FOLDER%\nxlog.pid");
+		}
+
+		[Test]
+		public void ShouldGenerateNXLogConfigWithCorrectSpoolDir()
+		{
+				AssertConfigContains(@"SpoolDir %DATA_FOLDER%");
+		}
+			
+		[Test]
+		public void ShouldGenerateNXLogConfigWithCorrectCacheDir()
+		{
+				AssertConfigContains(@"CacheDir %DATA_FOLDER%");
+		}
+
+		[Test]
+		public void ShouldGenerateNXLogConfigWithCorrectLogLevelBasedOnLog4NETSetting()
+		{
+				var log4NetLogLevel = LogManager.GetLogger(typeof(LogsearchShipperProcessManager)).IsDebugEnabled ? "DEBUG" : "INFO";
+				AssertConfigContains("LogLevel {0}", log4NetLogLevel);
+		}
+
+		[Test]
+		public void ShouldGenerateNXLogConfigWithCorrectSyslogOutputSettings()
+		{
+				AssertConfigContains("<Extension syslog>");
+				AssertConfigContains("Module	xm_syslog");
+
+				AssertConfigContains("<Output out>");
+				AssertConfigContains("Module	om_tcp");
+
+				AssertConfigContains("Host	ingestor.example.com");
+				AssertConfigContains("Port	443");
+				AssertConfigContains("Exec	to_syslog_ietf();");
+		}
+		private void AssertConfigContains(string containing, params object[] substitutions)
 		{
 			_logsearchShipperProcessManager.SetupConfigFile();
-			string config = File.ReadAllText(_logsearchShipperProcessManager.ConfigFile);
-			Console.WriteLine(config);
-
-			/* We're expecting a config that looks like this:
-            * 
-define ROOT C:\Dev\logsearch-shipper.NET\vendor\nxlog
-
-Moduledir %ROOT%\modules
-CacheDir %ROOT%\data
-Pidfile %ROOT%\data\nxlog.pid
-SpoolDir %ROOT%\data
-LogLevel INFO
-
-<Extension syslog>
-    Module      xm_syslog
-</Extension>
-
-<Output out>
-    Module	om_tcp
-    Host	endpoint.example.com
-    Port	5514
-    Exec	to_syslog_ietf();
-	Exec    log_debug("Sending syslog data: " + $raw_event);
-    #OutputType	Syslog_TLS
-</Output>
-
-<Route 1>
-    Path        file0, file1, file2, file3, file4 => out
-</Route>
-
-<Input file0>
-    Module	im_file
-    File	"myfile.log"
-    ReadFromLast TRUE
-	SavePos	TRUE
-	CloseWhenIdle TRUE
-	Exec	$path = file_name(); $type = "myfile_type"; $field1="field1 value"; $field2="field2 value" $Message = $raw_event;
-</Input>
-
-<Input file1>
-    Module	im_file
-    File	"C:\\Logs\\myfile.log"
-    ReadFromLast TRUE
-	SavePos	TRUE
-	CloseWhenIdle TRUE
-	Exec	$path = file_name(); $type = "type/subtype"; $field1="field1 value"; $Message = $raw_event;
-</Input>
-             
-<Input file2>
-    Module	im_file
-    File	"\\\\PKH-PPE-APP10\\logs\\Apps\\PriceHistoryService\\log.log"
-    ReadFromLast TRUE
-	SavePos	TRUE
-	CloseWhenIdle TRUE
-	Exec	$path = file_name(); $type = "log4net"; $host="PKH-PPE-APP10"; $service="PriceHistoryService"; $Message = $raw_event;
-</Input>
-            */
-
-			StringAssert.Contains("define ROOT ", config);
-			StringAssert.Contains(@"Moduledir %ROOT%\modules", config);
-			StringAssert.Contains(@"CacheDir %ROOT%\data", config);
-			StringAssert.Contains(@"Pidfile %ROOT%\data\nxlog.pid", config);
-			StringAssert.Contains(@"SpoolDir %ROOT%\data", config);
-			var log4NetLogLevel = LogManager.GetLogger(typeof (LogsearchShipperProcessManager)).IsDebugEnabled  ? "DEBUG" : "INFO";
-			StringAssert.Contains(string.Format("LogLevel {0}", log4NetLogLevel), config);
-
-			StringAssert.Contains("<Extension syslog>", config);
-			StringAssert.Contains("Module	xm_syslog", config);
-
-			StringAssert.Contains("<Output out>", config);
-			StringAssert.Contains("Module	om_tcp", config);
-
-			StringAssert.Contains("Host	ingestor.example.com", config);
-			StringAssert.Contains("Port	443", config);
-			StringAssert.Contains("Exec	to_syslog_ietf();", config);
+			var config = File.ReadAllText(_logsearchShipperProcessManager.ConfigFile);
+			StringAssert.Contains(string.Format(containing, substitutions), config);
 		}
 
 		[Test, Ignore("Needs valid logstash ingestor to connect to")]
