@@ -140,18 +140,20 @@ SpoolDir %DATA_FOLDER%
 </Extension>
 
 <Output out>
-		Module	om_tcp
+		Module	om_ssl
 		Host	{3}
 		Port	{4}
+		AllowUntrusted TRUE
 		Exec	to_syslog_ietf();
 </Output>
 
-{5}
+{6}
 ", 
 				_log.IsDebugEnabled  ? "DEBUG" : "INFO", 
 				NXLogBinFolder,
 				NXLogDataFolder,
 				LogsearchShipperConfig.IngestorHost, LogsearchShipperConfig.IngestorPort,
+				LogsearchShipperConfig.SSL_CA, 
 				GenerateFilesSection(watches)
 				);
 
