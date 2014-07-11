@@ -94,7 +94,7 @@ namespace LogsearchShipper.Core.Tests
 				AssertConfigContains("Module	xm_syslog");
 
 				AssertConfigContains("<Output out>");
-				AssertConfigContains("Module	om_tcp");
+				AssertConfigContains("Module	om_ssl");
 
 				AssertConfigContains("Host	ingestor.example.com");
 				AssertConfigContains("Port	443");
