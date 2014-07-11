@@ -360,7 +360,7 @@ SpoolDir %DATA_FOLDER%
 
 		public void Stop()
 		{
-			const int waitForGoLogstashForwarderToExitSeconds = 30;
+			const int waitForGoLogstashForwarderToExitSeconds = 5;
 
 			_log.Info("Stopping and cleaning up nxlog.exe process.");
 
