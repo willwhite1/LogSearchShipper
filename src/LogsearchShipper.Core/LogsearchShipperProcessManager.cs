@@ -155,8 +155,7 @@ SpoolDir	{3}
 
 			ConfigFile = Path.Combine(NXLogDataFolder, "nxlog.conf");
 			File.WriteAllText(ConfigFile, config);
-			_log.DebugFormat("NXLog config file: {0}", ConfigFile);
-			_log.Debug(config);
+			_log.InfoFormat("NXLog config file: {0}", ConfigFile);
 		}
 
 		public void Start()
@@ -171,7 +170,7 @@ SpoolDir	{3}
 			{
 				if (configChanging.isBusy)
 				{
-					_log.Debug("Already in the process of updating config; ignoring trigger");
+					_log.Info("Already in the process of updating config; ignoring trigger");
 					return;
 				}
 
@@ -179,7 +178,7 @@ SpoolDir	{3}
 				{
 					configChanging.isBusy = true;
 
-					_log.Debug("Updating config and restarting shipping...");
+					_log.Info("Updating config and restarting shipping...");
 					Stop();
 					SetupConfigFile();
 					StartProcess();
@@ -195,7 +194,7 @@ SpoolDir	{3}
 			{
 				watcher.Changed += (s, e) =>
 				{
-					_log.DebugFormat("Detected change in file: {0}", e.FullPath);
+					_log.InfoFormat("Detected change in file: {0}", e.FullPath);
 					actionsToRun();
 				};
 				watcher.EnableRaisingEvents = true;
@@ -418,6 +417,8 @@ SpoolDir	{3}
 				CreateNoWindow = true,
 			};
 			_log.InfoFormat("Running {0} {1}", nxlogExe, startInfo.Arguments);
+			_log.InfoFormat("Connecting to ingestor: syslog-tls://{0}:{1}", LogsearchShipperConfig.IngestorHost, LogsearchShipperConfig.IngestorPort);
+
 			_process = Process.Start(startInfo);
 
 			_process.OutputDataReceived += LogNxLogOutput;
