@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using log4net;
 using NUnit.Framework;
 
@@ -44,40 +45,29 @@ namespace LogsearchShipper.Core.Tests
 				Assert.AreEqual(Path.Combine(_logsearchShipperProcessManager.NXLogDataFolder,"nxlog.conf"), _logsearchShipperProcessManager.ConfigFile);
 		}
 
-		[Test]
-		public void ShouldGenerateNXLogConfigWithCorrectBIN_FOLDER()
-		{
-			AssertConfigContains("define BIN_FOLDER {0}", _logsearchShipperProcessManager.NXLogBinFolder);
-		}
-
-		[Test]
-		public void ShouldGenerateNXLogConfigWithCorrectDATA_FOLDER()
-		{
-				AssertConfigContains("define DATA_FOLDER {0}", _logsearchShipperProcessManager.NXLogDataFolder);
-		}
 
 		[Test]
 		public void ShouldGenerateNXLogConfigWithCorrectModuledir()
 		{
-				AssertConfigContains(@"ModuleDir %BIN_FOLDER%\modules");
+				AssertConfigContains(@"ModuleDir	{0}\modules", Path.GetFullPath(_logsearchShipperProcessManager.NXLogBinFolder));
 		}
 
 		[Test]
 		public void ShouldGenerateNXLogConfigWithCorrectPidfile()
 		{
-				AssertConfigContains(@"PidFile %DATA_FOLDER%\nxlog.pid");
+				AssertConfigContains(@"PidFile		{0}\nxlog.pid", Path.GetFullPath(_logsearchShipperProcessManager.NXLogDataFolder));
 		}
 
 		[Test]
 		public void ShouldGenerateNXLogConfigWithCorrectSpoolDir()
 		{
-				AssertConfigContains(@"SpoolDir %DATA_FOLDER%");
+				AssertConfigContains(@"SpoolDir	"); //FIXME - not sure how to test this with Resharpers shadow assembly feature
 		}
 			
 		[Test]
 		public void ShouldGenerateNXLogConfigWithCorrectCacheDir()
 		{
-				AssertConfigContains(@"CacheDir %DATA_FOLDER%");
+				AssertConfigContains(@"CacheDir	{0}", Path.GetFullPath(_logsearchShipperProcessManager.NXLogDataFolder));
 		}
 
 		[Test]

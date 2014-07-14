@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using log4net;
 using LogsearchShipper.Core.ConfigurationSections;
@@ -125,13 +126,10 @@ namespace LogsearchShipper.Core
 			string config = string.Format(@"
 LogLevel {0}
 
-define BIN_FOLDER {1}
-ModuleDir %BIN_FOLDER%\modules
-
-define DATA_FOLDER {2}
-CacheDir %DATA_FOLDER%
-PidFile %DATA_FOLDER%\nxlog.pid
-SpoolDir %DATA_FOLDER%
+ModuleDir	{1}\modules
+CacheDir	{2}
+PidFile		{2}\nxlog.pid
+SpoolDir	{3}
 
 <Extension syslog>
 		Module	xm_syslog
@@ -139,17 +137,18 @@ SpoolDir %DATA_FOLDER%
 
 <Output out>
 		Module	om_ssl
-		Host	{3}
-		Port	{4}
+		Host	{4}
+		Port	{5}
 		AllowUntrusted TRUE
 		Exec	to_syslog_ietf();
 </Output>
 
-{5}
+{6}
 ", 
 				_log.IsDebugEnabled  ? "DEBUG" : "INFO", 
-				NXLogBinFolder,
-				NXLogDataFolder,
+				Path.GetFullPath(NXLogBinFolder),
+				Path.GetFullPath(NXLogDataFolder),
+				Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
 				LogsearchShipperConfig.IngestorHost, LogsearchShipperConfig.IngestorPort,
 				GenerateFilesSection(watches)
 				);
