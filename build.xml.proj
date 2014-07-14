@@ -47,6 +47,7 @@
 		<ItemGroup>  
 			<PackageExclude Include="bin\*.mdb" />  
 			<PackageExclude Include="bin\*.pdb" />  
+			<PackageExclude Include="bin\*.xml" /> 
 			<PackageExclude Include="bin\mscorlib.dll" /> 
 			<PackageExclude Include="bin\*.nlp" />  
 			<PackageExclude Include="bin\*vshost.exe*" />  
