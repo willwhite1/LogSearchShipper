@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using log4net;
 using LogsearchShipper.Core.ConfigurationSections;
@@ -16,7 +15,6 @@ namespace LogsearchShipper.Core
 	public class LogsearchShipperProcessManager
 	{
 		private static readonly ILog _log = LogManager.GetLogger(typeof (LogsearchShipperProcessManager));
-		private static readonly ILog _logNxLog = LogManager.GetLogger("nxlog.exe:");
 		private static Process _process;
 
 		private readonly Dictionary<string, Timer> _environmentDiagramLoggingTimers = new Dictionary<string, Timer>();
@@ -433,23 +431,10 @@ SpoolDir %DATA_FOLDER%
 		private void LogNxLogOutput(object s, DataReceivedEventArgs e)
 		{
 			if (string.IsNullOrEmpty(e.Data)) return;
-
-			if (e.Data.Contains("ERROR"))
-			{
-				_logNxLog.Error(e.Data);
-			}
-			else if (e.Data.Contains("WARNING"))
-			{
-				_logNxLog.Warn(e.Data);
-			}
-			else if (e.Data.Contains("DEBUG"))
-			{
-				_logNxLog.Debug(e.Data);
-			}
-			else
-			{
-				_logNxLog.Info(e.Data);
-			}
+			
+			var nxLogOutputParser = new NXLogOutputParser();
+			var logEvent = nxLogOutputParser.Parse(e.Data);
+			_log.Logger.Log(nxLogOutputParser.ConvertToLog4Net(_log, logEvent));
 		}
 
 		public class CodeBlockLocker
