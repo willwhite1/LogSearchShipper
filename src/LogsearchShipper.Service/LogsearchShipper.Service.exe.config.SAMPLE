@@ -114,7 +114,7 @@ Change the settings to fit your environment
 			</layout>
 		</appender>
 		<root>
-			<level value="DEBUG" />
+			<level value="INFO" /> <!-- Warning: DEBUG level causes a 10% increase in CPU load -->
 			<appender-ref ref="ConsoleAppender" />
 			<appender-ref ref="EnvironmentDiagramRollingFileAppender" />
 			<appender-ref ref="RollingFileAppender" />
