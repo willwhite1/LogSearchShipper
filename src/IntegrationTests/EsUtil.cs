@@ -44,7 +44,7 @@ namespace IntegrationTests
 							{
 								BaseQuery query = null;
 								query &= q.Filtered(s => s.Filter(fs => fs.Exists(fieldName)));
-								query &= q.Term("@source.name", sourceName);
+								query &= q.Term("source", sourceName);
 								query &= q.Term("group_id", groupId);
 								return query;
 							}

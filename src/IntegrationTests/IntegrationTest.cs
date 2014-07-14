@@ -26,6 +26,7 @@ namespace IntegrationTests
 			_basePath = Path.Combine(Environment.CurrentDirectory, "LogSearchShipper.Test");
 			if (!Directory.Exists(_basePath))
 				Directory.CreateDirectory(_basePath);
+
 			Cleanup();
 
 			StartShipperService();
@@ -54,10 +55,10 @@ namespace IntegrationTests
 
 			var ids = WriteLogFiles(path);
 
-			Thread.Sleep(TimeSpan.FromMinutes(3));
+			Thread.Sleep(TimeSpan.FromMinutes(1));
 
 			var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentIterationId, "message");
-			Console.WriteLine("###############################################" + records.Count);
+			Console.WriteLine("### " + records.Count);
 		}
 
 		private string[] WriteLogFiles(string path)
