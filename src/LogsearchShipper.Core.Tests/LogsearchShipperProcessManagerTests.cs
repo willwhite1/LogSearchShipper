@@ -61,7 +61,7 @@ namespace LogsearchShipper.Core.Tests
 		[Test]
 		public void ShouldGenerateNXLogConfigWithCorrectSpoolDir()
 		{
-				AssertConfigContains(@"SpoolDir	"); //FIXME - not sure how to test this with Resharpers shadow assembly feature
+				AssertConfigContains(@"SpoolDir	{0}", Path.GetDirectoryName(Assembly.GetAssembly(typeof(LogsearchShipperProcessManager)).Location));
 		}
 			
 		[Test]

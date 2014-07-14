@@ -148,7 +148,7 @@ SpoolDir	{3}
 				_log.IsDebugEnabled  ? "DEBUG" : "INFO", 
 				Path.GetFullPath(NXLogBinFolder),
 				Path.GetFullPath(NXLogDataFolder),
-				Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+				Path.GetDirectoryName(Assembly.GetAssembly(typeof(LogsearchShipperProcessManager)).Location),
 				LogsearchShipperConfig.IngestorHost, LogsearchShipperConfig.IngestorPort,
 				GenerateFilesSection(watches)
 				);
