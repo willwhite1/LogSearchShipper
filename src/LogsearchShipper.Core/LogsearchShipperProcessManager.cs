@@ -147,13 +147,12 @@ SpoolDir %DATA_FOLDER%
 		Exec	to_syslog_ietf();
 </Output>
 
-{6}
+{5}
 ", 
 				_log.IsDebugEnabled  ? "DEBUG" : "INFO", 
 				NXLogBinFolder,
 				NXLogDataFolder,
 				LogsearchShipperConfig.IngestorHost, LogsearchShipperConfig.IngestorPort,
-				LogsearchShipperConfig.SSL_CA, 
 				GenerateFilesSection(watches)
 				);
 
