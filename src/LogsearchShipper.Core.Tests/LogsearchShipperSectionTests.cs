@@ -108,10 +108,5 @@ namespace LogsearchShipper.Core.Tests
 			Assert.AreEqual(443, _logsearchShipper.IngestorPort);
 		}
 
-		[Test]
-		public void ShouldHaveSSLCAAttribute()
-		{
-			StringAssert.Contains("mycert.crt", _logsearchShipper.SSL_CA);
-		}
 	}
 }

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using log4net;
 using NUnit.Framework;
 
@@ -44,40 +45,29 @@ namespace LogsearchShipper.Core.Tests
 				Assert.AreEqual(Path.Combine(_logsearchShipperProcessManager.NXLogDataFolder,"nxlog.conf"), _logsearchShipperProcessManager.ConfigFile);
 		}
 
-		[Test]
-		public void ShouldGenerateNXLogConfigWithCorrectBIN_FOLDER()
-		{
-			AssertConfigContains("define BIN_FOLDER {0}", _logsearchShipperProcessManager.NXLogBinFolder);
-		}
-
-		[Test]
-		public void ShouldGenerateNXLogConfigWithCorrectDATA_FOLDER()
-		{
-				AssertConfigContains("define DATA_FOLDER {0}", _logsearchShipperProcessManager.NXLogDataFolder);
-		}
 
 		[Test]
 		public void ShouldGenerateNXLogConfigWithCorrectModuledir()
 		{
-				AssertConfigContains(@"ModuleDir %BIN_FOLDER%\modules");
+				AssertConfigContains(@"ModuleDir	{0}\modules", Path.GetFullPath(_logsearchShipperProcessManager.NXLogBinFolder));
 		}
 
 		[Test]
 		public void ShouldGenerateNXLogConfigWithCorrectPidfile()
 		{
-				AssertConfigContains(@"PidFile %DATA_FOLDER%\nxlog.pid");
+				AssertConfigContains(@"PidFile		{0}\nxlog.pid", Path.GetFullPath(_logsearchShipperProcessManager.NXLogDataFolder));
 		}
 
 		[Test]
 		public void ShouldGenerateNXLogConfigWithCorrectSpoolDir()
 		{
-				AssertConfigContains(@"SpoolDir %DATA_FOLDER%");
+				AssertConfigContains(@"SpoolDir	{0}", Path.GetDirectoryName(Assembly.GetAssembly(typeof(LogsearchShipperProcessManager)).Location));
 		}
 			
 		[Test]
 		public void ShouldGenerateNXLogConfigWithCorrectCacheDir()
 		{
-				AssertConfigContains(@"CacheDir %DATA_FOLDER%");
+				AssertConfigContains(@"CacheDir	{0}", Path.GetFullPath(_logsearchShipperProcessManager.NXLogDataFolder));
 		}
 
 		[Test]
@@ -94,7 +84,7 @@ namespace LogsearchShipper.Core.Tests
 				AssertConfigContains("Module	xm_syslog");
 
 				AssertConfigContains("<Output out>");
-				AssertConfigContains("Module	om_tcp");
+				AssertConfigContains("Module	om_ssl");
 
 				AssertConfigContains("Host	ingestor.example.com");
 				AssertConfigContains("Port	443");
