@@ -16,7 +16,6 @@ namespace LogsearchShipper.Core
 	public class LogsearchShipperProcessManager
 	{
 		private static readonly ILog _log = LogManager.GetLogger(typeof (LogsearchShipperProcessManager));
-		private static readonly ILog _logNxLog = LogManager.GetLogger("nxlog.exe:");
 		private static Process _process;
 
 		private readonly Dictionary<string, Timer> _environmentDiagramLoggingTimers = new Dictionary<string, Timer>();
@@ -127,38 +126,36 @@ namespace LogsearchShipper.Core
 			string config = string.Format(@"
 LogLevel {0}
 
-define BIN_FOLDER {1}
-ModuleDir %BIN_FOLDER%\modules
-
-define DATA_FOLDER {2}
-CacheDir %DATA_FOLDER%
-PidFile %DATA_FOLDER%\nxlog.pid
-SpoolDir %DATA_FOLDER%
+ModuleDir	{1}\modules
+CacheDir	{2}
+PidFile		{2}\nxlog.pid
+SpoolDir	{3}
 
 <Extension syslog>
 		Module	xm_syslog
 </Extension>
 
 <Output out>
-		Module	om_tcp
-		Host	{3}
-		Port	{4}
+		Module	om_ssl
+		Host	{4}
+		Port	{5}
+		AllowUntrusted TRUE
 		Exec	to_syslog_ietf();
 </Output>
 
-{5}
+{6}
 ", 
 				_log.IsDebugEnabled  ? "DEBUG" : "INFO", 
-				NXLogBinFolder,
-				NXLogDataFolder,
+				Path.GetFullPath(NXLogBinFolder),
+				Path.GetFullPath(NXLogDataFolder),
+				Path.GetDirectoryName(Assembly.GetAssembly(typeof(LogsearchShipperProcessManager)).Location),
 				LogsearchShipperConfig.IngestorHost, LogsearchShipperConfig.IngestorPort,
 				GenerateFilesSection(watches)
 				);
 
 			ConfigFile = Path.Combine(NXLogDataFolder, "nxlog.conf");
 			File.WriteAllText(ConfigFile, config);
-			_log.DebugFormat("NXLog config file: {0}", ConfigFile);
-			_log.Debug(config);
+			_log.InfoFormat("NXLog config file: {0}", ConfigFile);
 		}
 
 		public void Start()
@@ -173,7 +170,7 @@ SpoolDir %DATA_FOLDER%
 			{
 				if (configChanging.isBusy)
 				{
-					_log.Debug("Already in the process of updating config; ignoring trigger");
+					_log.Info("Already in the process of updating config; ignoring trigger");
 					return;
 				}
 
@@ -181,7 +178,7 @@ SpoolDir %DATA_FOLDER%
 				{
 					configChanging.isBusy = true;
 
-					_log.Debug("Updating config and restarting shipping...");
+					_log.Info("Updating config and restarting shipping...");
 					Stop();
 					SetupConfigFile();
 					StartProcess();
@@ -197,7 +194,7 @@ SpoolDir %DATA_FOLDER%
 			{
 				watcher.Changed += (s, e) =>
 				{
-					_log.DebugFormat("Detected change in file: {0}", e.FullPath);
+					_log.InfoFormat("Detected change in file: {0}", e.FullPath);
 					actionsToRun();
 				};
 				watcher.EnableRaisingEvents = true;
@@ -360,7 +357,7 @@ SpoolDir %DATA_FOLDER%
 
 		public void Stop()
 		{
-			const int waitForGoLogstashForwarderToExitSeconds = 30;
+			const int waitForGoLogstashForwarderToExitSeconds = 5;
 
 			_log.Info("Stopping and cleaning up nxlog.exe process.");
 
@@ -420,6 +417,8 @@ SpoolDir %DATA_FOLDER%
 				CreateNoWindow = true,
 			};
 			_log.InfoFormat("Running {0} {1}", nxlogExe, startInfo.Arguments);
+			_log.InfoFormat("Connecting to ingestor: syslog-tls://{0}:{1}", LogsearchShipperConfig.IngestorHost, LogsearchShipperConfig.IngestorPort);
+
 			_process = Process.Start(startInfo);
 
 			_process.OutputDataReceived += LogNxLogOutput;
@@ -432,23 +431,10 @@ SpoolDir %DATA_FOLDER%
 		private void LogNxLogOutput(object s, DataReceivedEventArgs e)
 		{
 			if (string.IsNullOrEmpty(e.Data)) return;
-
-			if (e.Data.Contains("ERROR"))
-			{
-				_logNxLog.Error(e.Data);
-			}
-			else if (e.Data.Contains("WARNING"))
-			{
-				_logNxLog.Warn(e.Data);
-			}
-			else if (e.Data.Contains("DEBUG"))
-			{
-				_logNxLog.Debug(e.Data);
-			}
-			else
-			{
-				_logNxLog.Info(e.Data);
-			}
+			
+			var nxLogOutputParser = new NXLogOutputParser();
+			var logEvent = nxLogOutputParser.Parse(e.Data);
+			_log.Logger.Log(nxLogOutputParser.ConvertToLog4Net(_log, logEvent));
 		}
 
 		public class CodeBlockLocker

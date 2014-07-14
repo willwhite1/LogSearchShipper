@@ -26,13 +26,6 @@ namespace LogsearchShipper.Core.ConfigurationSections
 				set { this["data_folder"] = value; }
 		}
 
-		[ConfigurationProperty("ssl_ca", IsRequired = true)]
-		public String SSL_CA
-		{
-			get { return (String) this["ssl_ca"]; }
-			set { this["ssl_ca"] = value; }
-		}
-
 		[ConfigurationProperty("fileWatchers", IsDefaultCollection = false)]
 		public FileWatchCollection FileWatchers
 		{

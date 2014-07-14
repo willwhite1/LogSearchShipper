@@ -47,10 +47,14 @@
 		<ItemGroup>  
 			<PackageExclude Include="bin\*.mdb" />  
 			<PackageExclude Include="bin\*.pdb" />  
+			<PackageExclude Include="bin\*.xml" /> 
+			<PackageExclude Include="bin\mscorlib.dll" /> 
+			<PackageExclude Include="bin\*.nlp" />  
 			<PackageExclude Include="bin\*vshost.exe*" />  
 			<PackageExclude Include="bin\*.log" />  
 			<PackageExclude Include="bin\*.log.*" />  
-			<PackageExclude Include="bin\SampleData\**" />  
+			<PackageExclude Include="bin\SampleData\**" />
+			<PackageExclude Include="bin\data\**" />  
 			<PackageExclude Include="bin\*.Tests.*" /> 		
 			<PackageExclude Include="bin\nunit.framework.*" /> 
 			<PackageExclude Include="bin\*.exe.config" /> 

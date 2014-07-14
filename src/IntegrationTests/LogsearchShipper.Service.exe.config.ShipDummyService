@@ -13,7 +13,7 @@
   </configSections>
 
   <LogsearchShipperGroup>
-    <LogsearchShipper data_folder="data" ingestor_host="ingestor.cityindex.logsearch.io" ingestor_port="5514" ssl_ca="C:\Keys\ingestor.cityindex.logsearch.io.crt">
+    <LogsearchShipper data_folder="data" ingestor_host="ingestor.cityindex.logsearch.io" ingestor_port="5514">
       <fileWatchers>
         <watch files="DummyServiceWithLogRolling.log" type="plain">
           <field key="environment" value="TEST" />
