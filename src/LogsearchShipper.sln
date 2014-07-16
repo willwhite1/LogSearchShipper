@@ -1,6 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogsearchShipper.Core", "LogsearchShipper.Core\LogsearchShipper.Core.csproj", "{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogsearchShipper.Service", "LogsearchShipper.Service\LogsearchShipper.Service.csproj", "{E728F5F0-84D6-4A57-9A09-504D4ADF4636}"
