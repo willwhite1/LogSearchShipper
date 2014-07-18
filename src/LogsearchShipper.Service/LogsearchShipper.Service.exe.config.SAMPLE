@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
-Rename to LogsearchShipper.Service.exe.config 
+Rename to LogSearchShipper.Service.exe.config 
 
 Change the settings to fit your environment
 -->
 <configuration>
 	<configSections>
-		<sectionGroup name="LogsearchShipperGroup">
+		<sectionGroup name="LogSearchShipperGroup">
 			<section
-        name="LogsearchShipper"
-        type="LogsearchShipper.Core.ConfigurationSections.LogsearchShipperSection, LogsearchShipper.Core"
+        name="LogSearchShipper"
+        type="LogSearchShipper.Core.ConfigurationSections.LogSearchShipperSection, LogSearchShipper.Core"
         allowLocation="true"
         allowDefinition="Everywhere"
       />
@@ -17,8 +17,8 @@ Change the settings to fit your environment
 		<section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler, log4net" />
 	</configSections>
 
-	<LogsearchShipperGroup>
-		<LogsearchShipper data_folder="data" ingestor_host="ingestor.you-logsearch-cluster.com" ingestor_port="443">
+	<LogSearchShipperGroup>
+		<LogSearchShipper data_folder="data" ingestor_host="ingestor.you-logsearch-cluster.com" ingestor_port="443">
 			<!-- Extract information on what logs to ship from EDB -->
 			<edbFileWatchers>
 				<watch
@@ -42,8 +42,8 @@ Change the settings to fit your environment
 <!--					<field key="service" value="WindowsUpdate" />-->
 <!--				</watch>-->
 			</fileWatchers>
-		</LogsearchShipper>
-	</LogsearchShipperGroup>
+		</LogSearchShipper>
+	</LogSearchShipperGroup>
 
 	<log4net>
 		<appender name="ConsoleAppender" type="log4net.Appender.ConsoleAppender">
@@ -56,9 +56,9 @@ Change the settings to fit your environment
 				<conversionPattern value="%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline" />
 			</layout>
 		</appender>
-		<!-- Write an excessive amount of info to LogsearchShipperDebug.log; NOT recommended to ship this to LogSearch -->
+		<!-- Write an excessive amount of info to LogSearchShipperDebug.log; NOT recommended to ship this to LogSearch -->
 		<appender name="RollingFileAppenderDebug" type="log4net.Appender.RollingFileAppender">
-			<file value="LogsearchShipperDebug.log" />
+			<file value="LogSearchShipperDebug.log" />
 			<appendToFile value="true" />
 			<maximumFileSize value="250MB" />
 			<maxSizeRollBackups value="2" />
@@ -66,9 +66,9 @@ Change the settings to fit your environment
 				<conversionPattern value="%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline" />
 			</layout>
 		</appender>
-		<!-- Write a modest amount of logging (>= INFO ) to LogsearchShipper.log; which should be shipped to LogSearch-->
+		<!-- Write a modest amount of logging (>= INFO ) to LogSearchShipper.log; which should be shipped to LogSearch-->
 		<appender name="RollingFileAppender" type="log4net.Appender.RollingFileAppender">
-			<file value="LogsearchShipper.log" />
+			<file value="LogSearchShipper.log" />
 			<!-- EnvironmentDiagramLogger data goes in a separate file -->
 			<filter type="log4net.Filter.LoggerMatchFilter">
 				<loggerToMatch value="EnvironmentDiagramLogger" />
@@ -86,11 +86,11 @@ Change the settings to fit your environment
 				<IgnoresException value="False" />
 				<converter>
 					<name value="event_as_json" />
-					<type value="LogsearchShipper.Core.JSONFragmentPatternConverter, LogsearchShipper.Core" />
+					<type value="LogSearchShipper.Core.JSONFragmentPatternConverter, LogSearchShipper.Core" />
 				</converter>
 				<converter>
 					<name value="iso8601_date" />
-					<type value="LogsearchShipper.Core.ISO8601DatePatternConverter, LogsearchShipper.Core" />
+					<type value="LogSearchShipper.Core.ISO8601DatePatternConverter, LogSearchShipper.Core" />
 				</converter>
 				<conversionPattern value='{"@timestamp":"%iso8601_date",%event_as_json,"logger":"%logger","level":"%level"}%n' />
 			</layout>
@@ -109,11 +109,11 @@ Change the settings to fit your environment
 				<IgnoresException value="False" />
 				<converter>
 					<name value="event_as_json" />
-					<type value="LogsearchShipper.Core.JSONFragmentPatternConverter, LogsearchShipper.Core" />
+					<type value="LogSearchShipper.Core.JSONFragmentPatternConverter, LogSearchShipper.Core" />
 				</converter>
 				<converter>
 					<name value="iso8601_date" />
-					<type value="LogsearchShipper.Core.ISO8601DatePatternConverter, LogsearchShipper.Core" />
+					<type value="LogSearchShipper.Core.ISO8601DatePatternConverter, LogSearchShipper.Core" />
 				</converter>
 				<conversionPattern value='{"@timestamp":"%iso8601_date",%event_as_json,"logger":"%logger","level":"%level"}%n' />
 			</layout>

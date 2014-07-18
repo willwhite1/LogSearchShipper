@@ -7,8 +7,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>LogsearchShipper.Core</RootNamespace>
-    <AssemblyName>LogsearchShipper.Core</AssemblyName>
+    <RootNamespace>LogSearchShipper.Core</RootNamespace>
+    <AssemblyName>LogSearchShipper.Core</AssemblyName>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -31,6 +31,9 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="RunProcess">
+      <HintPath>..\packages\RunProcess.1.0.3\lib\net40\RunProcess.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
@@ -38,7 +41,6 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Web" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -48,7 +50,10 @@
   <ItemGroup>
     <Compile Include="CustomPatternLayoutConverter.cs" />
     <Compile Include="ConfigurationSections\FieldElement.cs" />
-    <Compile Include="NXLogOutputParser.cs" />
+    <Compile Include="NxLog\NxLogOutputParser.cs" />
+    <Compile Include="NxLog\NxLogProcessManager.cs" />
+    <Compile Include="NxLog\NxLogStartException.cs" />
+    <Compile Include="NxLog\SyslogEndpoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Resource.Designer.cs">
       <AutoGen>True</AutoGen>

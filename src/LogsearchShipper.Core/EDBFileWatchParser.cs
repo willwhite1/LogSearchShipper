@@ -1,13 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using log4net;
-using LogsearchShipper.Core.ConfigurationSections;
+using LogSearchShipper.Core.ConfigurationSections;
 
-namespace LogsearchShipper.Core
+namespace LogSearchShipper.Core
 {
 	public class EDBEnvironment
 	{
