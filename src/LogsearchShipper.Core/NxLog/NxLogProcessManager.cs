@@ -325,7 +325,6 @@ SpoolDir	{2}
 		Port	{1}
 		RequireCert FALSE
 		AllowUntrusted TRUE
-		Exec log_info($raw_event);
 		Exec	parse_syslog_ietf();
 </Input>",
 				InputSyslog.Host, InputSyslog.Port);
@@ -342,7 +341,6 @@ SpoolDir	{2}
 		Host	{0}
 		Port	{1}
 		AllowUntrusted TRUE
-		Exec log_info($raw_event);
 		Exec	to_syslog_ietf();
 </Output>",
 				OutputSyslog.Host, OutputSyslog.Port);

@@ -13,7 +13,7 @@ namespace LogSearchShipper.Core.NxLog
 			{
 				Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
 				LogLevel = "INFO",
-				Message = String.Format(logString)
+				Message = logString
 			};
 
 			var myRegex = new Regex(@"^(?<timestamp>\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d) (?<level>\w+) (?<message>.*$)",
