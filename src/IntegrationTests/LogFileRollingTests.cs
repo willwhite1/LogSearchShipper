@@ -18,12 +18,12 @@ namespace IntegrationTests
 
 			DeleteOldLogFiles();
 
-			File.Delete("LogSearchShipper.Service.exe.config.bak");
-			File.Move("LogSearchShipper.Service.exe.config", "LogSearchShipper.Service.exe.config.bak");
-			File.Move("LogSearchShipper.Service.exe.config.ShipDummyService", "LogSearchShipper.Service.exe.config");
+			File.Delete("LogSearchShipper.exe.config.bak");
+			File.Move("LogSearchShipper.exe.config", "LogSearchShipper.exe.config.bak");
+			File.Move("LogSearchShipper.exe.config.ShipDummyService", "LogSearchShipper.exe.config");
 			try
 			{
-				shipper = Utils.StartProcess(Environment.CurrentDirectory + @"\LogSearchShipper.Service.exe",
+				shipper = Utils.StartProcess(Environment.CurrentDirectory + @"\LogSearchShipper.exe",
 					"-instance:integrationtest001");
 				processWithLogFileRolling = Utils.StartProcess(Environment.CurrentDirectory + @"\DummyServiceWithLogRolling.exe", "");
 
@@ -40,8 +40,8 @@ namespace IntegrationTests
 				Utils.ShutdownProcess(shipper);
 				Utils.ShutdownProcess(processWithLogFileRolling);
 
-				File.Delete("LogSearchShipper.Service.exe.config");
-				File.Move("LogSearchShipper.Service.exe.config.bak", "LogSearchShipper.Service.exe.config");
+				File.Delete("LogSearchShipper.exe.config");
+				File.Move("LogSearchShipper.exe.config.bak", "LogSearchShipper.exe.config");
 			}
 
 		}
