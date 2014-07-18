@@ -1,18 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using LogsearchShipper.Core.ConfigurationSections;
+using LogSearchShipper.Core.ConfigurationSections;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace LogsearchShipper.Core.Tests
+namespace LogSearchShipper.Core.Tests
 {
 	[TestFixture]
 	public class EDBFileWatchParserTests
 	{
 		public string GenerateJsonForWatch0()
 		{
-			var config = ConfigurationManager.GetSection("LogsearchShipperGroup/LogsearchShipper") as LogsearchShipperSection;
+			var config = ConfigurationManager.GetSection("LogSearchShipperGroup/LogSearchShipper") as LogSearchShipperSection;
 			var edbFileWatchParser = new EDBFileWatchParser(config.EDBFileWatchers[0]);
 			IEnumerable<EDBEnvironment> environmentHierarchy = edbFileWatchParser.GenerateLogsearchEnvironmentDiagram();
 			string environmentHierarchyJSON = JsonConvert.SerializeObject(environmentHierarchy, Formatting.None);
@@ -29,7 +29,7 @@ namespace LogsearchShipper.Core.Tests
 		[Test]
 		public void ShouldGenerateConfiguredFileWatches()
 		{
-			var config = ConfigurationManager.GetSection("LogsearchShipperGroup/LogsearchShipper") as LogsearchShipperSection;
+			var config = ConfigurationManager.GetSection("LogSearchShipperGroup/LogSearchShipper") as LogSearchShipperSection;
 			var edbFileWatchParser = new EDBFileWatchParser(config.EDBFileWatchers[1]);
 			List<FileWatchElement> fileWatches = edbFileWatchParser.ToFileWatchCollection();
 

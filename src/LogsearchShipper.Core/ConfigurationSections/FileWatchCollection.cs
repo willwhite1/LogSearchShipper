@@ -1,7 +1,7 @@
 using System;
 using System.Configuration;
 
-namespace LogsearchShipper.Core.ConfigurationSections
+namespace LogSearchShipper.Core.ConfigurationSections
 {
 	public class FileWatchElement : ConfigurationElement
 	{
@@ -40,7 +40,7 @@ namespace LogsearchShipper.Core.ConfigurationSections
 	public class FileWatchCollection : ConfigurationElementCollection
 	{
 		/// <summary>
-		///     Access the collection by index
+		///  Access the collection by index
 		/// </summary>
 		/// <param name="index"></param>
 		/// <returns></returns>
@@ -50,7 +50,7 @@ namespace LogsearchShipper.Core.ConfigurationSections
 		}
 
 		/// <summary>
-		///     Access the collection by key name
+		///  Access the collection by key name
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns></returns>

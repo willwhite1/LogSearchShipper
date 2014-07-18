@@ -1,111 +1,52 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using log4net;
 using NUnit.Framework;
+using RunProcess;
 
-namespace LogsearchShipper.Core.Tests
+namespace LogSearchShipper.Core.Tests
 {
 	[TestFixture]
-	public class LogsearchShipperProcessManagerTests
+	[Platform(Exclude = "Mono")]
+	public class LogSearchShipperProcessManagerTests
 	{
-		[SetUp]
+		[TestFixtureSetUp]
 		public void Setup()
 		{
-			_logsearchShipperProcessManager = new LogsearchShipperProcessManager();
+			_LogSearchShipperProcessManager = new LogSearchShipperProcessManager();
+			_nxLogProcess = _LogSearchShipperProcessManager.Start();
 		}
 
-		[TearDown]
+		[TestFixtureTearDown]
 		public void TearDown()
 		{
-			_logsearchShipperProcessManager.Stop();
+			_LogSearchShipperProcessManager.Stop();
 		}
 
-		private LogsearchShipperProcessManager _logsearchShipperProcessManager;
+		private LogSearchShipperProcessManager _LogSearchShipperProcessManager;
+		private ProcessHost _nxLogProcess;
 
 		[Test]
-		public void ShouldCreateDataFolderIfItDoesntExist()
-		{
-			if (Directory.Exists(_logsearchShipperProcessManager.LogsearchShipperConfig.DataFolder))
-			{
-					Directory.Delete(_logsearchShipperProcessManager.LogsearchShipperConfig.DataFolder, true);
-			}
-
-			var dataFolder = _logsearchShipperProcessManager.NXLogDataFolder;  //this should create it
-
-				Assert.IsTrue(Directory.Exists(dataFolder), string.Format("DataFolder {0} should have been created, but wasn't", dataFolder));
-		}
-
-		[Test]
-		public void ShouldStoreConfigFileInDataFolder()
-		{
-				_logsearchShipperProcessManager.SetupConfigFile();
-				Assert.AreEqual(Path.Combine(_logsearchShipperProcessManager.NXLogDataFolder,"nxlog.conf"), _logsearchShipperProcessManager.ConfigFile);
-		}
-
-
-		[Test]
-		public void ShouldGenerateNXLogConfigWithCorrectModuledir()
-		{
-				AssertConfigContains(@"ModuleDir	{0}\modules", Path.GetFullPath(_logsearchShipperProcessManager.NXLogBinFolder));
-		}
-
-		[Test]
-		public void ShouldGenerateNXLogConfigWithCorrectPidfile()
-		{
-				AssertConfigContains(@"PidFile		{0}\nxlog.pid", Path.GetFullPath(_logsearchShipperProcessManager.NXLogDataFolder));
-		}
-
-		[Test]
-		public void ShouldGenerateNXLogConfigWithCorrectSpoolDir()
-		{
-				AssertConfigContains(@"SpoolDir	{0}", Path.GetDirectoryName(Assembly.GetAssembly(typeof(LogsearchShipperProcessManager)).Location));
-		}
-			
-		[Test]
-		public void ShouldGenerateNXLogConfigWithCorrectCacheDir()
-		{
-				AssertConfigContains(@"CacheDir	{0}", Path.GetFullPath(_logsearchShipperProcessManager.NXLogDataFolder));
-		}
-
-		[Test]
-		public void ShouldGenerateNXLogConfigWithCorrectLogLevelBasedOnLog4NETSetting()
-		{
-				var log4NetLogLevel = LogManager.GetLogger(typeof(LogsearchShipperProcessManager)).IsDebugEnabled ? "DEBUG" : "INFO";
-				AssertConfigContains("LogLevel {0}", log4NetLogLevel);
-		}
-
-		[Test]
-		public void ShouldGenerateNXLogConfigWithCorrectSyslogOutputSettings()
-		{
-				AssertConfigContains("<Extension syslog>");
-				AssertConfigContains("Module	xm_syslog");
-
-				AssertConfigContains("<Output out>");
-				AssertConfigContains("Module	om_ssl");
-
-				AssertConfigContains("Host	ingestor.example.com");
-				AssertConfigContains("Port	443");
-				AssertConfigContains("Exec	to_syslog_ietf();");
-		}
-		private void AssertConfigContains(string containing, params object[] substitutions)
-		{
-			_logsearchShipperProcessManager.SetupConfigFile();
-			var config = File.ReadAllText(_logsearchShipperProcessManager.ConfigFile);
-			StringAssert.Contains(string.Format(containing, substitutions), config);
-		}
-
-		[Test, Ignore("Needs valid logstash ingestor to connect to")]
-		[Platform(Exclude = "Mono")]
 		public void ShouldLaunchNxLogProcess()
 		{
-			_logsearchShipperProcessManager.Start();
+			Assert.IsNotNull(Process.GetProcessById(Convert.ToInt32(_nxLogProcess.ProcessId())), "a NXLog process wasn't started");
+		}
 
-			Process[] processes = Process.GetProcessesByName("nxlog.exe");
+		[Test]
+		public void ShouldLaunchWithCorrectInputFiles()
+		{
+			Assert.AreEqual("myfile.log", _LogSearchShipperProcessManager.NxLogProcessManager.InputFiles[0].Files);
+			Assert.AreEqual("myfile_type", _LogSearchShipperProcessManager.NxLogProcessManager.InputFiles[0].Type);
 
-			Assert.AreEqual(1, processes.Count(), "a NXLog process wasn't started");
+			Assert.AreEqual("\\\\ENV1-APP01\\Logs\\u*.log",
+				_LogSearchShipperProcessManager.NxLogProcessManager.InputFiles[4].Files);
+			Assert.AreEqual("IIS7", _LogSearchShipperProcessManager.NxLogProcessManager.InputFiles[4].Type);
+		}
+
+		[Test]
+		public void ShouldLaunchWithCorrectOutputSyslog()
+		{
+			Assert.AreEqual("ingestor.example.com", _LogSearchShipperProcessManager.NxLogProcessManager.OutputSyslog.Host);
+			Assert.AreEqual(443, _LogSearchShipperProcessManager.NxLogProcessManager.OutputSyslog.Port);
 		}
 	}
 }

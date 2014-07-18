@@ -7,8 +7,8 @@
     <ProjectGuid>{9D8DD347-4396-4ED2-8935-8EE71373F4D5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LogsearchShipper.Core.Tests</RootNamespace>
-    <AssemblyName>LogsearchShipper.Core.Tests</AssemblyName>
+    <RootNamespace>LogSearchShipper.Core.Tests</RootNamespace>
+    <AssemblyName>LogSearchShipper.Core.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -36,13 +36,11 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="RunProcess">
+      <HintPath>..\packages\RunProcess.1.0.3\lib\net40\RunProcess.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
@@ -52,7 +50,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NXLogOutputParserTests.cs" />
+    <Compile Include="MultilineTests.cs" />
+    <Compile Include="NxLog\NxLogProcessManagerTests.cs" />
+    <Compile Include="NxLog\NXLogOutputParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="LogsearchShipperProcessManagerTests.cs" />
@@ -72,9 +72,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LogsearchShipper.Core\LogsearchShipper.Core.csproj">
+    <ProjectReference Include="..\LogsearchShipper.Core\LogSearchShipper.Core.csproj">
       <Project>{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}</Project>
-      <Name>LogsearchShipper.Core</Name>
+      <Name>LogSearchShipper.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
