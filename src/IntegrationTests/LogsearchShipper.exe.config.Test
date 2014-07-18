@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <configuration>
   <configSections>
-    <sectionGroup name="LogsearchShipperGroup">
+    <sectionGroup name="LogSearchShipperGroup">
       <section
-        name="LogsearchShipper"
-        type="LogsearchShipper.Core.ConfigurationSections.LogsearchShipperSection, LogsearchShipper.Core"
+        name="LogSearchShipper"
+        type="LogSearchShipper.Core.ConfigurationSections.LogSearchShipperSection, LogSearchShipper.Core"
         allowLocation="true"
         allowDefinition="Everywhere"
       />
@@ -12,16 +12,16 @@
     <section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler, log4net" />
   </configSections>
 
-  <LogsearchShipperGroup>
-    <LogsearchShipper data_folder="data" ingestor_host="54.194.76.47" ingestor_port="5514">
+  <LogSearchShipperGroup>
+    <LogSearchShipper data_folder="data" ingestor_host="54.194.76.47" ingestor_port="5514">
       <fileWatchers>
         <watch files="logs\*.*" type="json">
           <field key="environment" value="LogSearchShipper.Test" />
           <field key="type" value="json" />
         </watch>
       </fileWatchers>
-    </LogsearchShipper>
-  </LogsearchShipperGroup>
+    </LogSearchShipper>
+  </LogSearchShipperGroup>
 
   <log4net>
     <appender name="ConsoleAppender" type="log4net.Appender.ConsoleAppender">

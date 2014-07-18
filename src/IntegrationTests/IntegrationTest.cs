@@ -138,11 +138,11 @@ namespace IntegrationTests
 
 		void StartShipperService()
 		{
-			var exeFile = "LogsearchShipper.Service.exe";
+			var exeFile = "LogsearchShipper.exe";
 			var exeFileCopy = Path.Combine(_basePath, exeFile);
 			File.Copy(exeFile, exeFileCopy);
 
-			File.Copy("LogsearchShipper.Service.exe.config.Test", Path.Combine(_basePath, "LogsearchShipper.Service.exe.config"));
+			File.Copy("LogsearchShipper.exe.config.Test", Path.Combine(_basePath, "LogsearchShipper.exe.config"));
 
 			foreach (var file in Directory.GetFiles(Environment.CurrentDirectory, "*.dll"))
 			{
