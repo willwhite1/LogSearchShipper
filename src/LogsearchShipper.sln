@@ -1,12 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogsearchShipper.Core", "LogsearchShipper.Core\LogsearchShipper.Core.csproj", "{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}"
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogSearchShipper.Core", "LogsearchShipper.Core\LogSearchShipper.Core.csproj", "{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogsearchShipper.Service", "LogsearchShipper.Service\LogsearchShipper.Service.csproj", "{E728F5F0-84D6-4A57-9A09-504D4ADF4636}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogSearchShipper", "LogsearchShipper.Service\LogSearchShipper.csproj", "{E728F5F0-84D6-4A57-9A09-504D4ADF4636}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogsearchShipper.Core.Tests", "LogsearchShipper.Core.Tests\LogsearchShipper.Core.Tests.csproj", "{9D8DD347-4396-4ED2-8935-8EE71373F4D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogSearchShipper.Core.Tests", "LogsearchShipper.Core.Tests\LogSearchShipper.Core.Tests.csproj", "{9D8DD347-4396-4ED2-8935-8EE71373F4D5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{7F7819CC-58F3-4094-B1AC-FB52AF9F6C57}"
 EndProject

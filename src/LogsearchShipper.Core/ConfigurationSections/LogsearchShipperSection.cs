@@ -1,9 +1,9 @@
 using System;
 using System.Configuration;
 
-namespace LogsearchShipper.Core.ConfigurationSections
+namespace LogSearchShipper.Core.ConfigurationSections
 {
-	public class LogsearchShipperSection : ConfigurationSection
+	public class LogSearchShipperSection : ConfigurationSection
 	{
 		[ConfigurationProperty("ingestor_host", IsRequired = true)]
 		public String IngestorHost
@@ -22,8 +22,8 @@ namespace LogsearchShipper.Core.ConfigurationSections
 		[ConfigurationProperty("data_folder", IsRequired = true)]
 		public String DataFolder
 		{
-				get { return (String)this["data_folder"]; }
-				set { this["data_folder"] = value; }
+			get { return (String) this["data_folder"]; }
+			set { this["data_folder"] = value; }
 		}
 
 		[ConfigurationProperty("fileWatchers", IsDefaultCollection = false)]
