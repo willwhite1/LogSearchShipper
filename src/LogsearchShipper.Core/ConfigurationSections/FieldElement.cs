@@ -1,7 +1,7 @@
 using System;
 using System.Configuration;
 
-namespace LogsearchShipper.Core.ConfigurationSections
+namespace LogSearchShipper.Core.ConfigurationSections
 {
 	public class FieldElement : ConfigurationElement
 	{

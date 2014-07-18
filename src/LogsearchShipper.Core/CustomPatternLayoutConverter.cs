@@ -1,9 +1,10 @@
 using System.IO;
 using log4net.Core;
 using log4net.Layout.Pattern;
+using log4net.Util;
 using Newtonsoft.Json;
 
-namespace LogsearchShipper.Core
+namespace LogSearchShipper.Core
 {
 	public class ISO8601DatePatternConverter : PatternLayoutConverter
 	{
@@ -28,9 +29,9 @@ namespace LogsearchShipper.Core
 					Exception = loggingEvent.ExceptionObject
 				});
 			}
-			else if (	loggingEvent.MessageObject.GetType() != typeof(string) 
-						&&	loggingEvent.MessageObject.GetType() != typeof(log4net.Util.SystemStringFormat)
-							)
+			else if (loggingEvent.MessageObject.GetType() != typeof (string)
+			         && loggingEvent.MessageObject.GetType() != typeof (SystemStringFormat)
+				)
 			{
 				json = JsonConvert.SerializeObject(loggingEvent.MessageObject, Formatting.None);
 			}

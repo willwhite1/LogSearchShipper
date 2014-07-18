@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <configuration>
   <configSections>
-    <sectionGroup name="LogsearchShipperGroup">
+    <sectionGroup name="LogSearchShipperGroup">
       <section
-        name="LogsearchShipper"
-        type="LogsearchShipper.Core.ConfigurationSections.LogsearchShipperSection, LogsearchShipper.Core"
+        name="LogSearchShipper"
+        type="LogSearchShipper.Core.ConfigurationSections.LogSearchShipperSection, LogSearchShipper.Core"
         allowLocation="true"
         allowDefinition="Everywhere"
       />
@@ -12,15 +12,15 @@
     <section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler, log4net" />
   </configSections>
 
-  <LogsearchShipperGroup>
-    <LogsearchShipper data_folder="data" ingestor_host="ingestor.cityindex.logsearch.io" ingestor_port="5514">
+  <LogSearchShipperGroup>
+    <LogSearchShipper data_folder="data" ingestor_host="ingestor.cityindex.logsearch.io" ingestor_port="5514">
       <fileWatchers>
         <watch files="DummyServiceWithLogRolling.log" type="plain">
           <field key="environment" value="TEST" />
         </watch>
       </fileWatchers>
-    </LogsearchShipper>
-  </LogsearchShipperGroup>
+    </LogSearchShipper>
+  </LogSearchShipperGroup>
 
   <log4net>
     <appender name="ConsoleAppender" type="log4net.Appender.ConsoleAppender">
@@ -33,7 +33,7 @@
       </layout>
     </appender>
     <appender name="RollingFileAppender" type="log4net.Appender.RollingFileAppender">
-      <file value="LogsearchShipper.log" />
+      <file value="LogSearchShipper.log" />
       <filter type="log4net.Filter.LoggerMatchFilter">
         <loggerToMatch value="EnvironmentDiagramLogger" />
         <acceptOnMatch value="false" />
@@ -45,11 +45,11 @@
         <IgnoresException value="False" />
         <converter>
           <name value="event_as_json" />
-          <type value="LogsearchShipper.Core.JSONFragmentPatternConverter, LogsearchShipper.Core" />
+          <type value="LogSearchShipper.Core.JSONFragmentPatternConverter, LogSearchShipper.Core" />
         </converter>
         <converter>
           <name value="iso8601_date" />
-          <type value="LogsearchShipper.Core.ISO8601DatePatternConverter, LogsearchShipper.Core" />
+          <type value="LogSearchShipper.Core.ISO8601DatePatternConverter, LogSearchShipper.Core" />
         </converter>
         <conversionPattern value='{"@timestamp":"%iso8601_date",%event_as_json,"logger":"%logger","level":"%level"}%n' />
       </layout>
@@ -67,11 +67,11 @@
         <IgnoresException value="False" />
         <converter>
           <name value="event_as_json" />
-          <type value="LogsearchShipper.Core.JSONFragmentPatternConverter, LogsearchShipper.Core" />
+          <type value="LogSearchShipper.Core.JSONFragmentPatternConverter, LogSearchShipper.Core" />
         </converter>
         <converter>
           <name value="iso8601_date" />
-          <type value="LogsearchShipper.Core.ISO8601DatePatternConverter, LogsearchShipper.Core" />
+          <type value="LogSearchShipper.Core.ISO8601DatePatternConverter, LogSearchShipper.Core" />
         </converter>
         <conversionPattern value='{"@timestamp":"%iso8601_date",%event_as_json,"logger":"%logger","level":"%level"}%n' />
       </layout>

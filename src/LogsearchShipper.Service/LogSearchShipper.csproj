@@ -7,8 +7,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{E728F5F0-84D6-4A57-9A09-504D4ADF4636}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>LogsearchShipper.Service</RootNamespace>
-    <AssemblyName>LogsearchShipper.Service</AssemblyName>
+    <RootNamespace>LogSearchShipper</RootNamespace>
+    <AssemblyName>LogSearchShipper</AssemblyName>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <PublishUrl>publish\</PublishUrl>
@@ -47,6 +47,10 @@
     <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="RunProcess, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\RunProcess.1.0.3\lib\net40\RunProcess.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
@@ -76,9 +80,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LogsearchShipper.Core\LogsearchShipper.Core.csproj">
+    <ProjectReference Include="..\LogsearchShipper.Core\LogSearchShipper.Core.csproj">
       <Project>{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}</Project>
-      <Name>LogsearchShipper.Core</Name>
+      <Name>LogSearchShipper.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
