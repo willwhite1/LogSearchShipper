@@ -75,7 +75,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
-    <None Include="LogsearchShipper.Service.exe.config.SAMPLE">
+    <None Include="LogSearchShipper.exe.config.SAMPLE">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
