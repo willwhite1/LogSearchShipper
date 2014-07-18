@@ -11,7 +11,7 @@
 
 	<Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 	<Target Name="Build">
-		<MSBuild Projects="src/LogsearchShipper.sln" Targets="Rebuild" 
+		<MSBuild Projects="src/LogSearchShipper.sln" Targets="Rebuild" 
 				 Properties="Configuration=$(Configuration);Platform=$(Platform)" />
 	</Target>
 
@@ -67,7 +67,7 @@
 		</ItemGroup>
 
 		<Zip Files="@(PackageFiles)"
-		  ZipFileName="logsearchShipperNET-$(BUILD_VERSION).zip"
+		  ZipFileName="LogSearchShipper-$(BUILD_VERSION).zip"
 		  WorkingDirectory="bin\"
 		  ZipLevel="9" />
 	</Target>
