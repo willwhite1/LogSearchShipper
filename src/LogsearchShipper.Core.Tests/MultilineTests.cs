@@ -33,7 +33,7 @@ namespace LogSearchShipper.Core.Tests
 			};
 			_nxLogProcessManagers.Add(reciever);
 			reciever.Start();
-			Console.WriteLine(reciever.Config);
+			//Console.WriteLine(reciever.Config);
 
 			var shipper = new NxLogProcessManager
 			{
@@ -49,7 +49,7 @@ namespace LogSearchShipper.Core.Tests
 			};
 			_nxLogProcessManagers.Add(shipper);
 			shipper.Start();
-			Console.WriteLine(shipper.Config);
+			//Console.WriteLine(shipper.Config);
 
 			var fileWatcher = new FileSystemWatcher(Path.GetDirectoryName(reciever.OutputFile),
 				Path.GetFileName(reciever.OutputFile));
@@ -85,7 +85,7 @@ INFO  2014-07-15 08:20:18,172 44 UTPMessaging.ActiveMQ.Server.ResponseChannel Re
 ");
 
 			//Wait until some info has been written to the file
-			Assert.IsTrue(waiter.WaitOne(TimeSpan.FromSeconds(30)),
+			Assert.IsTrue(waiter.WaitOne(TimeSpan.FromSeconds(600)),
 				string.Format("Not enough data was written to {0}, which only contains\n{1}", reciever.OutputFile,
 					File.ReadAllText(reciever.OutputFile)));
 
