@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using log4net;
+using log4net.Core;
+using log4net.Repository.Hierarchy;
 using LogSearchShipper.Core.ConfigurationSections;
 using LogSearchShipper.Core.NxLog;
 using NUnit.Framework;
@@ -61,8 +63,21 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		public void ShouldGenerateNxLogConfigWithCorrectSpoolDir()
 		{
 			AssertConfigContains(@"SpoolDir	{0}",
-				Path.GetDirectoryName(Assembly.GetAssembly(typeof (NxLogProcessManager)).Location));
+			Path.GetDirectoryName(Assembly.GetAssembly(typeof (NxLogProcessManager)).Location));
 		}
+
+		[Test]
+		public void ShouldGenerateNxLogConfigWithCorrectLogFile()
+		{
+		 AssertConfigContains(@"LogFile		{0}", _nxLogProcessManager.NxLogFile);
+		}
+
+	 [Test]
+	 public void ShouldGenerateNXLogConfigWithCorrectLogLevelBasedOnLog4NETSetting()
+	 {
+		 var expectedLevel = LogManager.GetLogger(typeof(NxLogProcessManager)).IsDebugEnabled ? "DEBUG" : "INFO";
+		 AssertConfigContains("LogLevel	{0}", expectedLevel);
+	 }
 
 		[Test]
 		public void ShouldGenerateNxLogConfigWithCorrectSyslogOutputSettings()
@@ -82,9 +97,9 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		[Platform(Exclude = "Mono")]
 		public void ShouldLaunchNxLogProcess()
 		{
-			ProcessHost _process = _nxLogProcessManager.Start();
+			var _processId = _nxLogProcessManager.Start();
 
-			Assert.IsNotNull(Process.GetProcessById(Convert.ToInt32(_process.ProcessId())), "a NXLog process wasn't started");
+			Assert.IsNotNull(Process.GetProcessById(Convert.ToInt32(_processId)), "a NXLog process wasn't started");
 		}
 
 		[Test]

@@ -13,7 +13,7 @@ namespace LogSearchShipper.Core.Tests
 		public void Setup()
 		{
 			_LogSearchShipperProcessManager = new LogSearchShipperProcessManager();
-			_nxLogProcess = _LogSearchShipperProcessManager.Start();
+			_nxLogProcessId = _LogSearchShipperProcessManager.Start();
 		}
 
 		[TestFixtureTearDown]
@@ -23,12 +23,12 @@ namespace LogSearchShipper.Core.Tests
 		}
 
 		private LogSearchShipperProcessManager _LogSearchShipperProcessManager;
-		private ProcessHost _nxLogProcess;
+		private int _nxLogProcessId;
 
 		[Test]
 		public void ShouldLaunchNxLogProcess()
 		{
-			Assert.IsNotNull(Process.GetProcessById(Convert.ToInt32(_nxLogProcess.ProcessId())), "a NXLog process wasn't started");
+			Assert.IsNotNull(Process.GetProcessById(Convert.ToInt32(_nxLogProcessId)), "a NXLog process wasn't started");
 		}
 
 		[Test]

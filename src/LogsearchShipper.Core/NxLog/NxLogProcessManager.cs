@@ -1,26 +1,25 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using LogSearchShipper.Core.ConfigurationSections;
 using LogSearchShipper.Core.Resources;
-using RunProcess;
 
 namespace LogSearchShipper.Core.NxLog
 {
 	public class NxLogProcessManager
 	{
 		private static readonly ILog _log = LogManager.GetLogger(typeof (NxLogProcessManager));
-		private static readonly NxLogOutputParser _nxLogOutputParser = new NxLogOutputParser();
 		private readonly string _dataFolder;
 		private readonly TimeSpan _waitForNxLogProcessToExitBeforeKilling = TimeSpan.FromSeconds(1);
 		private string _nxLogFolder;
-		private ProcessHost _nxLogProcessHost;
+		private string _nxLogFile;
+		private Process _process;
 
 		public NxLogProcessManager(string dataFolder)
 		{
@@ -63,7 +62,7 @@ namespace LogSearchShipper.Core.NxLog
 
 		public string Config { get; private set; }
 
-		public ProcessHost Start()
+		public int Start()
 		{
 			//should wait until started
 			ExtractNXLog();
@@ -73,102 +72,164 @@ namespace LogSearchShipper.Core.NxLog
 			string arguments = "-f -c " + ConfigFile;
 			_log.InfoFormat("Running {0} {1}", executablePath, arguments);
 
-			_nxLogProcessHost = new ProcessHost(executablePath, DataFolder);
-
-			_nxLogProcessHost.Start(arguments);
-
-			//Wait up to 1 second for the process to start
-			for (int i = 0; i < 10; i++)
+			_process = new Process
 			{
-				Thread.Sleep(TimeSpan.FromMilliseconds(100));
-				if (_nxLogProcessHost.IsAlive())
-					break;
-			}
-
-			//Start a background task to log nxlog process output every 250ms
-			Task.Run(() =>
-			{
-				string leftOverLine = string.Empty;
-				while (_nxLogProcessHost.IsAlive())
+				StartInfo =
 				{
-					string stdOut = leftOverLine + _nxLogProcessHost.StdOut.ReadAllText(Encoding.Default);
-					foreach (string line in stdOut.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries))
-					{
-						//Log complete lines, or store incomplete lines to be logged next time round
-						if (line.EndsWith("\r"))
-						{
-							LogNxLogOutput(line.Trim());
-						}
-						else
-						{
-							leftOverLine = line;
-						}
-					}
+					FileName = executablePath,
+					Arguments = arguments,
+					RedirectStandardInput = true,
+					CreateNoWindow = true,
+					UseShellExecute = false
+				},
+			};
 
-					Thread.Sleep(TimeSpan.FromMilliseconds(250));
-				}
-			});
+			_process.Start();
 
-			if (!_nxLogProcessHost.IsAlive())
-			{
-				throw new NxLogStartException("nxlog.exe failed to start");
-			}
+			_log.InfoFormat("nxlog.exe running with PID: {0}", _process.Id);
 
-			_log.InfoFormat("nxlog.exe running with PID: {0}", _nxLogProcessHost.ProcessId());
-			return _nxLogProcessHost;
+			WatchAndLogNxLogFileOutput();
+
+			return _process.Id;
 		}
 
-		private static void LogNxLogOutput(string data)
+		/// <summary>
+		/// Start a background task to log nxlog process output every 250ms
+		/// </summary>
+		private void WatchAndLogNxLogFileOutput()
 		{
-			if (string.IsNullOrEmpty(data)) return;
+			Task.Run(() =>
+			{
+			 var _nxLogOutputParser = new NxLogOutputParser();
+				using (FileStream fs = new FileStream(NxLogFile,
+					FileMode.Open,
+					FileAccess.Read,
+					FileShare.ReadWrite))
+				{
+					using (StreamReader sr = new StreamReader(fs))
+					{
+						while (!_process.HasExited) // reading the old data
+						{
+							var lines = sr.ReadToEnd();
+							foreach (var line in lines.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries))
+							{
+							 var logEvent = _nxLogOutputParser.Parse(line.Trim());
+							 _log.Logger.Log(_nxLogOutputParser.ConvertToLog4Net(_log, logEvent));
+							}
+							Thread.Sleep(TimeSpan.FromMilliseconds(250));
+						}
+					}
+				}
+			});
+		}
 
-			NxLogOutputParser.NxLogEvent logEvent = _nxLogOutputParser.Parse(data);
-			_log.Logger.Log(_nxLogOutputParser.ConvertToLog4Net(_log, logEvent));
+	  public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+		private bool _disposed = false;
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                Stop();
+            }
+
+            _disposed = true;
+        }
+    }
+
+    ~NxLogProcessManager()
+    {
+        Dispose(false);
+    }
+
+		private void StopNxLogProcess()
+		{
+		 if (_process == null || _process.HasExited)
+			return;
+
+		 _process.StandardInput.Close();
+
+		 if (_process == null || _process.HasExited)
+			return;
+
+		 _log.Info("Trying to close nxlog.exe gracefully by sending Ctrl-C");
+		 Win32.AttachConsole((uint)_process.Id);
+		 Win32.SetConsoleCtrlHandler(delegate { return true; }, true); //Set CtrlHandler to ignore
+		 Win32.GenerateConsoleCtrlEvent(Win32.CtrlType.CtrlCEvent, 0);
+
+		 if (_process == null || _process.HasExited)
+			return;
+
+		 // close console forcefully if not finished within allowed timeout
+		 _log.InfoFormat("Waiting for voluntary nxlog.exe exit: Timeout={0}", _waitForNxLogProcessToExitBeforeKilling);
+		 var exited = _process.WaitForExit(Convert.ToInt32(_waitForNxLogProcessToExitBeforeKilling.TotalMilliseconds));
+			if (exited) return;
+
+			_log.InfoFormat("Closing the nxlog.exe forcefully");
+			_process.Kill();
+		}
+
+		private void CleanupNxLogProcessResources()
+		{
+
+			Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+			//Cleanup
+			try
+			{
+			 _log.InfoFormat("Deleting folder {0}", BinFolder);
+			 Directory.Delete(BinFolder, true);
+			 
+			}
+			catch (Exception)
+			{
+			 //Wait a bit more, then try again
+			 try
+			 {
+				_log.InfoFormat("Failed to delete {0}.  Waiting 1 sec, then trying again", BinFolder);
+				Thread.Sleep(TimeSpan.FromMilliseconds(1000));
+				Directory.Delete(BinFolder, true);
+			 }
+			 catch (Exception e)
+			 {
+				_log.Warn(string.Format("Unable to delete {0}.  Giving up.", BinFolder), e);
+			 }
+			}
+
+			try
+			{
+			 _log.InfoFormat("Deleting NXLog file {0}", NxLogFile);
+			 File.Delete(NxLogFile);
+			}
+			catch (Exception)
+			{
+			 //Wait a bit more, then try again
+			 try
+			 {
+				_log.InfoFormat("Failed to delete {0}.  Waiting 1 sec, then trying again", NxLogFile);
+				Thread.Sleep(TimeSpan.FromMilliseconds(1000));
+				File.Delete(NxLogFile);
+			 }
+			 catch (Exception e)
+			 {
+				_log.Warn(string.Format("Unable to delete {0}.  Giving up.", NxLogFile), e);
+			 }
+			}
+
 		}
 
 		public void Stop()
 		{
 			_log.Info("Stopping and cleaning up nxlog.exe process.");
 
-			if (_nxLogProcessHost == null || !_nxLogProcessHost.IsAlive())
-			{
-				_log.Info("nxlog.exe process doesn't exist - nothing to Stop.");
-				return;
-			}
-
-			_log.Info("sending Ctrl-C to nxlog.exe process so it can clean up");
-			_nxLogProcessHost.StdIn.WriteLine(Encoding.Default, char.ConvertFromUtf32(3));
-
-			_log.InfoFormat("Waiting for {0}sec for nxlog.exe process to shut down gracefully",
-				_waitForNxLogProcessToExitBeforeKilling.TotalSeconds);
-			if (!_nxLogProcessHost.WaitForExit(_waitForNxLogProcessToExitBeforeKilling))
-			{
-				_log.WarnFormat("Killing nxlog.exe process since it didn't exit within {0}sec",
-					_waitForNxLogProcessToExitBeforeKilling.TotalSeconds);
-				_nxLogProcessHost.Kill();
-			}
-
-			//Cleanup
-			try
-			{
-				Thread.Sleep(TimeSpan.FromMilliseconds(100));
-				Directory.Delete(BinFolder, true);
-				_log.InfoFormat("Deleting folder {0}", BinFolder);
-			}
-			catch (Exception)
-			{
-				//Wait a bit more, then try again
-				try
-				{
-					_log.InfoFormat("Failed to delete {0}.  Waiting 1 sec, then trying again", BinFolder);
-					Thread.Sleep(TimeSpan.FromMilliseconds(1000));
-					Directory.Delete(BinFolder, true);
-				}
-				catch (Exception e)
-				{
-					_log.Warn(string.Format("Unable to delete {0}.  Giving up.", BinFolder), e);
-				}
-			}
+			StopNxLogProcess();
+			CleanupNxLogProcessResources();
 
 			_log.Info("Successfully stopped and cleaned up nxlog.exe process");
 		}
@@ -226,23 +287,26 @@ namespace LogSearchShipper.Core.NxLog
 		internal void SetupConfigFile()
 		{
 			string config = string.Format(@"
-LogLevel DEBUG
-
-ModuleDir	{0}\modules
-CacheDir	{1}
-PidFile		{1}\nxlog.pid
-SpoolDir	{2}
+LogLevel	{0}
+LogFile		{1}
+	
+ModuleDir	{2}\modules
+CacheDir	{3}
+PidFile		{3}\nxlog.pid
+SpoolDir	{4}
 
 <Extension syslog>
 		Module	xm_syslog
 </Extension>
 
-{3}
-{4}
 {5}
 {6}
 {7}
+{8}
+{9}
 ",
+				_log.IsDebugEnabled ? "DEBUG" : "INFO",
+				NxLogFile,
 				Path.GetFullPath(BinFolder),
 				Path.GetFullPath(DataFolder),
 				Path.GetDirectoryName(Assembly.GetAssembly(typeof (NxLogProcessManager)).Location),
@@ -257,6 +321,18 @@ SpoolDir	{2}
 			ConfigFile = Path.Combine(DataFolder, "nxlog.conf");
 			File.WriteAllText(ConfigFile, config);
 			_log.InfoFormat("NXLog config file: {0}", ConfigFile);
+		}
+
+		public string NxLogFile
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(_nxLogFile))
+				{
+					_nxLogFile = Path.GetTempFileName();
+				}
+			 return _nxLogFile;
+			}
 		}
 
 		/// <summary>
@@ -281,7 +357,6 @@ SpoolDir	{2}
 			{
 				allInputs += "in_file" + i + ",";
 			}
-			allInputs = allInputs.TrimEnd(new[] {','});
 
 			if (OutputSyslog != null)
 			{
