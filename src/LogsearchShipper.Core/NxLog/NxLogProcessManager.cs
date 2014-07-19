@@ -357,6 +357,7 @@ SpoolDir	{4}
 			{
 				allInputs += "in_file" + i + ",";
 			}
+			allInputs = allInputs.TrimEnd(new[] { ',' });
 
 			if (OutputSyslog != null)
 			{
