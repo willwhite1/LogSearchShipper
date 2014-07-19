@@ -8,7 +8,6 @@ using System.Threading;
 using log4net;
 using LogSearchShipper.Core.ConfigurationSections;
 using LogSearchShipper.Core.NxLog;
-using RunProcess;
 
 namespace LogSearchShipper.Core
 {
@@ -32,7 +31,7 @@ namespace LogSearchShipper.Core
 			}
 		}
 
-		public ProcessHost Start()
+		public int Start()
 		{
 			if (!Directory.Exists(LogSearchShipperConfig.DataFolder))
 			{
@@ -44,7 +43,7 @@ namespace LogSearchShipper.Core
 			NxLogProcessManager.OutputSyslog = new SyslogEndpoint(LogSearchShipperConfig.IngestorHost,
 				LogSearchShipperConfig.IngestorPort);
 
-			ProcessHost _process = NxLogProcessManager.Start();
+			var processId = NxLogProcessManager.Start();
 
 			var configChanging = new CodeBlockLocker {isBusy = false};
 
@@ -69,7 +68,7 @@ namespace LogSearchShipper.Core
 				}
 			});
 
-			return _process;
+			return processId;
 		}
 
 		public void Stop()

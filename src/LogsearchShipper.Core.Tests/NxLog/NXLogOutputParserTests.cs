@@ -45,6 +45,18 @@ namespace LogSearchShipper.Core.Tests.NxLog
 				CreateLog4NetLogEvent(log).RenderedMessage);
 		}
 
+	 
+		[Test]
+		public void ShouldCorrectlyConvertERROR2()
+		{
+			string log =
+					 @"2014-07-19 07:18:03 ERROR [router.c:351/nx_add_route()] route route_to_file is not functional without output modules, ignored at C:\Users\david.laing\AppData\Local\Temp\nxlog-data-1c380b9197e94d37a0e64cf6b29034e7\nxlog.conf:35";
+
+			Assert.AreEqual(Level.Error, CreateLog4NetLogEvent(log).Level);
+			Assert.AreEqual(@"[router.c:351/nx_add_route()] route route_to_file is not functional without output modules, ignored at C:\Users\david.laing\AppData\Local\Temp\nxlog-data-1c380b9197e94d37a0e64cf6b29034e7\nxlog.conf:35",
+				CreateLog4NetLogEvent(log).RenderedMessage);
+		}
+
 		[Test]
 		public void ShouldCorrectlyConvertINFO()
 		{
