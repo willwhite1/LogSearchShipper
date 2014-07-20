@@ -69,7 +69,7 @@ namespace LogSearchShipper.Core.NxLog
 			SetupConfigFile();
 
 			string executablePath = Path.Combine(BinFolder, "nxlog.exe");
-			string arguments = "-f -c " + ConfigFile;
+			string arguments = string.Format("-f -c \"{0}\"", ConfigFile);
 			_log.InfoFormat("Running {0} {1}", executablePath, arguments);
 
 			_process = new Process
