@@ -13,7 +13,7 @@
   </configSections>
 
   <LogSearchShipperGroup>
-    <LogSearchShipper data_folder="data" ingestor_host="54.194.76.47" ingestor_port="5514">
+    <LogSearchShipper data_folder="data" ingestor_host="ingestor.meta.logsearch.io" ingestor_port="443">
       <fileWatchers>
         <watch files="logs\*.*" type="json">
           <field key="environment" value="LogSearchShipper.Test" />
