@@ -55,10 +55,16 @@ namespace IntegrationTests
 
 			var ids = WriteLogFiles(path);
 
-			Thread.Sleep(TimeSpan.FromMinutes(1));
+			var startTime = DateTime.UtcNow;
 
-			var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentIterationId, "message");
-			Console.WriteLine("### " + records.Count);
+			while (true)
+			{
+				Thread.Sleep(TimeSpan.FromMinutes(3));
+				var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentIterationId, "message");
+				if (records.Count == ids.Count())
+					break;
+				Assert.IsTrue(DateTime.UtcNow - startTime < TimeSpan.FromMinutes(10));
+			}
 		}
 
 		private string[] WriteLogFiles(string path)
@@ -174,8 +180,8 @@ namespace IntegrationTests
 
 		private Process _shipperProcess;
 
-		private const int MaxIterationsCount = 3;
-		private const int LinesPerFile = 100;
+		private const int MaxIterationsCount = 1;
+		private const int LinesPerFile = 1000;
 		private const int LogFilesCount = 100;
 	}
 }
