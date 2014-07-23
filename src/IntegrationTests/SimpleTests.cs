@@ -20,7 +20,7 @@ namespace IntegrationTests
 
 			File.Delete("LogSearchShipper.exe.config.bak");
 			File.Move("LogSearchShipper.exe.config", "LogSearchShipper.exe.config.bak");
-			File.Move("LogSearchShipper.exe.config.ShouldSuccessfullyShipSimpleJSON", "LogSearchShipper.exe.config");
+			File.Copy("LogSearchShipper.exe.config.ShouldSuccessfullyShipSimpleJSON", "LogSearchShipper.exe.config");
 			try
 			{
 				shipper = Utils.StartProcess(Environment.CurrentDirectory + @"\LogSearchShipper.exe",
@@ -33,7 +33,7 @@ namespace IntegrationTests
 				File.WriteAllLines(JsonLogFilePath, new[] { string.Format(@"{{ ""@timestamp"":""{0}"", ""foo"":""bar"" }}", DateTime.UtcNow.ToString("O")) });
 
 				Console.WriteLine("Waiting 30 seconds for shipper to ship data...");
-				System.Threading.Thread.Sleep(TimeSpan.FromSeconds(30));
+				System.Threading.Thread.Sleep(TimeSpan.FromSeconds(45));
 
 			}
 			finally

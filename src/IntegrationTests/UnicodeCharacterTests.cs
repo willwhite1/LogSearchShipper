@@ -22,7 +22,7 @@ namespace IntegrationTests
 
 			File.Delete("LogSearchShipper.exe.config.bak");
 			File.Move("LogSearchShipper.exe.config", "LogSearchShipper.exe.config.bak");
-			File.Move("LogSearchShipper.exe.config.ShouldSuccessfullyShipLog4NetLogContainingUnicodeCharacters", "LogSearchShipper.exe.config");
+			File.Copy("LogSearchShipper.exe.config.ShouldSuccessfullyShipLog4NetLogContainingUnicodeCharacters", "LogSearchShipper.exe.config");
 			try
 			{
 				shipper = Utils.StartProcess(Environment.CurrentDirectory + @"\LogSearchShipper.exe",
@@ -33,7 +33,7 @@ namespace IntegrationTests
 				var nowInBST = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time")).ToString("yyyy-MM-dd HH:mm:ss,fff");
 				File.WriteAllLines(Log4NetLogFilePath, new[]{nowInBST + @" [112] DEBUG CityIndexGeneric.Logic.Utilities.LogWriter [(null)] - ContentData Id:38654759125 de-DE 'CFDs ֠eine Alternative zu Zertifikaten oder ETFs' cached until 2014-07-22 12:28:45."});
 
-				System.Threading.Thread.Sleep(TimeSpan.FromSeconds(60));
+				System.Threading.Thread.Sleep(TimeSpan.FromSeconds(45));
 
 			}
 			finally
