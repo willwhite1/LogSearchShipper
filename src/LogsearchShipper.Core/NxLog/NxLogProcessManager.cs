@@ -237,7 +237,7 @@ namespace LogSearchShipper.Core.NxLog
 		/// <summary>
 		///  We're expecting a config that looks something like this:
 		///  define BIN_FOLDER C:\Users\Andrei\AppData\Local\Temp\nxlog-81f27590cf4a4095915358b867c030af
-		///  define DATA_FOLDER C:\Dev\logsearch-shipper.NET\data
+		///  define DATA_FOLDER C:\Dev\LogSearchShipper\data
 		///  Moduledir %BIN_FOLDER%\modules
 		///  CacheDir %DATA_FOLDER%
 		///  Pidfile %DATA_FOLDER%\nxlog.pid
@@ -492,7 +492,7 @@ SpoolDir	{4}
 	CloseWhenIdle TRUE
 	PollInterval 5
 	DirCheckInterval 10
-	Exec	$path = file_name(); $name = ""logsearch-shipper.NET""; $module = ""nxlog""; $type = ""{2}""; ",
+	Exec	$path = file_name(); $module = ""nxlog""; $type = ""{2}""; ",
 					i,
 					inputFile.Files.Replace(@"\", @"\\"),
 					inputFile.Type);
