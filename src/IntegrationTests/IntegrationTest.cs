@@ -5,8 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+
 using NUnit.Framework;
 
 namespace IntegrationTests
@@ -59,12 +58,16 @@ namespace IntegrationTests
 
 			while (true)
 			{
-				Thread.Sleep(TimeSpan.FromMinutes(3));
+				Thread.Sleep(TimeSpan.FromMinutes(1));
 				var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentIterationId, "message");
-				if (records.Count == ids.Count())
+				if (records.Count >= ids.Count() || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(10))
+				{
+					Validate(records, ids);
 					break;
-				Assert.IsTrue(DateTime.UtcNow - startTime < TimeSpan.FromMinutes(10));
+				}
 			}
+
+			Trace.WriteLine("======================= Success =======================");
 		}
 
 		private string[] WriteLogFiles(string path)
@@ -79,6 +82,8 @@ namespace IntegrationTests
 				string[] curIds;
 				File.WriteAllText(filePath, GetLog(out curIds));
 				ids.AddRange(curIds);
+
+				Thread.Sleep(TimeSpan.FromSeconds(10));
 
 				var newName = filePath + "." + i + ".log";
 				File.Move(filePath, newName);
@@ -114,8 +119,7 @@ namespace IntegrationTests
 			var recordIdsCount = new Dictionary<string, int>();
 			foreach (var record in records)
 			{
-				var vals = (JObject)JsonConvert.DeserializeObject((string)record.Value);
-				var id = vals.Properties().First(val => val.Name == "message").Value.ToString();
+				var id = (string)record.Value;
 
 				int count;
 				if (!recordIdsCount.TryGetValue(id, out count))
@@ -138,7 +142,7 @@ namespace IntegrationTests
 			if (missingCount != 0 || duplicatesCount != 0)
 			{
 				var message = string.Format("total - {0}, missing - {1}, duplicates - {2}", records.Count, missingCount, duplicatesCount);
-				throw new Exception(message);
+				throw new ApplicationException(message);
 			}
 		}
 
@@ -183,8 +187,8 @@ namespace IntegrationTests
 
 		private Process _shipperProcess;
 
-		private const int MaxIterationsCount = 1;
-		private const int LinesPerFile = 1000;
-		private const int LogFilesCount = 100;
+		private const int MaxIterationsCount = 3;
+		private const int LinesPerFile = 100;
+		private const int LogFilesCount = 10;
 	}
 }
