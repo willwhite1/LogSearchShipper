@@ -56,6 +56,8 @@
     <Compile Include="AppSettings.cs" />
     <Compile Include="EsUtil.cs" />
     <Compile Include="IntegrationTest.cs" />
+    <Compile Include="SimpleTests.cs" />
+    <Compile Include="UnicodeCharacterTests.cs" />
     <Compile Include="LogFileRollingTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Record.cs" />
@@ -64,6 +66,12 @@
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="LogsearchShipper.exe.config.ShouldSuccessfullyShipSimpleJSON">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="LogsearchShipper.exe.config.ShouldSuccessfullyShipLog4NetLogContainingUnicodeCharacters">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="LogsearchShipper.exe.config.Test">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
