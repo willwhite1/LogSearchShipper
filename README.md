@@ -1,4 +1,4 @@
-## logsearch-shipper.NET 
+## LogSearchShipper
 
 A Windows optimised shipper for getting logs into your Logsearch cluster
 
@@ -9,18 +9,18 @@ A Windows optimised shipper for getting logs into your Logsearch cluster
 
 ### Config
 
-Rename `LogsearchShipper.Service.exe.config.SAMPLE` to `LogsearchShipper.Service.exe.config` and configure the `LogsearchShipperGroup` to point at the files you want shipped.
+Rename `LogSearchShipper.exe.config.SAMPLE` to `LogsearchShipper.Service.exe.config` and configure the `LogsearchShipperGroup` to point at the files you want shipped.
 
 #### Running from the Command line 
 
 ```
-LogsearchShipper.Service.exe
+LogSearchShipper.exe
 ```
 
 #### Running as a Windows Service
 
 ```
-LogsearchShipper.Service.exe install --sudo
+LogSearchShipper.exe install --sudo
 ```
 
 #### Help
@@ -28,7 +28,7 @@ LogsearchShipper.Service.exe install --sudo
 See
 
 ```
-LogsearchShipper.Service.exe help
+LogSearchShipper.exe help
 ```
 
 ### License
