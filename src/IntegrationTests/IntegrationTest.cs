@@ -156,7 +156,10 @@ namespace IntegrationTests
 				File.Copy(file, newFile);
 			}
 
-			_shipperProcess = Utils.StartProcess(exeFileCopy, "-instance:integrationtest002");
+			_shipperProcess = Utils.StartProcess(exeFileCopy, "-instance:OverallTest");
+
+			Console.WriteLine("Waiting 30 seconds for shipper to startup...");
+			Thread.Sleep(TimeSpan.FromSeconds(30));
 		}
 
 		void StopShipperService()
