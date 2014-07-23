@@ -492,7 +492,7 @@ SpoolDir	{4}
 	CloseWhenIdle TRUE
 	PollInterval 5
 	DirCheckInterval 10
-	Exec	$path = file_name(); $module = ""nxlog""; $type = ""{2}""; ",
+	Exec	$path = file_name(); $type = ""{2}""; ",
 					i,
 					inputFile.Files.Replace(@"\", @"\\"),
 					inputFile.Type);
