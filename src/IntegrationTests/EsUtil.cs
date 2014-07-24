@@ -19,7 +19,7 @@ namespace IntegrationTests
 
 			var indexNames = new List<string>();
 
-			var curDay = DateTime.UtcNow.Date - TimeSpan.FromDays(3);
+			var curDay = DateTime.UtcNow.Date - TimeSpan.FromDays(1); // date can change since this test has started
 			while (curDay <= DateTime.UtcNow.Date)
 			{
 				var indexName = "logstash-" + curDay.ToString("yyyy.MM.dd");
