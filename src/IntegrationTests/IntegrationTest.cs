@@ -26,17 +26,13 @@ namespace IntegrationTests
 			if (!Directory.Exists(_basePath))
 				Directory.CreateDirectory(_basePath);
 
-			Cleanup();
+			Utils.Cleanup(_basePath);
+			Directory.CreateDirectory(LogsPath);
 
 			StartShipperService();
 
 			while (_currentIteration < MaxIterationsCount)
 				RunTestIteration();
-		}
-
-		private void Cleanup()
-		{
-			Utils.Cleanup(_basePath);
 		}
 
 		void RunTestIteration()
@@ -174,11 +170,13 @@ namespace IntegrationTests
 
 		string GetTestPath(string testName)
 		{
-			var res = Path.Combine(_basePath, "logs", _currentIteration.ToString(), testName);
+			var res = Path.Combine(LogsPath, _currentIteration.ToString(), testName);
 			if (!Directory.Exists(res))
 				Directory.CreateDirectory(res);
 			return res;
 		}
+
+		string LogsPath { get { return Path.Combine(_basePath, "logs"); } }
 
 		private int _currentIteration;
 		private string _currentIterationId;
