@@ -123,7 +123,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 				"\n=================================\n");
 			
 			Assert.GreaterOrEqual(withRotation.Length, withoutRotation.Length);
-			Assert.LessOrEqual(withRotation.Length, withoutRotation.Length + 10);
+			Assert.LessOrEqual(withRotation.Length, withoutRotation.Length + 3);
 		}												 
 	}
  		
