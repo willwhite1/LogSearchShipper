@@ -40,20 +40,7 @@ namespace IntegrationTests
 
 			var ids = WriteLogFiles(path);
 
-			var startTime = DateTime.UtcNow;
-
-			while (true)
-			{
-				Thread.Sleep(TimeSpan.FromMinutes(1));
-				var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentGroupId, "message");
-				if (records.Count >= ids.Count() || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(10))
-				{
-					Validate(records, ids);
-					break;
-				}
-			}
-
-			Trace.WriteLine("Success");
+			GetAndValidateRecords(ids);
 		}
 
 		private string[] WriteLogFiles(string path)
@@ -130,6 +117,24 @@ namespace IntegrationTests
 				var message = string.Format("total - {0}, missing - {1}, duplicates - {2}", records.Count, missingCount, duplicatesCount);
 				throw new ApplicationException(message);
 			}
+		}
+
+		void GetAndValidateRecords(string[] ids)
+		{
+			var startTime = DateTime.UtcNow;
+
+			while (true)
+			{
+				Thread.Sleep(TimeSpan.FromMinutes(1));
+				var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentGroupId, "message");
+				if (records.Count >= ids.Count() || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(10))
+				{
+					Validate(records, ids);
+					break;
+				}
+			}
+
+			Trace.WriteLine("Success");
 		}
 
 		void StartShipperService()
