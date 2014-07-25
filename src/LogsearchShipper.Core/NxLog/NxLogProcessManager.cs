@@ -127,29 +127,30 @@ namespace LogSearchShipper.Core.NxLog
 
 		internal void StopNxLogProcess()
 		{
-		 if (_process == null || _process.HasExited)
-			return;
+			if (_process == null || _process.HasExited)
+			 return;
 
-		 _process.StandardInput.Close();
+			try
+			{
+			 _log.Info("Trying to close nxlog.exe gracefully");
+			 _process.StandardInput.Close();
 
-		 if (_process == null || _process.HasExited)
-			return;
+			 if (_process == null || _process.HasExited)
+				return;
 
-		 _log.Info("Trying to close nxlog.exe gracefully by sending Ctrl-C");
-		 Win32.AttachConsole((uint)_process.Id);
-		 Win32.SetConsoleCtrlHandler(delegate { return true; }, true); //Set CtrlHandler to ignore
-		 Win32.GenerateConsoleCtrlEvent(Win32.CtrlType.CtrlCEvent, 0);
-
-		 if (_process == null || _process.HasExited)
-			return;
-
-		 // close console forcefully if not finished within allowed timeout
-		 _log.InfoFormat("Waiting for voluntary nxlog.exe exit: Timeout={0}", _waitForNxLogProcessToExitBeforeKilling);
-		 var exited = _process.WaitForExit(Convert.ToInt32(_waitForNxLogProcessToExitBeforeKilling.TotalMilliseconds));
-			if (exited) return;
-
-			_log.InfoFormat("Closing the nxlog.exe forcefully");
-			_process.Kill();
+				_log.InfoFormat("Waiting for voluntary nxlog.exe exit: Timeout={0}", _waitForNxLogProcessToExitBeforeKilling);
+				_process.WaitForExit(Convert.ToInt32(_waitForNxLogProcessToExitBeforeKilling.TotalMilliseconds));
+			}
+			finally
+			{
+			 // close console forcefully if not finished within allowed timeout
+				if (_process != null || !_process.HasExited)
+				{
+				 _log.InfoFormat("Closing the nxlog.exe forcefully");
+				 _process.Kill();
+				}
+				
+			}
 		}
 
 		private void CleanupNxLogProcessResources()
