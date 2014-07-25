@@ -13,14 +13,8 @@ namespace IntegrationTests
 	[TestFixture]
 	class IntegrationTest
 	{
-		[TestFixtureTearDown]
-		public void TearDown()
-		{
-			StopShipperService();
-		}
-
-		[Test]
-		public void TestIntegration()
+		[TestFixtureSetUp]
+		public void Init()
 		{
 			_basePath = Path.Combine(Environment.CurrentDirectory, "LogSearchShipper.Test");
 			if (!Directory.Exists(_basePath))
@@ -30,7 +24,17 @@ namespace IntegrationTests
 			Directory.CreateDirectory(LogsPath);
 
 			StartShipperService();
+		}
 
+		[TestFixtureTearDown]
+		public void TearDown()
+		{
+			StopShipperService();
+		}
+
+		[Test]
+		public void TestIntegration()
+		{
 			while (_currentIteration < MaxIterationsCount)
 				RunTestIteration();
 		}
