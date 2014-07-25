@@ -57,7 +57,8 @@ namespace LogSearchShipper.Core.NxLog
 			if (offset > lines.Length) offset = 0;
 		  
 			var linesToReturn=lines.Skip(offset).ToArray();
-			offset = linesToReturn.Length;
+			offset = lines.Length;
+
 			return linesToReturn;
 		}
 	}
