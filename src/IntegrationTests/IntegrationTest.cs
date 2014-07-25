@@ -33,24 +33,10 @@ namespace IntegrationTests
 		}
 
 		[Test]
-		public void TestIntegration()
+		public void TestFileRolling()
 		{
-			while (_currentIteration < MaxIterationsCount)
-				RunTestIteration();
-		}
-
-		void RunTestIteration()
-		{
-			_currentIterationId = Guid.NewGuid().ToString();
-
-			SimpleTest();
-
-			_currentIteration++;
-		}
-
-		void SimpleTest()
-		{
-			var path = GetTestPath("SimpleTest");
+			_currentGroupId = Guid.NewGuid().ToString();
+			var path = GetTestPath("TestFileRolling");
 
 			var ids = WriteLogFiles(path);
 
@@ -59,7 +45,7 @@ namespace IntegrationTests
 			while (true)
 			{
 				Thread.Sleep(TimeSpan.FromMinutes(1));
-				var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentIterationId, "message");
+				var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentGroupId, "message");
 				if (records.Count >= ids.Count() || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(10))
 				{
 					Validate(records, ids);
@@ -67,7 +53,7 @@ namespace IntegrationTests
 				}
 			}
 
-			Trace.WriteLine("======================= Success =======================");
+			Trace.WriteLine("Success");
 		}
 
 		private string[] WriteLogFiles(string path)
@@ -105,7 +91,7 @@ namespace IntegrationTests
 				var message = string.Format(
 					"{{\"timestamp\":\"{0}\",\"message\":\"{1}\",\"group_id\":\"{2}\",\"source\":\"LogSearchShipper.Test\"," +
 					"\"logger\":\"Test\",\"level\":\"INFO\"}}",
-					DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), id, _currentIterationId);
+					DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), id, _currentGroupId);
 				buf.AppendLine(message);
 				tmp.Add(id);
 				i++;
@@ -174,7 +160,7 @@ namespace IntegrationTests
 
 		string GetTestPath(string testName)
 		{
-			var res = Path.Combine(LogsPath, _currentIteration.ToString(), testName);
+			var res = Path.Combine(LogsPath, testName);
 			if (!Directory.Exists(res))
 				Directory.CreateDirectory(res);
 			return res;
@@ -182,14 +168,12 @@ namespace IntegrationTests
 
 		string LogsPath { get { return Path.Combine(_basePath, "logs"); } }
 
-		private int _currentIteration;
-		private string _currentIterationId;
+		private string _currentGroupId;
 
 		private string _basePath;
 
 		private Process _shipperProcess;
 
-		private const int MaxIterationsCount = 3;
 		private const int LinesPerFile = 100;
 		private const int LogFilesCount = 10;
 	}
