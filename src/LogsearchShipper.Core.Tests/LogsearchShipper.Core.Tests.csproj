@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MultilineTests.cs" />
+    <Compile Include="NxLog\NxLogProcessFileWatcherTests.cs" />
     <Compile Include="NxLog\NxLogProcessManagerTests.cs" />
     <Compile Include="NxLog\NXLogOutputParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

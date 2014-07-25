@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="CustomPatternLayoutConverter.cs" />
     <Compile Include="ConfigurationSections\FieldElement.cs" />
+    <Compile Include="NxLog\NxLogFileWatcher.cs" />
     <Compile Include="NxLog\NxLogOutputParser.cs" />
     <Compile Include="NxLog\NxLogProcessManager.cs" />
     <Compile Include="NxLog\NxLogStartException.cs" />

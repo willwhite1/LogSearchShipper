@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using log4net;
 using log4net.Core;
 using log4net.Repository.Hierarchy;
@@ -98,6 +99,8 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		public void ShouldLaunchNxLogProcess()
 		{
 			var _processId = _nxLogProcessManager.Start();
+
+		 Thread.Sleep(TimeSpan.FromSeconds(1));
 
 			Assert.IsNotNull(Process.GetProcessById(Convert.ToInt32(_processId)), "a NXLog process wasn't started");
 		}
