@@ -38,6 +38,7 @@ namespace IntegrationTests
 			_currentGroupId = Guid.NewGuid().ToString();
 			var path = GetTestPath("TestFileRolling");
 
+			Trace.WriteLine("Writing the files");
 			var ids = WriteLogFiles(path);
 
 			GetAndValidateRecords(ids);
@@ -121,6 +122,8 @@ namespace IntegrationTests
 
 		void GetAndValidateRecords(string[] ids)
 		{
+			Trace.WriteLine("Getting records from the server...");
+
 			var startTime = DateTime.UtcNow;
 
 			while (true)
@@ -129,6 +132,7 @@ namespace IntegrationTests
 				var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentGroupId, "message");
 				if (records.Count >= ids.Count() || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(10))
 				{
+					Trace.WriteLine("Validating retrieved records");
 					Validate(records, ids);
 					break;
 				}
