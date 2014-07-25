@@ -33,6 +33,21 @@ namespace IntegrationTests
 		}
 
 		[Test]
+		public void TestSimpleFileWriting()
+		{
+			_currentGroupId = Guid.NewGuid().ToString();
+			var path = GetTestPath("TestSimpleFileWriting");
+			var filePath = Path.Combine(path, "TestFile");
+
+			Trace.WriteLine("Writing the file");
+
+			string[] ids;
+			File.WriteAllText(filePath, GetLog(out ids));
+
+			GetAndValidateRecords(ids);
+		}
+
+		[Test]
 		public void TestFileRolling()
 		{
 			_currentGroupId = Guid.NewGuid().ToString();
