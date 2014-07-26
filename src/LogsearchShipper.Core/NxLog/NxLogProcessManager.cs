@@ -17,7 +17,7 @@ namespace LogSearchShipper.Core.NxLog
 		private static readonly ILog _log = LogManager.GetLogger(typeof (NxLogProcessManager));
 		private readonly string _dataFolder;
 		private readonly TimeSpan _waitForNxLogProcessToExitBeforeKilling = TimeSpan.FromSeconds(1);
-		private string _nxLogFolder;
+		private string _nxBinFolder;
 		private string _nxLogFile;
 		private string _maxNxLogFileSize = "1M";
 		private string _rotateNxLogFileEvery = "1 min";
@@ -45,11 +45,11 @@ namespace LogSearchShipper.Core.NxLog
 		{
 			get
 			{
-				if (!string.IsNullOrEmpty(_nxLogFolder)) return _nxLogFolder;
+				if (!string.IsNullOrEmpty(_nxBinFolder)) return _nxBinFolder;
 
-				_nxLogFolder = Path.Combine(Path.GetTempPath(), "nxlog-" + Guid.NewGuid().ToString("N"));
-				Directory.CreateDirectory(_nxLogFolder);
-				return _nxLogFolder;
+				_nxBinFolder = Path.Combine(DataFolder,"nxlog" );
+				Directory.CreateDirectory(_nxBinFolder);
+				return _nxBinFolder;
 			}
 		}
 
@@ -125,7 +125,7 @@ namespace LogSearchShipper.Core.NxLog
         Dispose(false);
     }
 
-		internal void StopNxLogProcess()
+		public void Stop()
 		{
 			if (_process == null || _process.HasExited)
 			 return;
@@ -151,65 +151,6 @@ namespace LogSearchShipper.Core.NxLog
 				}
 				
 			}
-		}
-
-		private void CleanupNxLogProcessResources()
-		{
-
-			Thread.Sleep(TimeSpan.FromMilliseconds(100));
-
-			//Cleanup
-			try
-			{
-			 _log.InfoFormat("Deleting folder {0}", BinFolder);
-			 Directory.Delete(BinFolder, true);
-			 
-			}
-			catch (Exception)
-			{
-			 //Wait a bit more, then try again
-			 try
-			 {
-				_log.InfoFormat("Failed to delete {0}.  Waiting 1 sec, then trying again", BinFolder);
-				Thread.Sleep(TimeSpan.FromMilliseconds(1000));
-				Directory.Delete(BinFolder, true);
-			 }
-			 catch (Exception e)
-			 {
-				_log.Warn(string.Format("Unable to delete {0}.  Giving up.", BinFolder), e);
-			 }
-			}
-
-			try
-			{
-			 _log.InfoFormat("Deleting NXLog file {0}", NxLogFile);
-			 File.Delete(NxLogFile);
-			}
-			catch (Exception)
-			{
-			 //Wait a bit more, then try again
-			 try
-			 {
-				_log.InfoFormat("Failed to delete {0}.  Waiting 1 sec, then trying again", NxLogFile);
-				Thread.Sleep(TimeSpan.FromMilliseconds(1000));
-				File.Delete(NxLogFile);
-			 }
-			 catch (Exception e)
-			 {
-				_log.Warn(string.Format("Unable to delete {0}.  Giving up.", NxLogFile), e);
-			 }
-			}
-
-		}
-
-		public void Stop()
-		{
-			_log.Info("Stopping and cleaning up nxlog.exe process.");
-
-			StopNxLogProcess();
-			CleanupNxLogProcessResources();
-
-			_log.Info("Successfully stopped and cleaned up nxlog.exe process");
 		}
 
 		/// <summary>
@@ -325,7 +266,7 @@ SpoolDir	{6}
 			{
 				if (string.IsNullOrEmpty(_nxLogFile))
 				{
-					_nxLogFile = Path.GetTempFileName();
+				 _nxLogFile = Path.Combine(DataFolder, "nxlog.log");
 				}
 			 return _nxLogFile;
 			}
@@ -449,19 +390,22 @@ SpoolDir	{6}
 			if (!Environment.OSVersion.VersionString.Contains("Windows"))
 				throw new NotSupportedException("NxLogProcessManager only supports Windows");
 
+			_log.Info(string.Format("BinFolder => {0}", BinFolder));
+
 			string zipFile = Path.Combine(BinFolder, "nxlog.zip");
+			if (File.Exists(zipFile)) return;
+
+			_log.Info(string.Format("Extracting nxlog.zip => {0}", BinFolder));
 			using (var fStream = new FileStream(zipFile, FileMode.Create))
 			{
 				fStream.Write(Resource.nxlog_ce_2_7_1191_zip,
 					0, Resource.nxlog_ce_2_7_1191_zip.Length);
 			}
 
-			using (ZipArchive archive = ZipFile.Open(zipFile, ZipArchiveMode.Update))
+			using (ZipArchive archive = ZipFile.Open(zipFile, ZipArchiveMode.Read))
 			{
 				archive.ExtractToDirectory(BinFolder);
 			}
-
-			_log.Info(string.Format("BinFolder => {0}", BinFolder));
 		}
 
 		/// <summary>

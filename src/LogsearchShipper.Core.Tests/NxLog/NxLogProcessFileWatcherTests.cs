@@ -101,7 +101,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		 Thread.Sleep(TimeSpan.FromSeconds(2));
 
 			var withoutRotation = new NxLogFileWatcher(_nxLogProcessManager).ReadAllLines();
-			_nxLogProcessManager.StopNxLogProcess();
+			_nxLogProcessManager.Stop();
 
 		 //Get number of lines with lots of log rotation
 			ClearMemoryAppenderEvents();
