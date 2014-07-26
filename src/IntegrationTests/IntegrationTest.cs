@@ -66,7 +66,7 @@ namespace IntegrationTests
 			int i = 0;
 			while (i < LogFilesCount)
 			{
-				var filePath = Path.Combine(path, "TestFile");
+				var filePath = Path.Combine(path, "TestFile.log");
 
 				string[] curIds;
 				File.WriteAllText(filePath, GetLog(out curIds));
