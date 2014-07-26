@@ -81,12 +81,6 @@ namespace LogSearchShipper.Core.Tests.NxLog
 
 		 Thread.Sleep(TimeSpan.FromSeconds(3));
 
-		 CollectionAssert.DoesNotContain(GetLoggedRenderedMessages(), 
-			string.Format("failed to rename file from '{0}' to '{0}.1': The process cannot access the file because it is being used by another process.", 
-			_nxLogProcessManager.NxLogFile));
-		 CollectionAssert.Contains(GetLoggedRenderedMessages(), string.Format("LogFile {0} reopened",
-			_nxLogProcessManager.NxLogFile));
-
 		 Assert.IsTrue(File.Exists(_nxLogProcessManager.NxLogFile +".1"));
 		 
 		}
