@@ -37,7 +37,7 @@ namespace IntegrationTests
 		{
 			_currentGroupId = Guid.NewGuid().ToString();
 			var path = GetTestPath("TestSimpleFileWriting");
-			var filePath = Path.Combine(path, "TestFile");
+			var filePath = Path.Combine(path, "TestFile.log");
 
 			Trace.WriteLine("Writing the file");
 
