@@ -1,4 +1,5 @@
-﻿using log4net.Config;
+﻿using log4net.Appender;
+using log4net.Config;
 using NUnit.Framework;
 
 namespace LogSearchShipper.Core.Tests
@@ -6,10 +7,11 @@ namespace LogSearchShipper.Core.Tests
 	[SetUpFixture]
 	public class SetupFixture
 	{
-		[SetUp]
+	  [SetUp]
 		public void RunBeforeAnyTests()
 		{
 			XmlConfigurator.Configure();
+		 
 //			BasicConfigurator.Configure(
 //				new ConsoleAppender
 //				{
