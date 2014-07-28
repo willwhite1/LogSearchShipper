@@ -19,23 +19,27 @@ namespace LogSearchShipper.Core.Tests
 			_nxLogProcessManagers.ForEach(n => n.Stop());
 		}
 
-		[Test, Ignore("WIP:  Cannot get nxlog to start listening for syslog messages")]
+		[Test, Ignore("WIP:  Multiline not implemented yet")]
 		public void ShouldHandleMultilineLog4NetExceptions()
 		{
-			var waiter = new AutoResetEvent(false);
-			string sourceLogFile = Path.GetTempFileName();
-			var syslogEndpoint = new SyslogEndpoint("localhost", 10121);
+		 var syslogEndpoint = new SyslogEndpoint("localhost", 10121);
 
-			var reciever = new NxLogProcessManager
+			var tmpDir = Path.Combine(Path.GetTempPath(), "ShouldHandleMultilineLog4NetExceptions");
+			string sourceLogFile = Path.Combine(tmpDir, "sourceLogFile.log");
+			var outputFile = Path.Combine(tmpDir, "recieverOutputFile.log");
+			if (File.Exists(sourceLogFile)) File.WriteAllText(sourceLogFile, string.Empty);
+			if (File.Exists(outputFile)) File.WriteAllText(outputFile, string.Empty);
+
+			var reciever = new NxLogProcessManager(Path.Combine(tmpDir, "reciever"))
 			{
 				InputSyslog = new SyslogEndpoint("localhost", 10121),
-				OutputFile = Path.GetTempFileName()
+				OutputFile = outputFile
 			};
 			_nxLogProcessManagers.Add(reciever);
 			reciever.Start();
 			//Console.WriteLine(reciever.Config);
 
-			var shipper = new NxLogProcessManager
+			var shipper = new NxLogProcessManager(Path.Combine(tmpDir, "shipper"))
 			{
 				InputFiles = new List<FileWatchElement>
 				{
@@ -51,16 +55,7 @@ namespace LogSearchShipper.Core.Tests
 			shipper.Start();
 			//Console.WriteLine(shipper.Config);
 
-			var fileWatcher = new FileSystemWatcher(Path.GetDirectoryName(reciever.OutputFile),
-				Path.GetFileName(reciever.OutputFile));
-			fileWatcher.Changed += (s, e) =>
-			{
-				if (File.ReadAllLines(reciever.OutputFile).Length >= 3)
-				{
-					waiter.Set();
-				}
-			};
-			fileWatcher.EnableRaisingEvents = true;
+			Thread.Sleep(TimeSpan.FromSeconds(2)); // Ensure the shipper has had time to startup
 
 			File.WriteAllText(sourceLogFile,
 				@"INFO  2014-07-15 08:20:18,016 44 UTPMessaging.ActiveMQ.Server.ResponseChannel Response stats : CurrentMessageProcesses 2, CurrentMessageHandlerProcesses: 1, Stats for CorrelationId '39db50d8-86d0-4a58-bfd0-4ef95ae64b55': ChannelName: OrderGateway2, ResponseQueueName: temp-queue://ID:INX-SRV-WEBL24-63107-635409895714389415-1:1:1, MessagingRequest: t=2014-07-15T07:20:18.0163031Z, MessageHandlerRequest: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, MessageHandlerResponseDateTime: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, ResponseQueued: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, ResponseDequeued: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, MessagingResponse: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, Error: N/A.
@@ -84,13 +79,15 @@ ClientConnectionId:aee2ec82-19b0-4f86-8fca-c8bb2a988c15
 INFO  2014-07-15 08:20:18,172 44 UTPMessaging.ActiveMQ.Server.ResponseChannel Response stats : CurrentMessageProcesses 1, CurrentMessageHandlerProcesses: 0, Stats for CorrelationId '5b5f4538-8857-4f85-b4a9-d603c72d951e': ChannelName: OrderGateway2, ResponseQueueName: temp-queue://ID:INX-SRV-WEBL24-63107-635409895714389415-1:1:1, MessagingRequest: t=2014-07-15T07:19:48.1580945Z, MessageHandlerRequest: t=2014-07-15T07:19:48.1580945Z, d=0.0000ms, MessageHandlerResponseDateTime: t=2014-07-15T07:20:18.1723021Z, d=30014.2076ms, ResponseQueued: t=2014-07-15T07:20:18.1723021Z, d=30014.2076ms, ResponseDequeued: t=2014-07-15T07:20:18.1723021Z, d=30014.2076ms, MessagingResponse: t=2014-07-15T07:20:18.1723021Z, d=30014.2076ms, Error: N/A.
 ");
 
-			//Wait until some info has been written to the file
-			Assert.IsTrue(waiter.WaitOne(TimeSpan.FromSeconds(600)),
-				string.Format("Not enough data was written to {0}, which only contains\n{1}", reciever.OutputFile,
-					File.ReadAllText(reciever.OutputFile)));
+			Thread.Sleep(TimeSpan.FromSeconds(10));
+			_nxLogProcessManagers.ForEach(n => n.Stop());
+		  Thread.Sleep(TimeSpan.FromSeconds(3));
 
-			string[] shippedLogs = File.ReadAllLines(reciever.OutputFile);
+
+			string[] shippedLogs = File.ReadAllLines(outputFile);
 			Console.WriteLine(string.Join("\n", shippedLogs));
+
+			Assert.AreEqual(3, shippedLogs.Length, string.Join("\n", shippedLogs));
 
 			Assert.AreEqual(shippedLogs[0],
 				"INFO  2014-07-15 08:20:18,016 44 UTPMessaging.ActiveMQ.Server.ResponseChannel Response stats : CurrentMessageProcesses 2, CurrentMessageHandlerProcesses: 1, Stats for CorrelationId '39db50d8-86d0-4a58-bfd0-4ef95ae64b55': ChannelName: OrderGateway2, ResponseQueueName: temp-queue://ID:INX-SRV-WEBL24-63107-635409895714389415-1:1:1, MessagingRequest: t=2014-07-15T07:20:18.0163031Z, MessageHandlerRequest: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, MessageHandlerResponseDateTime: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, ResponseQueued: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, ResponseDequeued: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, MessagingResponse: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, Error: N/A.");
