@@ -210,13 +210,13 @@ LogLevel	{0}
 LogFile		{1}
 
 <Extension fileop>
-    Module      xm_fileop
+		Module		xm_fileop
 
-    # Check the size of our log file every {2}, rotate if larger than {3}, keeping a maximum of 1 files
-    <Schedule>
-        Every   {2}
-        Exec    if (file_size('{1}') >= {3}) file_cycle('{1}', 1);
-    </Schedule>
+		# Check the size of our log file every {2}, rotate if larger than {3}, keeping a maximum of 1 files
+		<Schedule>
+			 Every	{2}
+			 Exec		if (file_size('{1}') >= {3}) file_cycle('{1}', 1);
+		</Schedule>
 </Extension>
 	
 ModuleDir	{4}\modules
@@ -226,6 +226,12 @@ SpoolDir	{6}
 
 <Extension syslog>
 		Module	xm_syslog
+</Extension>
+
+<Extension multiline>
+		Module	xm_multiline
+		#HeaderLine == Anything not starting with whitespace
+		HeaderLine	/^([^ ]+).*/
 </Extension>
 
 {7}
@@ -474,6 +480,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 				filesSection += string.Format(@"
 <Input in_file{0}>
 	Module	im_file
+	InputType	multiline
 	File	""{1}""
 	ReadFromLast TRUE
 	SavePos	TRUE
