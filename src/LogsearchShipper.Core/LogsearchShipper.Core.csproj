@@ -47,11 +47,11 @@
   <ItemGroup>
     <Compile Include="CustomPatternLayoutConverter.cs" />
     <Compile Include="ConfigurationSections\FieldElement.cs" />
+    <Compile Include="NxLog\NxLogFileWatcher.cs" />
     <Compile Include="NxLog\NxLogOutputParser.cs" />
     <Compile Include="NxLog\NxLogProcessManager.cs" />
     <Compile Include="NxLog\NxLogStartException.cs" />
     <Compile Include="NxLog\SyslogEndpoint.cs" />
-    <Compile Include="NxLog\Win32.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Resource.Designer.cs">
       <AutoGen>True</AutoGen>
