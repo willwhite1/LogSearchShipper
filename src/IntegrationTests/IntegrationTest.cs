@@ -48,6 +48,30 @@ namespace IntegrationTests
 		}
 
 		[Test]
+		public void TestSlowFileWriting()
+		{
+			_currentGroupId = Guid.NewGuid().ToString();
+			var path = GetTestPath("TestSlowFileWriting");
+			var filePath = Path.Combine(path, "TestFile.log");
+
+			Trace.WriteLine("Writing the file");
+
+			var ids = new List<string>();
+
+			for (int i = 0; i < 10; i++)
+			{
+				string[] curIds;
+				var text = GetLog(out curIds, 1);
+				File.AppendAllText(filePath, text);
+				ids.AddRange(curIds);
+
+				Thread.Sleep(TimeSpan.FromSeconds(10));
+			}
+
+			GetAndValidateRecords(ids.ToArray());
+		}
+
+		[Test]
 		public void TestFileRolling()
 		{
 			_currentGroupId = Guid.NewGuid().ToString();
@@ -83,12 +107,12 @@ namespace IntegrationTests
 			return ids.ToArray();
 		}
 
-		private string GetLog(out string[] ids)
+		private string GetLog(out string[] ids, int linesCount = LinesPerFile)
 		{
 			var tmp = new List<string>();
 			var buf = new StringBuilder();
 			var i = 0;
-			while (i < LinesPerFile)
+			while (i < linesCount)
 			{
 				var id = Guid.NewGuid().ToString();
 				var message = string.Format(
