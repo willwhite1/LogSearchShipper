@@ -195,6 +195,8 @@ namespace IntegrationTests
 
 		void StartShipperService()
 		{
+			Trace.WriteLine("Starting the shipper service");
+
 			_shipperProcess = Utils.StartProcess(_exePath, "-instance:OverallTest");
 
 			Console.WriteLine("Waiting 30 seconds for shipper to startup...");
@@ -203,6 +205,8 @@ namespace IntegrationTests
 
 		void StopShipperService()
 		{
+			Trace.WriteLine("Stopping the shipper service");
+
 			Utils.ShutdownProcess(_shipperProcess);
 			_shipperProcess = null;
 		}
