@@ -172,7 +172,7 @@ namespace IntegrationTests
 			}
 		}
 
-		void GetAndValidateRecords(string[] ids)
+		void GetAndValidateRecords(string[] ids, int waitMinutes = 10)
 		{
 			Trace.WriteLine("Getting records from the server...");
 
@@ -182,7 +182,7 @@ namespace IntegrationTests
 			{
 				Thread.Sleep(TimeSpan.FromMinutes(1));
 				var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentGroupId, "message");
-				if (records.Count >= ids.Count() || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(10))
+				if (records.Count >= ids.Count() || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(waitMinutes))
 				{
 					Trace.WriteLine("Validating retrieved records");
 					Validate(records, ids);
