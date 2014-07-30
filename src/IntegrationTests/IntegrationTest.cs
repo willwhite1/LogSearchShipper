@@ -23,6 +23,19 @@ namespace IntegrationTests
 			Utils.Cleanup(_basePath);
 			Directory.CreateDirectory(LogsPath);
 
+			var exeFile = "LogsearchShipper.exe";
+			var exeFileCopy = Path.Combine(_basePath, exeFile);
+			File.Copy(exeFile, exeFileCopy);
+
+			File.Copy("LogsearchShipper.exe.config.Test", Path.Combine(_basePath, "LogsearchShipper.exe.config"));
+
+			foreach (var file in Directory.GetFiles(Environment.CurrentDirectory, "*.dll"))
+			{
+				var newFile = Path.Combine(_basePath, Path.GetFileName(file));
+				File.Copy(file, newFile);
+			}
+			_exePath = exeFileCopy;
+
 			StartShipperService();
 		}
 
@@ -182,19 +195,7 @@ namespace IntegrationTests
 
 		void StartShipperService()
 		{
-			var exeFile = "LogsearchShipper.exe";
-			var exeFileCopy = Path.Combine(_basePath, exeFile);
-			File.Copy(exeFile, exeFileCopy);
-
-			File.Copy("LogsearchShipper.exe.config.Test", Path.Combine(_basePath, "LogsearchShipper.exe.config"));
-
-			foreach (var file in Directory.GetFiles(Environment.CurrentDirectory, "*.dll"))
-			{
-				var newFile = Path.Combine(_basePath, Path.GetFileName(file));
-				File.Copy(file, newFile);
-			}
-
-			_shipperProcess = Utils.StartProcess(exeFileCopy, "-instance:OverallTest");
+			_shipperProcess = Utils.StartProcess(_exePath, "-instance:OverallTest");
 
 			Console.WriteLine("Waiting 30 seconds for shipper to startup...");
 			Thread.Sleep(TimeSpan.FromSeconds(30));
@@ -220,6 +221,7 @@ namespace IntegrationTests
 
 		private string _basePath;
 
+		private string _exePath;
 		private Process _shipperProcess;
 
 		private const int LinesPerFile = 100;
