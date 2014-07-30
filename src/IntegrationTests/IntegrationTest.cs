@@ -96,6 +96,35 @@ namespace IntegrationTests
 			GetAndValidateRecords(ids);
 		}
 
+		[Test]
+		public void TestResumingFileShipping()
+		{
+			_currentGroupId = Guid.NewGuid().ToString();
+			var path = GetTestPath("TestResumingFileShipping");
+			var filePath = Path.Combine(path, "TestFile.log");
+
+			var ids = new List<string>();
+			string[] curIds;
+
+			Trace.WriteLine("Writing the file");
+			var text = GetLog(out curIds);
+			File.WriteAllText(filePath, text);
+			ids.AddRange(curIds);
+
+			GetAndValidateRecords(curIds, 3);
+
+			StopShipperService();
+
+			Trace.WriteLine("Appending to the file");
+			text = GetLog(out curIds);
+			File.WriteAllText(filePath, text);
+			ids.AddRange(curIds);
+
+			StartShipperService();
+
+			GetAndValidateRecords(ids.ToArray(), 3);
+		}
+
 		private string[] WriteLogFiles(string path)
 		{
 			var ids = new List<string>();
