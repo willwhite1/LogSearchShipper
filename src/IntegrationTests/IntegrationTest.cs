@@ -199,11 +199,14 @@ namespace IntegrationTests
 					duplicatesCount++;
 			}
 
-			if (missingCount != 0 || duplicatesCount != 0)
-			{
-				var message = string.Format("total - {0}, missing - {1}, duplicates - {2}", records.Count, missingCount, duplicatesCount);
-				throw new ApplicationException(message);
-			}
+			var message = string.Format("total - {0}, missing - {1}, duplicates - {2}", records.Count, missingCount, duplicatesCount);
+			Trace.WriteLine(message);
+
+			if (missingCount != 0)
+				throw new ApplicationException("Validation failed - some records are missing");
+
+			if (duplicatesCount != 0)
+				Trace.WriteLine("--- Validation warning - there are some duplicate records");
 		}
 
 		void GetAndValidateRecords(string[] ids, int waitMinutes = 10)
