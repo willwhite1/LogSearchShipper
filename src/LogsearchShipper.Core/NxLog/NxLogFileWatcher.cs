@@ -45,34 +45,41 @@ namespace LogSearchShipper.Core.NxLog
 			string textReadFromLogFile = "";
 			const int maxReadFails = 5;
 
-			using (var fs = new FileStream(_nxLogProcessManager.NxLogFile,
-				FileMode.Open,
-				FileAccess.Read,
-				FileShare.ReadWrite))
+			try
 			{
-				using (var sr = new StreamReader(fs))
-				{
-					int failCounter = 0;
-					while (textReadFromLogFile.Length == 0 && failCounter < maxReadFails)
-					{
-						try
-						{
-							textReadFromLogFile = sr.ReadToEnd();
-						}
-						catch (IOException ex)
-						{
-							failCounter++;
-							if (failCounter == maxReadFails)
-							{
-								_log.WarnFormat("Failed to read log lines from {0} due to {1}", _nxLogProcessManager.NxLogFile, ex.Message);
-							}
-							else
-							{
-								Thread.Sleep(TimeSpan.FromMilliseconds(1));
-							}
-						}
-					}
-				}
+			 using (var fs = new FileStream(_nxLogProcessManager.NxLogFile,
+				 FileMode.Open,
+				 FileAccess.Read,
+				 FileShare.ReadWrite))
+			 {
+				 using (var sr = new StreamReader(fs))
+				 {
+					 int failCounter = 0;
+					 while (textReadFromLogFile.Length == 0 && failCounter < maxReadFails)
+					 {
+						 try
+						 {
+							 textReadFromLogFile = sr.ReadToEnd();
+						 }
+						 catch (IOException ex)
+						 {
+							 failCounter++;
+							 if (failCounter == maxReadFails)
+							 {
+								 _log.WarnFormat("Failed to read log lines from {0} due to {1}", _nxLogProcessManager.NxLogFile, ex.Message);
+							 }
+							 else
+							 {
+								 Thread.Sleep(TimeSpan.FromMilliseconds(1));
+							 }
+						 }
+					 }
+				 }
+			 }
+			}
+			catch (FileNotFoundException fnfe)
+			{
+			  //Ignore - will try again later
 			}
 
 			if (textReadFromLogFile.Length == 0)
