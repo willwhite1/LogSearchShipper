@@ -117,14 +117,14 @@ namespace IntegrationTests
 
 			Trace.WriteLine("    Appending to the file");
 			text = GetLog(out curIds);
-			File.WriteAllText(filePath, text);
+			File.AppendAllText(filePath, text);
 			ids.AddRange(curIds);
 
 			StartShipperService();
 
 			Trace.WriteLine("    Appending to the file");
 			text = GetLog(out curIds);
-			File.WriteAllText(filePath, text);
+			File.AppendAllText(filePath, text);
 			ids.AddRange(curIds);
 
 			GetAndValidateRecords(ids.ToArray(), 3);
