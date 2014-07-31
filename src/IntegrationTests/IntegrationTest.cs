@@ -143,7 +143,7 @@ namespace IntegrationTests
 				File.WriteAllText(filePath, GetLog(out curIds));
 				ids.AddRange(curIds);
 
-				Thread.Sleep(TimeSpan.FromSeconds(10));
+				Thread.Sleep(TimeSpan.FromSeconds(15));
 
 				var newName = filePath + "." + i + ".log";
 				File.Move(filePath, newName);
