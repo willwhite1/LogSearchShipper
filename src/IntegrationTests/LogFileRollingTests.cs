@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
-using System.Threading;
 using NUnit.Framework;
 
 namespace IntegrationTests
@@ -11,69 +10,6 @@ namespace IntegrationTests
 	[TestFixture]
 	public class LogFileRollingTests
 	{
-		private Process StartProcess(string processPath, string processArgs)
-		{
-			var process = new Process
-			{
-				StartInfo =
-				{
-					FileName = processPath,
-					Arguments = processArgs,
-					CreateNoWindow = true,
-					UseShellExecute = false,
-					RedirectStandardOutput = true,
-					RedirectStandardInput = true
-				}
-			};
-			process.OutputDataReceived += (sender, args) => Console.WriteLine("{0}: {1}", processPath, args.Data);
-			process.Start();
-			process.BeginOutputReadLine();
-
-			return process;
-		}
-
-		private void ShutdownProcess(Process process)
-		{
-			if (process == null) return;
-
-			process.StandardInput.Close(); // send Ctrl-C to logstash-forwarder so it can clean up
-			process.CancelOutputRead();
-			process.WaitForExit(5*1000);
-			if (!process.HasExited)
-			{
-				KillProcessAndChildren(process.Id);
-			}
-		}
-
-		private static void KillProcessAndChildren(int pid)
-		{
-			var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
-			ManagementObjectCollection moc = searcher.Get();
-			foreach (ManagementBaseObject cur in moc)
-			{
-				var mo = (ManagementObject) cur;
-				KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
-			}
-
-			try
-			{
-				Process proc = Process.GetProcessById(pid);
-				proc.Kill();
-			}
-			catch (ArgumentException)
-			{
-				// Process has already exited
-			}
-		}
-
-		private static void DeleteOldLogFiles()
-		{
-			foreach (FileInfo f in new DirectoryInfo(Environment.CurrentDirectory).GetFiles("DummyServiceWithLogRolling.log.*"))
-			{
-				f.Delete();
-			}
-		}
-
 		[Test]
 		public void ShippingShouldNotBlockLogFileRolling()
 		{
@@ -82,29 +18,39 @@ namespace IntegrationTests
 
 			DeleteOldLogFiles();
 
-			File.Delete("LogSearchShipper.Service.exe.config.bak");
-			File.Move("LogSearchShipper.Service.exe.config", "LogSearchShipper.Service.exe.config.bak");
-			File.Move("LogSearchShipper.Service.exe.config.ShipDummyService", "LogSearchShipper.Service.exe.config");
+			File.Delete("LogSearchShipper.exe.config.bak");
+			File.Move("LogSearchShipper.exe.config", "LogSearchShipper.exe.config.bak");
+			File.Move("LogSearchShipper.exe.config.ShipDummyService", "LogSearchShipper.exe.config");
 			try
 			{
-				shipper = StartProcess(Environment.CurrentDirectory + @"\LogSearchShipper.Service.exe",
+				shipper = Utils.StartProcess(Environment.CurrentDirectory + @"\LogSearchShipper.exe",
 					"-instance:integrationtest001");
-				processWithLogFileRolling = StartProcess(Environment.CurrentDirectory + @"\DummyServiceWithLogRolling.exe", "");
+				processWithLogFileRolling = Utils.StartProcess(Environment.CurrentDirectory + @"\DummyServiceWithLogRolling.exe", "");
 
-				Thread.Sleep(TimeSpan.FromSeconds(10));
+				System.Threading.Thread.Sleep(TimeSpan.FromSeconds(10));
 
 				//There should be 6 DummyServiceWithLogRolling.log.* files, unless the shipper has blocked file rolling
-				FileInfo[] logFiles =
+				var logFiles =
 					new DirectoryInfo(Environment.CurrentDirectory).GetFiles("DummyServiceWithLogRolling.log.*");
 				Assert.AreEqual(6, logFiles.Count());
+
 			}
 			finally
 			{
-				ShutdownProcess(shipper);
-				ShutdownProcess(processWithLogFileRolling);
+				Utils.ShutdownProcess(shipper);
+				Utils.ShutdownProcess(processWithLogFileRolling);
 
-				File.Delete("LogSearchShipper.Service.exe.config");
-				File.Move("LogSearchShipper.Service.exe.config.bak", "LogSearchShipper.Service.exe.config");
+				File.Delete("LogSearchShipper.exe.config");
+				File.Move("LogSearchShipper.exe.config.bak", "LogSearchShipper.exe.config");
+			}
+
+		}
+
+		private static void DeleteOldLogFiles()
+		{
+			foreach (FileInfo f in new DirectoryInfo(Environment.CurrentDirectory).GetFiles("DummyServiceWithLogRolling.log.*"))
+			{
+				f.Delete();
 			}
 		}
 	}
