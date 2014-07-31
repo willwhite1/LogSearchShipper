@@ -14,7 +14,7 @@ namespace LogSearchShipper.Core.NxLog
 {
 	public class NxLogProcessManager
 	{
-		private static readonly ILog _log = LogManager.GetLogger(typeof (NxLogProcessManager));
+		private static readonly ILog _log = LogManager.GetLogger(typeof(NxLogProcessManager));
 		private readonly string _dataFolder;
 		private readonly TimeSpan _waitForNxLogProcessToExitBeforeKilling = TimeSpan.FromSeconds(1);
 		private string _nxBinFolder;
@@ -29,7 +29,8 @@ namespace LogSearchShipper.Core.NxLog
 			InputFiles = new List<FileWatchElement>();
 		}
 
-		public NxLogProcessManager() : this(Path.Combine(Path.GetTempPath(), "nxlog-data-" + Guid.NewGuid().ToString("N")))
+		public NxLogProcessManager()
+			: this(Path.Combine(Path.GetTempPath(), "nxlog-data-" + Guid.NewGuid().ToString("N")))
 		{
 		}
 
@@ -47,7 +48,7 @@ namespace LogSearchShipper.Core.NxLog
 			{
 				if (!string.IsNullOrEmpty(_nxBinFolder)) return _nxBinFolder;
 
-				_nxBinFolder = Path.Combine(DataFolder,"nxlog" );
+				_nxBinFolder = Path.Combine(DataFolder, "nxlog");
 				Directory.CreateDirectory(_nxBinFolder);
 				return _nxBinFolder;
 			}
@@ -100,56 +101,56 @@ namespace LogSearchShipper.Core.NxLog
 		}
 
 		public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
 
 		private bool _disposed = false;
 
 		protected virtual void Dispose(bool disposing)
-    {
-        if (!_disposed)
-        {
-            if (disposing)
-            {
-                Stop();
-            }
+		{
+			if (!_disposed)
+			{
+				if (disposing)
+				{
+					Stop();
+				}
 
-            _disposed = true;
-        }
-    }
+				_disposed = true;
+			}
+		}
 
-    ~NxLogProcessManager()
-    {
-        Dispose(false);
-    }
+		~NxLogProcessManager()
+		{
+			Dispose(false);
+		}
 
 		public void Stop()
 		{
 			if (_process == null || _process.HasExited)
-			 return;
+				return;
 
 			try
 			{
-			 _log.Info("Trying to close nxlog.exe gracefully");
-			 _process.StandardInput.Close();
+				_log.Info("Trying to close nxlog.exe gracefully");
+				_process.StandardInput.Close();
 
-			 if (_process == null || _process.HasExited)
-				return;
+				if (_process == null || _process.HasExited)
+					return;
 
 				_log.InfoFormat("Waiting for voluntary nxlog.exe exit: Timeout={0}", _waitForNxLogProcessToExitBeforeKilling);
 				_process.WaitForExit(Convert.ToInt32(_waitForNxLogProcessToExitBeforeKilling.TotalMilliseconds));
 			}
 			finally
 			{
-			 // close console forcefully if not finished within allowed timeout
+				// close console forcefully if not finished within allowed timeout
 				if (_process != null || !_process.HasExited)
 				{
-				 _log.InfoFormat("Closing the nxlog.exe forcefully");
-				 _process.Kill();
+					_log.InfoFormat("Closing the nxlog.exe forcefully");
+					_process.Kill();
 				}
-				
+
 			}
 		}
 
@@ -240,7 +241,7 @@ SpoolDir	{6}
 				MaxNxLogFileSize,
 				Path.GetFullPath(BinFolder),
 				Path.GetFullPath(DataFolder),
-				Path.GetDirectoryName(Assembly.GetAssembly(typeof (NxLogProcessManager)).Location),
+				Path.GetDirectoryName(Assembly.GetAssembly(typeof(NxLogProcessManager)).Location),
 				GenerateOutputSyslogConfig(),
 				GenerateOutputFileConfig(),
 				GenerateInputSyslogConfig(),
@@ -266,9 +267,9 @@ SpoolDir	{6}
 			{
 				if (string.IsNullOrEmpty(_nxLogFile))
 				{
-				 _nxLogFile = Path.Combine(DataFolder, "nxlog.log");
+					_nxLogFile = Path.Combine(DataFolder, "nxlog.log");
 				}
-			 return _nxLogFile;
+				return _nxLogFile;
 			}
 		}
 
@@ -282,7 +283,7 @@ SpoolDir	{6}
 		{
 			get { return _process; }
 		}
-	 
+
 		/// <summary>
 		///  Generates the route config eg:
 		///  <Route to_syslog>
