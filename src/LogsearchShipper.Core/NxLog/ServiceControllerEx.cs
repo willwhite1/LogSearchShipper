@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management;
 using System.ServiceProcess;
 using System.Text;
 
@@ -20,7 +21,7 @@ namespace LogSearchShipper.Core.NxLog
 				scmHandle = NativeMethods.OpenSCManager(null, null, (int)NativeMethods.ScmAccessRights.AllAccess);
 
 				serviceHandle = NativeMethods.CreateService(scmHandle, name, name, NativeMethods.ServiceAccessRights.AllAccess,
-					NativeMethods.SERVICE_WIN32_OWN_PROCESS, NativeMethods.ServiceBootFlag.AutoStart, NativeMethods.ServiceError.Ignore,
+					NativeMethods.SERVICE_WIN32_OWN_PROCESS, NativeMethods.ServiceBootFlag.AutoStart, NativeMethods.ServiceError.Normal,
 					filePath, null, IntPtr.Zero, null, null, null);
 
 				if (serviceHandle == IntPtr.Zero)
@@ -83,6 +84,19 @@ namespace LogSearchShipper.Core.NxLog
 			{
 				// service doesn't exist
 			}
+		}
+
+		public static int GetProcessId(string serviceName)
+		{
+			var searcher = new ManagementObjectSearcher(string.Format("SELECT ProcessId FROM Win32_Service WHERE Name='{0}'", serviceName));
+			var moc = searcher.Get();
+			foreach (var cur in moc)
+			{
+				var mo = (ManagementObject)cur;
+				return Convert.ToInt32(mo["ProcessId"]);
+			}
+
+			throw new ApplicationException();
 		}
 	}
 }

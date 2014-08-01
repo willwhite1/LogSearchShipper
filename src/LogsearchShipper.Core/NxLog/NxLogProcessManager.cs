@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
@@ -22,11 +24,17 @@ namespace LogSearchShipper.Core.NxLog
 		private string _maxNxLogFileSize = "1M";
 		private string _rotateNxLogFileEvery = "1 min";
 		private Process _process;
+		private string _serviceName;
 
 		public NxLogProcessManager(string dataFolder)
 		{
 			_dataFolder = Path.GetFullPath(dataFolder);
 			InputFiles = new List<FileWatchElement>();
+
+			var configId = Path.GetFullPath(dataFolder);
+			var hash = MD5.Create().ComputeHash(Encoding.ASCII.GetBytes(configId));
+			configId = Convert.ToBase64String(hash);
+			_serviceName = "nxlog_" + configId;
 		}
 
 		public NxLogProcessManager()
@@ -77,24 +85,13 @@ namespace LogSearchShipper.Core.NxLog
 		internal void StartNxLogProcess()
 		{
 			string executablePath = Path.Combine(BinFolder, "nxlog.exe");
-			string arguments = string.Format("-f -c \"{0}\"", ConfigFile);
-			_log.InfoFormat("Running {0} {1}", executablePath, arguments);
+			string serviceArguments = string.Format("\"{0}\" -c \"{1}\"", executablePath, ConfigFile);
+			_log.InfoFormat("Running {0} as a service", serviceArguments);
 
-			_process = new Process
-			{
-				StartInfo =
-				{
-					FileName = executablePath,
-					Arguments = arguments,
-					RedirectStandardInput = true,
-					CreateNoWindow = true,
-					UseShellExecute = false
-				},
-			};
+			ServiceControllerEx.CreateService(_serviceName, serviceArguments);
+			ServiceControllerEx.StartService(_serviceName);
 
-			_process.Start();
-
-			_log.InfoFormat("nxlog.exe running with PID: {0}", _process.Id);
+			_process = Process.GetProcessById(ServiceControllerEx.GetProcessId(_serviceName));
 
 			// Start a background task to log nxlog process output every 250ms
 			Task.Run(() => new NxLogFileWatcher(this).WatchAndLog());
@@ -128,30 +125,8 @@ namespace LogSearchShipper.Core.NxLog
 
 		public void Stop()
 		{
-			if (_process == null || _process.HasExited)
-				return;
-
-			try
-			{
-				_log.Info("Trying to close nxlog.exe gracefully");
-				_process.StandardInput.Close();
-
-				if (_process == null || _process.HasExited)
-					return;
-
-				_log.InfoFormat("Waiting for voluntary nxlog.exe exit: Timeout={0}", _waitForNxLogProcessToExitBeforeKilling);
-				_process.WaitForExit(Convert.ToInt32(_waitForNxLogProcessToExitBeforeKilling.TotalMilliseconds));
-			}
-			finally
-			{
-				// close console forcefully if not finished within allowed timeout
-				if (_process != null || !_process.HasExited)
-				{
-					_log.InfoFormat("Closing the nxlog.exe forcefully");
-					_process.Kill();
-				}
-
-			}
+			_log.Info("Trying to close nxlog service gracefully");
+			ServiceControllerEx.DeleteService(_serviceName);
 		}
 
 		/// <summary>
