@@ -21,12 +21,16 @@ namespace IntegrationTests
 						CreateNoWindow = true,
 						UseShellExecute = false,
 						RedirectStandardOutput = true,
+						RedirectStandardError = true,
 						RedirectStandardInput = true,
 					}
 				};
 			process.OutputDataReceived += (sender, args) => Console.WriteLine("{0}: {1}", processPath, args.Data);
+			process.ErrorDataReceived += (sender, args) => Console.WriteLine("{0}: {1}", processPath, args.Data);
+
 			process.Start();
 			process.BeginOutputReadLine();
+			process.BeginErrorReadLine();
 
 			return process;
 		}
@@ -36,7 +40,7 @@ namespace IntegrationTests
 			if (process == null)
 				return;
 
-			process.StandardInput.Close(); // send Ctrl-C to logstash-forwarder so it can clean up
+			process.StandardInput.Close(); // send Ctrl-C to the process so it can clean up
 			process.CancelOutputRead();
 			process.WaitForExit(5 * 1000);
 			if (!process.HasExited)
