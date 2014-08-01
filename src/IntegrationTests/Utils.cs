@@ -25,8 +25,10 @@ namespace IntegrationTests
 						RedirectStandardInput = true,
 					}
 				};
-			process.OutputDataReceived += (sender, args) => Console.WriteLine("{0}: {1}", processPath, args.Data);
-			process.ErrorDataReceived += (sender, args) => Console.WriteLine("{0}: {1}", processPath, args.Data);
+			process.OutputDataReceived += (sender, args) =>
+				Trace.WriteLine(string.Format("{0}: {1}", processPath, args.Data));
+			process.ErrorDataReceived += (sender, args) =>
+				Trace.WriteLine(string.Format("{0}: {1}", processPath, args.Data));
 
 			process.Start();
 			process.BeginOutputReadLine();
@@ -40,9 +42,14 @@ namespace IntegrationTests
 			if (process == null)
 				return;
 
+			Trace.WriteLine(string.Format("Trying to close the process {0}", process.ProcessName));
+
 			process.StandardInput.Close(); // send Ctrl-C to the process so it can clean up
 			process.CancelOutputRead();
-			process.WaitForExit(5 * 1000);
+			process.WaitForExit(30 * 1000);
+
+			Trace.WriteLine(string.Format("Terminating the process {0} forcibly", process.ProcessName));
+
 			if (!process.HasExited)
 			{
 				KillProcessAndChildren(process.Id);
