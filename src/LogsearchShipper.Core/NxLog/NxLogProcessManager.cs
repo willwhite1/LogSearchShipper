@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -411,6 +411,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 		Host	{0}
 		Port	{1}
 		AllowUntrusted TRUE
+		Exec	$Message=replace($Message,""\n"",""¬""); 
 		Exec	to_syslog_ietf();
 </Output>",
 				OutputSyslog.Host, OutputSyslog.Port);
