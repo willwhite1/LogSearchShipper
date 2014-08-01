@@ -63,9 +63,9 @@ namespace LogSearchShipper.Core.Resources {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] nxlog_ce_2_7_1191_zip {
+        internal static byte[] nxlog_ce_2_8_1248_zip {
             get {
-                object obj = ResourceManager.GetObject("nxlog_ce_2_7_1191_zip", resourceCulture);
+                object obj = ResourceManager.GetObject("nxlog_ce_2_8_1248_zip", resourceCulture);
                 return ((byte[])(obj));
             }
         }
