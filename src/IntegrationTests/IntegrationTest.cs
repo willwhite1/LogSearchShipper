@@ -96,7 +96,7 @@ namespace IntegrationTests
 			GetAndValidateRecords(ids);
 		}
 
-		[Test, Ignore("WIP: needs to fix nxlog to get this test working")]
+		[Test]
 		public void TestResumingFileShipping()
 		{
 			_currentGroupId = Guid.NewGuid().ToString();
