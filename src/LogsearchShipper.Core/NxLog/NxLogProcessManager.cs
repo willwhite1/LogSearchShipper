@@ -490,7 +490,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	CloseWhenIdle TRUE
 	PollInterval 5
 	DirCheckInterval 10
-	Exec	$path = file_name(); $type = ""{2}""; ",
+	Exec	$path = ""{1}""; $type = ""{2}""; ",
 					i,
 					inputFile.Files.Replace(@"\", @"\\"),
 					inputFile.Type);
