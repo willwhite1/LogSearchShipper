@@ -77,9 +77,12 @@ namespace LogSearchShipper.Core.NxLog
 		{
 			string executablePath = Path.Combine(BinFolder, "nxlog.exe");
 			string arguments = string.Format("-f -c \"{0}\"", ConfigFile);
-			_log.InfoFormat("Running {0} {1}", executablePath, arguments);
 
-			_process = new Process
+			_log.InfoFormat("Truncating {0}", NxLogFile);
+			if (File.Exists(NxLogFile)) File.WriteAllText(NxLogFile, string.Empty);
+
+		 _log.InfoFormat("Running {0} {1}", executablePath, arguments);
+		 _process = new Process
 			{
 				StartInfo =
 				{
