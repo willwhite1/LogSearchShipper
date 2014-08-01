@@ -77,7 +77,7 @@ namespace LogSearchShipper.Core.NxLog
 			{
 				var service = new ServiceController(name);
 				service.Stop();
-				service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+				service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
 			}
 			catch (InvalidOperationException)
 			{
