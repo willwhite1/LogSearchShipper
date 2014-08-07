@@ -85,6 +85,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		 
 		}
 
+		//TODO:  We should ship some data through to ensure that around the time of rotation we don't miss any lines.
 		[Test]
 		public void ShouldLogLogAllEventsSentToNxLogFile()
 		{
@@ -92,32 +93,45 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		 _nxLogProcessManager.Start();
 		 //Console.WriteLine(_nxLogProcessManager.Config);
 
-		 Thread.Sleep(TimeSpan.FromSeconds(2));
+		 Thread.Sleep(TimeSpan.FromSeconds(5));
 
-			var withoutRotation = new NxLogFileWatcher(_nxLogProcessManager).ReadAllLines();
-			_nxLogProcessManager.Stop();
+		 _nxLogProcessManager.Stop();
+		 Thread.Sleep(TimeSpan.FromSeconds(2)); //Give it time to shutdown
 
-		 //Get number of lines with lots of log rotation
+		 var withoutRotation = GetLoggedEvents()
+										 .Where(item => item.LoggerName == "nxlog.exe")
+										 .Select(item => item.MessageObject.ToString())
+										 .ToArray();
+
+			//Get number of lines with lots of log rotation
 			ClearMemoryAppenderEvents();
 			_nxLogProcessManager.MaxNxLogFileSize = "0K";
-			_nxLogProcessManager.RotateNxLogFileEvery = "1 sec";
+			_nxLogProcessManager.RotateNxLogFileEvery = "2 sec";
 			_nxLogProcessManager.SetupConfigFile();
 			_nxLogProcessManager.StartNxLogProcess();
 
-			Thread.Sleep(TimeSpan.FromSeconds(2));
+			Thread.Sleep(TimeSpan.FromSeconds(5));
 
 			var withRotation = GetLoggedEvents()
 												 .Where(item => item.LoggerName == "nxlog.exe")
 												 .Select(item => item.MessageObject.ToString())
 												 .ToArray();
-		 //Check we get approx the same number of lines with log rotation as without
+			_nxLogProcessManager.Stop();
+
 			Console.WriteLine("{4}Without rotation:{0}\n{1}\n\n{4}With rotation:{2}\n{3}\n{4}", 
 				withoutRotation.Length, string.Join("\n", withoutRotation),
 				withRotation.Length, string.Join("\n", withRotation),
 				"\n=================================\n");
-			
+
+			//There should be more lines logged with rotation than without due to extra "LogFile C:\Users\david.laing\AppData\Local\Temp\nxlog-data-565083914ab7404aaee03df6e8f759e7\nxlog.log reopened" messages
 			Assert.GreaterOrEqual(withRotation.Length, withoutRotation.Length);
-			Assert.LessOrEqual(withRotation.Length, withoutRotation.Length + 3);
+
+			//Every line logged without rotation should appear with rotation
+			foreach (var logEntry in withoutRotation)
+			{
+			 Assert.Contains(logEntry, withRotation);
+			}
+			
 		}												 
 	}
  		
