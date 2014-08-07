@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -8,6 +9,7 @@ namespace LogSearchShipper.Core.NxLog
 {
 	public class NxLogFileWatcher
 	{
+		private const int MaxReadFails = 5;
 		private static readonly ILog _log = LogManager.GetLogger(typeof (NxLogFileWatcher));
 		private readonly NxLogProcessManager _nxLogProcessManager;
 
@@ -30,7 +32,7 @@ namespace LogSearchShipper.Core.NxLog
 
 			while (!_nxLogProcessManager.NxLogProcess.HasExited) // reading the old data
 			{
-				string[] lines = ReadAllLines();
+				string[] lines = ReadNewLinesAddedToLogFile();
 				foreach (string line in lines)
 				{
 					NxLogOutputParser.NxLogEvent logEvent = _nxLogOutputParser.Parse(line.Trim());
@@ -40,60 +42,67 @@ namespace LogSearchShipper.Core.NxLog
 			}
 		}
 
-		public string[] ReadAllLines()
+		public string[] ReadNewLinesAddedToLogFile()
+		{
+			var lines = FaultTolerantReadAllTextFromFile(_nxLogProcessManager.NxLogFile);
+			
+			if (offset > lines.Count)
+			{
+				//The log file has rotated; so we need to grab some lines from the old file
+				var linesFromOldLogFile = FaultTolerantReadAllTextFromFile(_nxLogProcessManager.NxLogFile + ".1");
+				lines.InsertRange(0, linesFromOldLogFile.Skip(offset).ToList());
+				
+				//And reset the offset 
+				offset = 0;
+			}
+
+			var linesToReturn = lines.Skip(offset).ToList();
+			offset = lines.Count;
+
+			return linesToReturn.ToArray();
+		}
+
+		private static List<string> FaultTolerantReadAllTextFromFile(string logFile)
 		{
 			string textReadFromLogFile = "";
-			const int maxReadFails = 5;
-
 			try
 			{
-			 using (var fs = new FileStream(_nxLogProcessManager.NxLogFile,
-				 FileMode.Open,
-				 FileAccess.Read,
-				 FileShare.ReadWrite))
-			 {
-				 using (var sr = new StreamReader(fs))
-				 {
-					 int failCounter = 0;
-					 while (textReadFromLogFile.Length == 0 && failCounter < maxReadFails)
-					 {
-						 try
-						 {
-							 textReadFromLogFile = sr.ReadToEnd();
-						 }
-						 catch (IOException ex)
-						 {
-							 failCounter++;
-							 if (failCounter == maxReadFails)
-							 {
-								 _log.WarnFormat("Failed to read log lines from {0} due to {1}", _nxLogProcessManager.NxLogFile, ex.Message);
-							 }
-							 else
-							 {
-								 Thread.Sleep(TimeSpan.FromMilliseconds(1));
-							 }
-						 }
-					 }
-				 }
-			 }
+				using (var fs = new FileStream(logFile,
+					FileMode.Open,
+					FileAccess.Read,
+					FileShare.ReadWrite))
+				{
+					using (var sr = new StreamReader(fs))
+					{
+						int failCounter = 0;
+						while (textReadFromLogFile.Length == 0 && failCounter < MaxReadFails)
+						{
+							try
+							{
+								textReadFromLogFile = sr.ReadToEnd();
+							}
+							catch (IOException ex)
+							{
+								failCounter++;
+								if (failCounter == MaxReadFails)
+								{
+									_log.WarnFormat("Failed to read log lines from {0} due to {1}", logFile, ex.Message);
+								}
+								else
+								{
+									Thread.Sleep(TimeSpan.FromMilliseconds(1));
+								}
+							}
+						}
+					}
+				}
 			}
 			catch (FileNotFoundException fnfe)
 			{
-			  //Ignore - will try again later
+				textReadFromLogFile = ""; //treat a missing file as one containing no data
 			}
 
-			if (textReadFromLogFile.Length == 0)
-			{
-				return new string[] {};
-			}
-
-			string[] lines = textReadFromLogFile.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
-			if (offset > lines.Length) offset = 0;
-
-			var linesToReturn = lines.Skip(offset).ToList();
-			offset = lines.Length;
-
-			return linesToReturn.ToArray();
+			return textReadFromLogFile.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 		}
 	}
 }
