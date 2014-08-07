@@ -89,6 +89,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		[Test]
 		public void ShouldLogLogAllEventsSentToNxLogFile()
 		{
+		 ClearMemoryAppenderEvents();
 		 //Get number of lines without log rotation
 		 _nxLogProcessManager.Start();
 		 //Console.WriteLine(_nxLogProcessManager.Config);
