@@ -96,13 +96,13 @@ namespace LogSearchShipper.Core.Tests.NxLog
 
 		 Thread.Sleep(TimeSpan.FromSeconds(5));
 
+		 var withoutRotation = GetLoggedEvents()
+									 .Where(item => item.LoggerName == "nxlog.exe")
+									 .Select(item => item.MessageObject.ToString())
+									 .ToArray();
+
 		 _nxLogProcessManager.Stop();
 		 Thread.Sleep(TimeSpan.FromSeconds(2)); //Give it time to shutdown
-
-		 var withoutRotation = GetLoggedEvents()
-										 .Where(item => item.LoggerName == "nxlog.exe")
-										 .Select(item => item.MessageObject.ToString())
-										 .ToArray();
 
 			//Get number of lines with lots of log rotation
 			ClearMemoryAppenderEvents();
