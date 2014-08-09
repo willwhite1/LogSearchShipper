@@ -68,7 +68,7 @@
   <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Resources\nxlog-ce-2.7.1191.zip" />
+    <None Include="Resources\nxlog-ce-2.8.1248.zip" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Resource.resx">

@@ -22,7 +22,13 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		{
 			_nxLogProcessManager = new NxLogProcessManager
 			{
-				InputFiles = new List<FileWatchElement>(),
+				InputFiles = new List<FileWatchElement>{
+				new FileWatchElement
+					{
+						Files = @"C:\Logs\mylog.log",
+						Type = "plain"
+					}
+				},
 				OutputSyslog = new SyslogEndpoint("ingestor.example.com", 443)
 			};
 			_nxLogProcessManager.SetupConfigFile();
@@ -71,6 +77,14 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		public void ShouldGenerateNxLogConfigWithCorrectLogFile()
 		{
 		 AssertConfigContains(@"LogFile		{0}", _nxLogProcessManager.NxLogFile);
+		}
+
+		[Test]
+		public void ShouldGenerateNxLogConfigWithMultiline()
+		{
+		 AssertConfigContains(@"Module	xm_multiline");
+		 AssertConfigContains(@"HeaderLine	/^([^ ]+).*/");
+		 AssertConfigContains(@"InputType	multiline");
 		}
 
 	 [Test]
