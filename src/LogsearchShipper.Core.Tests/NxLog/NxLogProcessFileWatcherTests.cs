@@ -47,7 +47,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 
 		 Thread.Sleep(TimeSpan.FromSeconds(1));
 
-		 CollectionAssert.Contains(GetLoggedRenderedMessages(),"nxlog-ce-2.7.1191 started");
+		 CollectionAssert.Contains(GetLoggedRenderedMessages(), "nxlog-ce-2.8.1248 started");
 		}
 
 	 public string[] GetLoggedRenderedMessages()
