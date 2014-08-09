@@ -19,7 +19,7 @@ namespace LogSearchShipper.Core.Tests
 			_nxLogProcessManagers.ForEach(n => n.Stop());
 		}
 
-		[Test, Ignore("Exclude this test which won't work on the Jenkins build server")]
+		[Test]
 		public void ShouldHandleMultilineLog4NetExceptions()
 		{
 		 var syslogEndpoint = new SyslogEndpoint("localhost", 10121);
