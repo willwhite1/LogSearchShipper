@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -77,9 +77,12 @@ namespace LogSearchShipper.Core.NxLog
 		{
 			string executablePath = Path.Combine(BinFolder, "nxlog.exe");
 			string arguments = string.Format("-f -c \"{0}\"", ConfigFile);
-			_log.InfoFormat("Running {0} {1}", executablePath, arguments);
 
-			_process = new Process
+			_log.InfoFormat("Truncating {0}", NxLogFile);
+			if (File.Exists(NxLogFile)) File.WriteAllText(NxLogFile, string.Empty);
+
+		 _log.InfoFormat("Running {0} {1}", executablePath, arguments);
+		 _process = new Process
 			{
 				StartInfo =
 				{
@@ -210,13 +213,13 @@ LogLevel	{0}
 LogFile		{1}
 
 <Extension fileop>
-    Module      xm_fileop
+		Module		xm_fileop
 
-    # Check the size of our log file every {2}, rotate if larger than {3}, keeping a maximum of 1 files
-    <Schedule>
-        Every   {2}
-        Exec    if (file_size('{1}') >= {3}) file_cycle('{1}', 1);
-    </Schedule>
+		# Check the size of our log file every {2}, rotate if larger than {3}, keeping a maximum of 1 files
+		<Schedule>
+			 Every	{2}
+			 Exec		if (file_size('{1}') >= {3}) file_cycle('{1}', 1);
+		</Schedule>
 </Extension>
 	
 ModuleDir	{4}\modules
@@ -226,6 +229,12 @@ SpoolDir	{6}
 
 <Extension syslog>
 		Module	xm_syslog
+</Extension>
+
+<Extension multiline>
+		Module	xm_multiline
+		#HeaderLine == Anything not starting with whitespace
+		HeaderLine	/^([^ ]+).*/
 </Extension>
 
 {7}
@@ -342,16 +351,53 @@ SpoolDir	{6}
 			if (InputSyslog == null) return String.Empty;
 
 			_log.InfoFormat("Recieving data from: syslog-tls://{0}:{1}", InputSyslog.Host, InputSyslog.Port);
+			var certFile = Path.Combine(DataFolder, @"InputSyslog.crt");
+			var keyFile = Path.Combine(DataFolder, @"InputSyslog.key");
+			File.WriteAllText(certFile, @"-----BEGIN CERTIFICATE-----
+MIICsDCCAhmgAwIBAgIJAJZZlYOII804MA0GCSqGSIb3DQEBBQUAMEUxCzAJBgNV
+BAYTAkFVMRMwEQYDVQQIEwpTb21lLVN0YXRlMSEwHwYDVQQKExhJbnRlcm5ldCBX
+aWRnaXRzIFB0eSBMdGQwHhcNMTQwNDA4MTUxNzA3WhcNMjQwNDA1MTUxNzA3WjBF
+MQswCQYDVQQGEwJBVTETMBEGA1UECBMKU29tZS1TdGF0ZTEhMB8GA1UEChMYSW50
+ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKB
+gQC2xI0wD26YOIEukuyokWDkKsFEvZxnadOEGT/9isf/mdiMk10NRZTF5bZU9ek9
+Vj9HsO7sk2ays31bkjQVAw9/l2eQSDNKtnnWk28AiTEOvZq5ZYnc9PT5uyHQL4Uj
+XJe2H8Dg/gfJhy9Ru9gpSSnRkYOXnwp2v6eJiQtzC6EG0QIDAQABo4GnMIGkMB0G
+A1UdDgQWBBSyMMgqdi6u092zAgm03c0/JhP0bDB1BgNVHSMEbjBsgBSyMMgqdi6u
+092zAgm03c0/JhP0bKFJpEcwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgTClNvbWUt
+U3RhdGUxITAfBgNVBAoTGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZIIJAJZZlYOI
+I804MAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEFBQADgYEAif7W/VbSZ9GHfNDP
+Cf+dsFTBk/1MpPW0cHXCX2lza42kbZ29PmhW1DSD+LkDcodL5wdVvTKSvJKmi5Cz
+Y4O5DFyRcLQVTrhlUWfnUxTmaeWWzWyZe4RI98tTc2QHli6S9aeqczpa8k1aTiDp
+XDPsPhpJjIepHXFRDaXUoV/T984=
+-----END CERTIFICATE-----");
+			File.WriteAllText(keyFile, @"-----BEGIN RSA PRIVATE KEY-----
+MIICWwIBAAKBgQC2xI0wD26YOIEukuyokWDkKsFEvZxnadOEGT/9isf/mdiMk10N
+RZTF5bZU9ek9Vj9HsO7sk2ays31bkjQVAw9/l2eQSDNKtnnWk28AiTEOvZq5ZYnc
+9PT5uyHQL4UjXJe2H8Dg/gfJhy9Ru9gpSSnRkYOXnwp2v6eJiQtzC6EG0QIDAQAB
+AoGASnrQmnw/cnLcWfFv1cXguTqfJfcrDI14r8VmaVkr5YJ5V9gZvHXVicvxwK+x
+y9gg04NL6karPDme5TkwVju4DXJxwcT70QhFOG5EHFxij1HA8hgOU+K4X4FeNVbz
+JPi27ktnJTsYs2Hq/UMoWygTvlTtyCsCytcAuo5jZRoy/cECQQDxoeFJiIH6hn2M
+G/89USPeJKfiXIP8pSZCZi/FagVHRYKhgJ2MY4Uw4bmIxyiMO9VGSXhDpbnx1AAp
+/6/KOod5AkEAwaKjDcI4c87DRQfPdORNBoKPTY1CuLgYUTIKBDUYUG0d/Vwy+USA
+0NJI74B6sLCdfxLtK1d95XVuLRPDDGksGQJAMm0zI/JuFcdtegj5umUtlBWYR8BA
+9z/L/T1wKMXYdihGe8fomTzHtgzVeHr/tkxiVPnONGfop1Qz+I/Yst6GGQJANAJ+
+L1zikuCPfIQrieckdUIuQZNWv4zbIzwAir7EKB4W9w2Dt4ZZ3z0MUCA/VCQsOYyY
+3ZJjg3V2QW9UbYn2SQJAMwhKLGhbuv5ge5K5H436Rl0NR2nZVaIgxez0Y8tVeTBT
+rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
+-----END RSA PRIVATE KEY-----");
+
 			return string.Format(@"
 <Input in_syslog>
 		Module	im_ssl
 		Host	{0}
 		Port	{1}
+		CertFile {2}
+		CertKeyFile {3}
 		RequireCert FALSE
 		AllowUntrusted TRUE
 		Exec	parse_syslog_ietf();
 </Input>",
-				InputSyslog.Host, InputSyslog.Port);
+				InputSyslog.Host, InputSyslog.Port, certFile, keyFile);
 		}
 
 		private string GenerateOutputSyslogConfig()
@@ -365,6 +411,7 @@ SpoolDir	{6}
 		Host	{0}
 		Port	{1}
 		AllowUntrusted TRUE
+		Exec	$Message=replace($Message,""\n"",""¬""); 
 		Exec	to_syslog_ietf();
 </Output>",
 				OutputSyslog.Host, OutputSyslog.Port);
@@ -374,15 +421,15 @@ SpoolDir	{6}
 		{
 			if (string.IsNullOrEmpty(OutputFile)) return String.Empty;
 
-			if (!File.Exists(OutputFile)) File.WriteAllText(string.Empty, OutputFile);
+			if (!File.Exists(OutputFile)) File.WriteAllText(OutputFile, string.Empty);
 			_log.InfoFormat("Sending data to file: {0}", OutputFile);
 
 			return string.Format(@"
 <Output out_file>
-	Module	im_file
+	Module	om_file
 	File	""{0}""
 </Output>",
-				OutputFile);
+				OutputFile.Replace(@"\",@"\\"));
 		}
 
 		private void ExtractNXLog()
@@ -398,8 +445,8 @@ SpoolDir	{6}
 			_log.Info(string.Format("Extracting nxlog.zip => {0}", BinFolder));
 			using (var fStream = new FileStream(zipFile, FileMode.Create))
 			{
-				fStream.Write(Resource.nxlog_ce_2_7_1191_zip,
-					0, Resource.nxlog_ce_2_7_1191_zip.Length);
+				fStream.Write(Resource.nxlog_ce_2_8_1248_zip,
+					0, Resource.nxlog_ce_2_8_1248_zip.Length);
 			}
 
 			using (ZipArchive archive = ZipFile.Open(zipFile, ZipArchiveMode.Read))
@@ -437,13 +484,14 @@ SpoolDir	{6}
 				filesSection += string.Format(@"
 <Input in_file{0}>
 	Module	im_file
+	InputType	multiline
 	File	""{1}""
 	ReadFromLast TRUE
 	SavePos	TRUE
 	CloseWhenIdle TRUE
 	PollInterval 5
 	DirCheckInterval 10
-	Exec	$path = file_name(); $type = ""{2}""; ",
+	Exec	$path = ""{1}""; $type = ""{2}""; ",
 					i,
 					inputFile.Files.Replace(@"\", @"\\"),
 					inputFile.Type);
