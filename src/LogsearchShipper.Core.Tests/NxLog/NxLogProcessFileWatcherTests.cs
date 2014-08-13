@@ -201,7 +201,7 @@ Line 8
 Line 9
 Line 10
 Line 11
-Line 12", string.Join("\r\n", allLinesRead));
+Line 12".Replace("\r",""), string.Join("\n", allLinesRead));
 		}
 
 	 private static void ReadLogLines(List<string> allLinesRead, NxLogFileWatcher nxLogFileWatcher)
