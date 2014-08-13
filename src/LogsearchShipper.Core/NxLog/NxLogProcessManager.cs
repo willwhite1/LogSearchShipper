@@ -12,7 +12,26 @@ using LogSearchShipper.Core.Resources;
 
 namespace LogSearchShipper.Core.NxLog
 {
-	public class NxLogProcessManager
+	public interface INxLogProcessManager
+	{
+		SyslogEndpoint InputSyslog { get; set; }
+		List<FileWatchElement> InputFiles { get; set; }
+		SyslogEndpoint OutputSyslog { get; set; }
+		string OutputFile { get; set; }
+		string ConfigFile { get; }
+		string BinFolder { get; }
+		string DataFolder { get; }
+		string Config { get; }
+		string MaxNxLogFileSize { get; set; }
+		string NxLogFile { get; }
+		string RotateNxLogFileEvery { get; set; }
+		Process NxLogProcess { get; }
+		int Start();
+		void Dispose();
+		void Stop();
+	}
+
+	public class NxLogProcessManager : INxLogProcessManager
 	{
 		private static readonly ILog _log = LogManager.GetLogger(typeof (NxLogProcessManager));
 		private readonly string _dataFolder;
