@@ -11,11 +11,11 @@ namespace LogSearchShipper.Core.NxLog
 	{
 		private const int MaxReadFails = 5;
 		private static readonly ILog _log = LogManager.GetLogger(typeof (NxLogFileWatcher));
-		private readonly NxLogProcessManager _nxLogProcessManager;
+		private readonly INxLogProcessManager _nxLogProcessManager;
 
 		private int offset;
 
-		public NxLogFileWatcher(NxLogProcessManager nxLogProcessManager)
+		public NxLogFileWatcher(INxLogProcessManager nxLogProcessManager)
 		{
 			_nxLogProcessManager = nxLogProcessManager;
 		}
@@ -44,22 +44,25 @@ namespace LogSearchShipper.Core.NxLog
 
 		public string[] ReadNewLinesAddedToLogFile()
 		{
-			var lines = FaultTolerantReadAllTextFromFile(_nxLogProcessManager.NxLogFile);
-			
-			if (offset > lines.Count)
-			{
-				//The log file has rotated; so we need to grab some lines from the old file
-				var linesFromOldLogFile = FaultTolerantReadAllTextFromFile(_nxLogProcessManager.NxLogFile + ".1");
-				lines.InsertRange(0, linesFromOldLogFile.Skip(offset).ToList());
-				
-				//And reset the offset 
-				offset = 0;
-			}
+		 var linesToReturn = new List<string>();
+		 var linesFromCurrentLogFile = FaultTolerantReadAllTextFromFile(_nxLogProcessManager.NxLogFile);
 
-			var linesToReturn = lines.Skip(offset).ToList();
-			offset = lines.Count;
+		 if (offset > linesFromCurrentLogFile.Count)
+		 {
+			//The log file has rotated; so we need to grab any extra lines from the old file
+			var linesFromOldLogFile = FaultTolerantReadAllTextFromFile(_nxLogProcessManager.NxLogFile + ".1");
+			linesToReturn.AddRange(linesFromOldLogFile.Skip(offset));
 
-			return linesToReturn.ToArray();
+			//Reset the [current file] offset, so we start from the beginning of the new current file
+			offset = 0;
+		 }
+
+		 linesToReturn.AddRange(linesFromCurrentLogFile.Skip(offset));
+
+		 //Increment the [current file] offset so we don't resend the same lines again next time we're called
+		 offset = linesFromCurrentLogFile.Count;
+
+		 return linesToReturn.ToArray();
 		}
 
 		private static List<string> FaultTolerantReadAllTextFromFile(string logFile)
