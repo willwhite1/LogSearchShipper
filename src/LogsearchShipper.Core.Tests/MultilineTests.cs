@@ -87,11 +87,12 @@ INFO  2014-07-15 08:20:18,172 44 UTPMessaging.ActiveMQ.Server.ResponseChannel Re
 			_nxLogProcessManagers.ForEach(n => n.Stop());
 		  Thread.Sleep(TimeSpan.FromSeconds(3));
 
+			var shippedLogsText = File.ReadAllText(outputFile);
+			Console.WriteLine("shippedLogsText:{0}", shippedLogsText);
 
-			string[] shippedLogs = File.ReadAllLines(outputFile);
-			Console.WriteLine(string.Join("\n", shippedLogs));
+			string[] shippedLogs = shippedLogsText.Replace("\r", "").Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
 
-			Assert.AreEqual(3, shippedLogs.Length, string.Join("\n", shippedLogs));
+			Assert.AreEqual(3, shippedLogs.Length, shippedLogsText);
 
 			StringAssert.Contains("INFO  2014-07-15 08:20:18,016 44 UTPMessaging.ActiveMQ.Server.ResponseChannel Response stats : CurrentMessageProcesses 2, CurrentMessageHandlerProcesses: 1, Stats for CorrelationId '39db50d8-86d0-4a58-bfd0-4ef95ae64b55': ChannelName: OrderGateway2, ResponseQueueName: temp-queue://ID:INX-SRV-WEBL24-63107-635409895714389415-1:1:1, MessagingRequest: t=2014-07-15T07:20:18.0163031Z, MessageHandlerRequest: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, MessageHandlerResponseDateTime: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, ResponseQueued: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, ResponseDequeued: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, MessagingResponse: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, Error: N/A.",
 				shippedLogs[0]);
