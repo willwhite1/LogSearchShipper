@@ -60,7 +60,7 @@ namespace LogSearchShipper.Core.Tests
 			shipper.Start();
 			//Console.WriteLine(shipper.Config);
 
-			Thread.Sleep(TimeSpan.FromSeconds(2)); // Ensure the shipper has had time to startup
+			Thread.Sleep(TimeSpan.FromSeconds(10)); // Ensure the shippers have time to startup before adding some data to be shipped, or it won't be detected
 
 			File.WriteAllText(sourceLogFile,
 				@"INFO  2014-07-15 08:20:18,016 44 UTPMessaging.ActiveMQ.Server.ResponseChannel Response stats : CurrentMessageProcesses 2, CurrentMessageHandlerProcesses: 1, Stats for CorrelationId '39db50d8-86d0-4a58-bfd0-4ef95ae64b55': ChannelName: OrderGateway2, ResponseQueueName: temp-queue://ID:INX-SRV-WEBL24-63107-635409895714389415-1:1:1, MessagingRequest: t=2014-07-15T07:20:18.0163031Z, MessageHandlerRequest: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, MessageHandlerResponseDateTime: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, ResponseQueued: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, ResponseDequeued: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, MessagingResponse: t=2014-07-15T07:20:18.0163031Z, d=0.0000ms, Error: N/A.
