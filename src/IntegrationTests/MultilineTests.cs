@@ -6,7 +6,7 @@ using LogSearchShipper.Core.ConfigurationSections;
 using LogSearchShipper.Core.NxLog;
 using NUnit.Framework;
 
-namespace LogSearchShipper.Core.Tests
+namespace IntegrationTests
 {
 	[TestFixture]
 	public class MultilineTests
