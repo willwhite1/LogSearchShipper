@@ -10,4 +10,4 @@
 *.dbproj merge=union
 
 # https://github.com/Danimoth/gitattributes/blob/master/CSharp.gitattributes
-*.cs     diff=csharp
+*.cs     text eol=crlf diff=csharp
