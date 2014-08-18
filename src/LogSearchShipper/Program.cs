@@ -46,18 +46,25 @@ namespace LogSearchShipper
 			var thread = new Thread(
 				args =>
 				{
-					while (!_terminate)
+					try
 					{
-						if (Console.KeyAvailable)
+						while (!_terminate)
 						{
-							var ch = Console.ReadKey();
-							if (ch.KeyChar == 'q')
+							if (Console.KeyAvailable)
 							{
-								Stop(hostControl);
-								Environment.Exit(0);
+								var ch = Console.ReadKey();
+								if (ch.KeyChar == 'q')
+								{
+									Stop(hostControl);
+									Environment.Exit(0);
+								}
 							}
+							Thread.Yield();
 						}
-						Thread.Yield();
+					}
+					catch (InvalidOperationException)
+					{
+						// no console is attached
 					}
 				});
 			thread.Start();
