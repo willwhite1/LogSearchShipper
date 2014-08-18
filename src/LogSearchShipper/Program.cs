@@ -83,7 +83,7 @@ namespace LogSearchShipper
 				{
 					// console input is redirected
 
-					var tmp = Console.In.Peek();
+					var tmp = Console.In.Read();
 					if (tmp == -1)
 						continue;
 
