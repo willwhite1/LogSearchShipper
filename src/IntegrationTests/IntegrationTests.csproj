@@ -56,6 +56,7 @@
     <Compile Include="AppSettings.cs" />
     <Compile Include="EsUtil.cs" />
     <Compile Include="IntegrationTest.cs" />
+    <Compile Include="MultilineTests.cs" />
     <Compile Include="SimpleTests.cs" />
     <Compile Include="UnicodeCharacterTests.cs" />
     <Compile Include="LogFileRollingTests.cs" />
@@ -81,6 +82,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LogsearchShipper.Core\LogSearchShipper.Core.csproj">
+      <Project>{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}</Project>
+      <Name>LogSearchShipper.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

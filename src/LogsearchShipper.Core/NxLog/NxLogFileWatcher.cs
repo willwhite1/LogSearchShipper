@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -8,12 +9,13 @@ namespace LogSearchShipper.Core.NxLog
 {
 	public class NxLogFileWatcher
 	{
+		private const int MaxReadFails = 5;
 		private static readonly ILog _log = LogManager.GetLogger(typeof (NxLogFileWatcher));
-		private readonly NxLogProcessManager _nxLogProcessManager;
+		private readonly INxLogProcessManager _nxLogProcessManager;
 
 		private int offset;
 
-		public NxLogFileWatcher(NxLogProcessManager nxLogProcessManager)
+		public NxLogFileWatcher(INxLogProcessManager nxLogProcessManager)
 		{
 			_nxLogProcessManager = nxLogProcessManager;
 		}
@@ -30,7 +32,7 @@ namespace LogSearchShipper.Core.NxLog
 
 			while (!_nxLogProcessManager.NxLogProcess.HasExited) // reading the old data
 			{
-				string[] lines = ReadAllLines();
+				string[] lines = ReadNewLinesAddedToLogFile();
 				foreach (string line in lines)
 				{
 					NxLogOutputParser.NxLogEvent logEvent = _nxLogOutputParser.Parse(line.Trim());
@@ -40,53 +42,70 @@ namespace LogSearchShipper.Core.NxLog
 			}
 		}
 
-		public string[] ReadAllLines()
+		public string[] ReadNewLinesAddedToLogFile()
+		{
+		 var linesToReturn = new List<string>();
+		 var linesFromCurrentLogFile = FaultTolerantReadAllTextFromFile(_nxLogProcessManager.NxLogFile);
+
+		 if (offset > linesFromCurrentLogFile.Count)
+		 {
+			//The log file has rotated; so we need to grab any extra lines from the old file
+			var linesFromOldLogFile = FaultTolerantReadAllTextFromFile(_nxLogProcessManager.NxLogFile + ".1");
+			linesToReturn.AddRange(linesFromOldLogFile.Skip(offset));
+
+			//Reset the [current file] offset, so we start from the beginning of the new current file
+			offset = 0;
+		 }
+
+		 linesToReturn.AddRange(linesFromCurrentLogFile.Skip(offset));
+
+		 //Increment the [current file] offset so we don't resend the same lines again next time we're called
+		 offset = linesFromCurrentLogFile.Count;
+
+		 return linesToReturn.ToArray();
+		}
+
+		private static List<string> FaultTolerantReadAllTextFromFile(string logFile)
 		{
 			string textReadFromLogFile = "";
-			const int maxReadFails = 5;
-
-			using (var fs = new FileStream(_nxLogProcessManager.NxLogFile,
-				FileMode.Open,
-				FileAccess.Read,
-				FileShare.ReadWrite))
+			try
 			{
-				using (var sr = new StreamReader(fs))
+				using (var fs = new FileStream(logFile,
+					FileMode.Open,
+					FileAccess.Read,
+					FileShare.ReadWrite))
 				{
-					int failCounter = 0;
-					while (textReadFromLogFile.Length == 0 && failCounter < maxReadFails)
+					using (var sr = new StreamReader(fs))
 					{
-						try
+						int failCounter = 0;
+						while (textReadFromLogFile.Length == 0 && failCounter < MaxReadFails)
 						{
-							textReadFromLogFile = sr.ReadToEnd();
-						}
-						catch (IOException ex)
-						{
-							failCounter++;
-							if (failCounter == maxReadFails)
+							try
 							{
-								_log.WarnFormat("Failed to read log lines from {0} due to {1}", _nxLogProcessManager.NxLogFile, ex.Message);
+								textReadFromLogFile = sr.ReadToEnd();
 							}
-							else
+							catch (IOException ex)
 							{
-								Thread.Sleep(TimeSpan.FromMilliseconds(1));
+								failCounter++;
+								if (failCounter == MaxReadFails)
+								{
+									_log.WarnFormat("Failed to read log lines from {0} due to {1}", logFile, ex.Message);
+								}
+								else
+								{
+									Thread.Sleep(TimeSpan.FromMilliseconds(1));
+								}
 							}
 						}
 					}
 				}
 			}
-
-			if (textReadFromLogFile.Length == 0)
+			catch (FileNotFoundException fnfe)
 			{
-				return new string[] {};
+				textReadFromLogFile = ""; //treat a missing file as one containing no data
 			}
 
-			string[] lines = textReadFromLogFile.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
-			if (offset > lines.Length) offset = 0;
-
-			var linesToReturn = lines.Skip(offset).ToList();
-			offset = lines.Length;
-
-			return linesToReturn.ToArray();
+			return textReadFromLogFile.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 		}
 	}
 }
