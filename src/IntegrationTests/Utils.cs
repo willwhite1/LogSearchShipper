@@ -45,7 +45,7 @@ namespace IntegrationTests
 			Trace.WriteLine(string.Format("Trying to close the process {0}", process.ProcessName));
 
 			// send Ctrl-C to the process so it can clean up
-			process.StandardInput.Write("q");
+			process.StandardInput.WriteLine("q");
 			process.StandardInput.Close();
 
 			process.CancelOutputRead();
