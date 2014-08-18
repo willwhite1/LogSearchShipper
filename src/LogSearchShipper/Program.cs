@@ -43,30 +43,7 @@ namespace LogSearchShipper
 
 		public bool Start(HostControl hostControl)
 		{
-			var thread = new Thread(
-				args =>
-				{
-					try
-					{
-						while (!_terminate)
-						{
-							if (Console.KeyAvailable)
-							{
-								var ch = Console.ReadKey();
-								if (ch.KeyChar == 'q')
-								{
-									Stop(hostControl);
-									Environment.Exit(0);
-								}
-							}
-							Thread.Yield();
-						}
-					}
-					catch (InvalidOperationException)
-					{
-						// no console is attached
-					}
-				});
+			var thread = new Thread(args => WatchForExitKey(hostControl));
 			thread.Start();
 
 			_LogSearchShipperProcessManager = new LogSearchShipperProcessManager();
@@ -84,6 +61,30 @@ namespace LogSearchShipper
 			_log.Debug("Stop: LogSearchShipperProcessManager.Stop() completed");
 
 			return true;
+		}
+
+		void WatchForExitKey(HostControl hostControl)
+		{
+			try
+			{
+				while (!_terminate)
+				{
+					if (Console.KeyAvailable)
+					{
+						var ch = Console.ReadKey();
+						if (ch.KeyChar == 'q')
+						{
+							Stop(hostControl);
+							Environment.Exit(0);
+						}
+					}
+					Thread.Yield();
+				}
+			}
+			catch (InvalidOperationException)
+			{
+				// no console is attached
+			}
 		}
 	}
 }
