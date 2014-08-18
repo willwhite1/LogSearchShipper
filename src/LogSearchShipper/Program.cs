@@ -65,25 +65,36 @@ namespace LogSearchShipper
 
 		void WatchForExitKey(HostControl hostControl)
 		{
-			try
+			while (!_terminate)
 			{
-				while (!_terminate)
+				Thread.Yield();
+
+				char ch;
+
+				try
 				{
-					if (Console.KeyAvailable)
-					{
-						var ch = Console.ReadKey();
-						if (ch.KeyChar == 'q')
-						{
-							Stop(hostControl);
-							Environment.Exit(0);
-						}
-					}
-					Thread.Yield();
+					if (!Console.KeyAvailable)
+						continue;
+
+					var tmp = Console.ReadKey();
+					ch = tmp.KeyChar;
 				}
-			}
-			catch (InvalidOperationException)
-			{
-				// no console is attached
+				catch (InvalidOperationException)
+				{
+					// console input is redirected
+
+					var tmp = Console.In.Peek();
+					if (tmp == -1)
+						continue;
+
+					ch = (char)tmp;
+				}
+
+				if (ch == 'q')
+				{
+					Stop(hostControl);
+					Environment.Exit(0);
+				}
 			}
 		}
 	}
