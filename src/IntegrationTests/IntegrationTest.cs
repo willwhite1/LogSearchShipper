@@ -13,9 +13,11 @@ namespace IntegrationTests
 	[TestFixture]
 	class IntegrationTest
 	{
-		[TestFixtureSetUp]
-		public void Init()
+		void Init()
 		{
+			if (_initDone)
+				return;
+
 			_basePath = Path.Combine(Environment.CurrentDirectory, "LogSearchShipper.Test");
 			if (!Directory.Exists(_basePath))
 				Directory.CreateDirectory(_basePath);
@@ -37,6 +39,11 @@ namespace IntegrationTests
 			_exePath = exeFileCopy;
 
 			StartShipperService();
+
+			_currentGroupId = Guid.NewGuid().ToString();
+			_initDone = true;
+
+			Utils.WriteDelimiter();
 		}
 
 		[TestFixtureTearDown]
@@ -48,7 +55,8 @@ namespace IntegrationTests
 		[Test]
 		public void TestSimpleFileWriting()
 		{
-			_currentGroupId = Guid.NewGuid().ToString();
+			Init();
+
 			var path = GetTestPath("TestSimpleFileWriting");
 			var filePath = Path.Combine(path, "TestFile.log");
 
@@ -63,7 +71,8 @@ namespace IntegrationTests
 		[Test]
 		public void TestSlowFileWriting()
 		{
-			_currentGroupId = Guid.NewGuid().ToString();
+			Init();
+
 			var path = GetTestPath("TestSlowFileWriting");
 			var filePath = Path.Combine(path, "TestFile.log");
 
@@ -87,7 +96,8 @@ namespace IntegrationTests
 		[Test]
 		public void TestFileRolling()
 		{
-			_currentGroupId = Guid.NewGuid().ToString();
+			Init();
+
 			var path = GetTestPath("TestFileRolling");
 
 			Trace.WriteLine("Writing the files");
@@ -99,7 +109,8 @@ namespace IntegrationTests
 		[Test]
 		public void TestResumingFileShipping()
 		{
-			_currentGroupId = Guid.NewGuid().ToString();
+			Init();
+
 			var path = GetTestPath("TestResumingFileShipping");
 			var filePath = Path.Combine(path, "TestFile.log");
 
@@ -242,6 +253,7 @@ namespace IntegrationTests
 
 		void StopShipperService()
 		{
+			Utils.WriteDelimiter();
 			Trace.WriteLine("Stopping the shipper service");
 
 			Utils.ShutdownProcess(_shipperProcess);
@@ -267,5 +279,7 @@ namespace IntegrationTests
 
 		private const int LinesPerFile = 100;
 		private const int LogFilesCount = 10;
+
+		private bool _initDone;
 	}
 }

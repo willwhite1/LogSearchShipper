@@ -93,5 +93,12 @@ namespace IntegrationTests
 				Directory.Delete(directory);
 			}
 		}
+
+		public static void WriteDelimiter()
+		{
+			Trace.WriteLine(Delimiter);
+		}
+
+		private static readonly string Delimiter = new string('=', 60);
 	}
 }
