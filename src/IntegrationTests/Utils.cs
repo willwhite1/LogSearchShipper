@@ -51,10 +51,9 @@ namespace IntegrationTests
 			process.CancelOutputRead();
 			process.WaitForExit(30 * 1000);
 
-			Trace.WriteLine(string.Format("Terminating the process {0} forcibly", process.ProcessName));
-
 			if (!process.HasExited)
 			{
+				Trace.WriteLine(string.Format("Terminating the process {0} forcibly", process.ProcessName));
 				KillProcessAndChildren(process.Id);
 			}
 		}
