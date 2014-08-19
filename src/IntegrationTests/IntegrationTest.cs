@@ -15,6 +15,8 @@ namespace IntegrationTests
 	{
 		void Init()
 		{
+			_currentGroupId = Guid.NewGuid().ToString();
+
 			if (_initDone)
 				return;
 
@@ -40,7 +42,6 @@ namespace IntegrationTests
 
 			StartShipperService();
 
-			_currentGroupId = Guid.NewGuid().ToString();
 			_initDone = true;
 
 			Utils.WriteDelimiter();
