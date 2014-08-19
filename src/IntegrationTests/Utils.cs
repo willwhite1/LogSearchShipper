@@ -42,7 +42,7 @@ namespace IntegrationTests
 			if (process == null)
 				return;
 
-			Trace.WriteLine(string.Format("Trying to close the process {0}", process.ProcessName));
+			Trace.WriteLine(string.Format("    Trying to close the process {0}", process.ProcessName));
 
 			// send Ctrl-C to the process so it can clean up
 			process.StandardInput.WriteLine("q");
@@ -53,7 +53,7 @@ namespace IntegrationTests
 
 			if (!process.HasExited)
 			{
-				Trace.WriteLine(string.Format("Terminating the process {0} forcibly", process.ProcessName));
+				Trace.WriteLine(string.Format("    Terminating the process {0} forcibly", process.ProcessName));
 				KillProcessAndChildren(process.Id);
 			}
 		}
