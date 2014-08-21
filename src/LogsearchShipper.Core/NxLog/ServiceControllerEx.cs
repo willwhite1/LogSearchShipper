@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Management;
 using System.ServiceProcess;
@@ -20,12 +21,18 @@ namespace LogSearchShipper.Core.NxLog
 			{
 				scmHandle = NativeMethods.OpenSCManager(null, null, (int)NativeMethods.ScmAccessRights.AllAccess);
 
+				if (scmHandle == IntPtr.Zero)
+					throw new ApplicationException("Failed to open service manager", new Win32Exception());
+
 				serviceHandle = NativeMethods.CreateService(scmHandle, name, name, NativeMethods.ServiceAccessRights.AllAccess,
 					NativeMethods.SERVICE_WIN32_OWN_PROCESS, NativeMethods.ServiceBootFlag.AutoStart, NativeMethods.ServiceError.Normal,
 					filePath, null, IntPtr.Zero, null, null, null);
 
 				if (serviceHandle == IntPtr.Zero)
-					throw new ApplicationException("Failed to install service.");
+				{
+					var message = string.Format("Failed to install service {0} : {1}", name, filePath);
+					throw new ApplicationException(message, new Win32Exception());
+				}
 			}
 			finally
 			{
