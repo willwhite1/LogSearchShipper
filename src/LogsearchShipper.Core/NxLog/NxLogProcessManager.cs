@@ -52,7 +52,7 @@ namespace LogSearchShipper.Core.NxLog
 
 			var configId = Path.GetFullPath(dataFolder);
 			var hash = MD5.Create().ComputeHash(Encoding.ASCII.GetBytes(configId));
-			configId = Convert.ToBase64String(hash);
+			configId = BitConverter.ToString(hash).Replace("-", "");
 			_serviceName = "nxlog_" + configId;
 		}
 
