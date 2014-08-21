@@ -87,20 +87,20 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		[Test]
 		public void ShouldLogAllEventsSentToNxLogFile()
 		{
-		 ClearMemoryAppenderEvents();
-		 //Get number of lines without log rotation
-		 _nxLogProcessManager.Start();
-		 //Console.WriteLine(_nxLogProcessManager.Config);
+			ClearMemoryAppenderEvents();
+			//Get number of lines without log rotation
+			_nxLogProcessManager.Start();
+			//Console.WriteLine(_nxLogProcessManager.Config);
 
-		 Thread.Sleep(TimeSpan.FromSeconds(5));
+			Thread.Sleep(TimeSpan.FromSeconds(5));
 
-		 var withoutRotation = GetLoggedEvents()
-									 .Where(item => item.LoggerName == "nxlog.exe")
-									 .Select(item => item.MessageObject.ToString())
-									 .ToList();
+			var withoutRotation = GetLoggedEvents()
+										.Where(item => item.LoggerName == "nxlog.exe")
+										.Select(item => item.MessageObject.ToString())
+										.ToList();
 
-		 _nxLogProcessManager.Stop();
-		 Thread.Sleep(TimeSpan.FromSeconds(2)); //Give it time to shutdown
+			_nxLogProcessManager.Stop();
+			Thread.Sleep(TimeSpan.FromSeconds(2)); //Give it time to shutdown
 
 			//Get number of lines with lots of log rotation
 			ClearMemoryAppenderEvents();
@@ -117,7 +117,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 												 .ToList();
 			_nxLogProcessManager.Stop();
 
-			Console.WriteLine("{4}Without rotation:{0}\n{1}\n\n{4}With rotation:{2}\n{3}\n{4}", 
+			Console.WriteLine("{4}Without rotation:{0}\n{1}\n\n{4}With rotation:{2}\n{3}\n{4}",
 				withoutRotation.Count, string.Join("\n", withoutRotation),
 				withRotation.Count, string.Join("\n", withRotation),
 				"\n=================================\n");
@@ -132,8 +132,8 @@ namespace LogSearchShipper.Core.Tests.NxLog
 				Assert.AreEqual(1, matches.Count, string.Format("{0} should only appear 1 time, but actually appears {1} times with rotation", logEntry, matches.Count));
 			}
 		}
- 
- 		[Test]
+
+		[Test]
 		public void WatcherShouldNotMissAnyLogMessagesDuringNxLogFileRotation()
  		{
 			INxLogProcessManager mockNxLogProcessManager = new MockNxLogProcessManager("mockNxLogFile.log");
