@@ -101,7 +101,7 @@ namespace LogSearchShipper.Core.NxLog
 			return _process.Id;
 		}
 
-		internal void StartNxLogProcess()
+		public void StartNxLogProcess()
 		{
 			string executablePath = Path.Combine(BinFolder, "nxlog.exe");
 			string serviceArguments = string.Format("\"{0}\" -c \"{1}\"", executablePath, ConfigFile);
@@ -201,7 +201,7 @@ namespace LogSearchShipper.Core.NxLog
 		///   $raw_event;
 		///  </Input>
 		/// </summary>
-		internal void SetupConfigFile()
+		public void SetupConfigFile()
 		{
 			string config = string.Format(@"
 LogLevel	{0}
