@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
-using NUnit.Framework;
-using RunProcess;
 
-namespace LogSearchShipper.Core.Tests
+using NUnit.Framework;
+
+using LogSearchShipper.Core;
+
+namespace IntegrationTests
 {
 	[TestFixture]
 	[Platform(Exclude = "Mono")]

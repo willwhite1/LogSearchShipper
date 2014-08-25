@@ -4,18 +4,20 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+
 using log4net;
 using log4net.Appender;
 using log4net.Core;
 using log4net.Repository.Hierarchy;
-using LogSearchShipper.Core.ConfigurationSections;
-using LogSearchShipper.Core.NxLog;
 using NUnit.Framework;
 
-namespace LogSearchShipper.Core.Tests.NxLog
+using LogSearchShipper.Core.ConfigurationSections;
+using LogSearchShipper.Core.NxLog;
+
+namespace IntegrationTests.NxLog
 {
- [TestFixture]
- [Platform(Exclude = "Mono")]
+	[TestFixture]
+	[Platform(Exclude = "Mono")]
 	public class NxLogProcessFileWatcherTests
 	{
 		[SetUp]
@@ -43,44 +45,44 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		{
 			_nxLogProcessManager.Start();
 
-		 Thread.Sleep(TimeSpan.FromSeconds(1));
+			Thread.Sleep(TimeSpan.FromSeconds(1));
 
-		 CollectionAssert.Contains(GetLoggedRenderedMessages(), "nxlog-ce-2.8.1248 started");
+			CollectionAssert.Contains(GetLoggedRenderedMessages(), "nxlog-ce-2.8.1248 started");
 		}
 
-	 public string[] GetLoggedRenderedMessages()
-	 {
-		 return GetLoggedEvents().Select(item => item.RenderedMessage).ToArray();
-	 }
+		public string[] GetLoggedRenderedMessages()
+		{
+			return GetLoggedEvents().Select(item => item.RenderedMessage).ToArray();
+		}
 
-	 private static LoggingEvent[] GetLoggedEvents()
-	 {
-		 Hierarchy hierarchy = LogManager.GetLoggerRepository() as Hierarchy;
-		 MemoryAppender appender = hierarchy.Root.GetAppender("MemoryAppender") as MemoryAppender;
-		 var eventList = appender.GetEvents();
-		 return eventList;
-	 }
+		private static LoggingEvent[] GetLoggedEvents()
+		{
+			Hierarchy hierarchy = LogManager.GetLoggerRepository() as Hierarchy;
+			MemoryAppender appender = hierarchy.Root.GetAppender("MemoryAppender") as MemoryAppender;
+			var eventList = appender.GetEvents();
+			return eventList;
+		}
 
 
-	 private static void ClearMemoryAppenderEvents()
-	 {
-		 Hierarchy hierarchy = LogManager.GetLoggerRepository() as Hierarchy;
-		 MemoryAppender appender = hierarchy.Root.GetAppender("MemoryAppender") as MemoryAppender;
-		 appender.Clear();
-	 }
+		private static void ClearMemoryAppenderEvents()
+		{
+			Hierarchy hierarchy = LogManager.GetLoggerRepository() as Hierarchy;
+			MemoryAppender appender = hierarchy.Root.GetAppender("MemoryAppender") as MemoryAppender;
+			appender.Clear();
+		}
 
 		[Test]
 		public void NxLogFileShouldBeRotated()
 		{
 			_nxLogProcessManager.MaxNxLogFileSize = "0K";
 			_nxLogProcessManager.RotateNxLogFileEvery = "1 sec";
-		 _nxLogProcessManager.Start();
-		 //Console.WriteLine(_nxLogProcessManager.Config);
+			_nxLogProcessManager.Start();
+			//Console.WriteLine(_nxLogProcessManager.Config);
 
-		 Thread.Sleep(TimeSpan.FromSeconds(3));
+			Thread.Sleep(TimeSpan.FromSeconds(3));
 
-		 Assert.IsTrue(File.Exists(_nxLogProcessManager.NxLogFile +".1"));
-		 
+			Assert.IsTrue(File.Exists(_nxLogProcessManager.NxLogFile + ".1"));
+
 		}
 
 		//TODO:  We should ship some data through to ensure that around the time of rotation we don't miss any lines.
@@ -135,27 +137,27 @@ namespace LogSearchShipper.Core.Tests.NxLog
 
 		[Test]
 		public void WatcherShouldNotMissAnyLogMessagesDuringNxLogFileRotation()
- 		{
+		{
 			INxLogProcessManager mockNxLogProcessManager = new MockNxLogProcessManager("mockNxLogFile.log");
- 			var nxLogFileWatcher = new NxLogFileWatcher(mockNxLogProcessManager);
+			var nxLogFileWatcher = new NxLogFileWatcher(mockNxLogProcessManager);
 			if (File.Exists("mockNxLogFile.log")) File.Delete("mockNxLogFile.log");
- 			var allLinesRead = new List<string>();
+			var allLinesRead = new List<string>();
 
-		  //Before log file rotation
-			AppendLines("mockNxLogFile.log", 
+			//Before log file rotation
+			AppendLines("mockNxLogFile.log",
 			 "Line 1",
 			 "Line 2",
 			 "Line 3");
 
 			ReadLogLines(allLinesRead, nxLogFileWatcher);
 
- 			RotateLogFile("mockNxLogFile.log");
+			RotateLogFile("mockNxLogFile.log");
 			AppendLines("mockNxLogFile.log",
 				"Line 4");
 
 			ReadLogLines(allLinesRead, nxLogFileWatcher);
 
-		  //Add some more
+			//Add some more
 			AppendLines("mockNxLogFile.log",
 				"Line 5");
 
@@ -166,11 +168,11 @@ namespace LogSearchShipper.Core.Tests.NxLog
 
 			ReadLogLines(allLinesRead, nxLogFileWatcher);
 
- 			Console.WriteLine("Append a few lines just before the log rotation happens - these should be read from the rotated log");
-		  AppendLines("mockNxLogFile.log",
-				"Line 7",
-				"Line 8",
-				"Line 9");
+			Console.WriteLine("Append a few lines just before the log rotation happens - these should be read from the rotated log");
+			AppendLines("mockNxLogFile.log",
+				  "Line 7",
+				  "Line 8",
+				  "Line 9");
 
 			RotateLogFile("mockNxLogFile.log");
 			AppendLines("mockNxLogFile.log",
@@ -189,8 +191,8 @@ namespace LogSearchShipper.Core.Tests.NxLog
 
 			ReadLogLines(allLinesRead, nxLogFileWatcher);
 
- 			Assert.AreEqual(12, allLinesRead.Count);
-		  Assert.AreEqual(@"Line 1
+			Assert.AreEqual(12, allLinesRead.Count);
+			Assert.AreEqual(@"Line 1
 Line 2
 Line 3
 Line 4
@@ -201,65 +203,65 @@ Line 8
 Line 9
 Line 10
 Line 11
-Line 12".Replace("\r",""), string.Join("\n", allLinesRead));
+Line 12".Replace("\r", ""), string.Join("\n", allLinesRead));
 		}
 
-	 private static void ReadLogLines(List<string> allLinesRead, NxLogFileWatcher nxLogFileWatcher)
-	 {
-		 allLinesRead.AddRange(nxLogFileWatcher.ReadNewLinesAddedToLogFile());
-		 Console.WriteLine("{0}: {1} \n=========\n{2}\n=========\n", DateTime.Now, "Logs read", string.Join("\r\n", allLinesRead));
-	 }
+		private static void ReadLogLines(List<string> allLinesRead, NxLogFileWatcher nxLogFileWatcher)
+		{
+			allLinesRead.AddRange(nxLogFileWatcher.ReadNewLinesAddedToLogFile());
+			Console.WriteLine("{0}: {1} \n=========\n{2}\n=========\n", DateTime.Now, "Logs read", string.Join("\r\n", allLinesRead));
+		}
 
-	 private void RotateLogFile(string fileName)
-	 {
-		 if (File.Exists(fileName + ".1")) File.Delete(fileName + ".1");
-		 File.Move(fileName, fileName + ".1");
-	 }
-	 private void AppendLines(string fileName, params string[] lines )
-	 {
-		  if (!File.Exists(fileName)) File.WriteAllText(fileName,"");
-		  File.AppendAllLines(fileName, lines);
+		private void RotateLogFile(string fileName)
+		{
+			if (File.Exists(fileName + ".1")) File.Delete(fileName + ".1");
+			File.Move(fileName, fileName + ".1");
+		}
+		private void AppendLines(string fileName, params string[] lines)
+		{
+			if (!File.Exists(fileName)) File.WriteAllText(fileName, "");
+			File.AppendAllLines(fileName, lines);
 
-		  Console.WriteLine("{0}: {1} \n=========\n{2}\n=========\n", DateTime.Now, fileName, File.ReadAllText(fileName));
-	 }
-	 public class MockNxLogProcessManager	 : INxLogProcessManager
-	 {
-		 public MockNxLogProcessManager(string mocknxlogfileLog)
-		 {
-			 NxLogFile = mocknxlogfileLog;
-			 NxLogProcess = Process.GetCurrentProcess();
-		 }
+			Console.WriteLine("{0}: {1} \n=========\n{2}\n=========\n", DateTime.Now, fileName, File.ReadAllText(fileName));
+		}
+		public class MockNxLogProcessManager : INxLogProcessManager
+		{
+			public MockNxLogProcessManager(string mocknxlogfileLog)
+			{
+				NxLogFile = mocknxlogfileLog;
+				NxLogProcess = Process.GetCurrentProcess();
+			}
 
-		 public SyslogEndpoint InputSyslog { get; set; }
-		 public List<FileWatchElement> InputFiles { get; set; }
-		 public SyslogEndpoint OutputSyslog { get; set; }
-		 public string OutputFile { get; set; }
-		 public string ConfigFile { get; private set; }
-		 public string BinFolder { get; private set; }
-		 public string DataFolder { get; private set; }
-		 public string Config { get; private set; }
-		 public string MaxNxLogFileSize { get; set; }
+			public SyslogEndpoint InputSyslog { get; set; }
+			public List<FileWatchElement> InputFiles { get; set; }
+			public SyslogEndpoint OutputSyslog { get; set; }
+			public string OutputFile { get; set; }
+			public string ConfigFile { get; private set; }
+			public string BinFolder { get; private set; }
+			public string DataFolder { get; private set; }
+			public string Config { get; private set; }
+			public string MaxNxLogFileSize { get; set; }
 
-		 public string NxLogFile { get; private set; }
+			public string NxLogFile { get; private set; }
 
-		 public string RotateNxLogFileEvery { get; set; }
+			public string RotateNxLogFileEvery { get; set; }
 
-		 public Process NxLogProcess { get; private set; }
+			public Process NxLogProcess { get; private set; }
 
-		 public int Start()
-		 {
-			 throw new NotImplementedException();
-		 }
+			public int Start()
+			{
+				throw new NotImplementedException();
+			}
 
-		 public void Dispose()
-		 {
-			 throw new NotImplementedException();
-		 }
+			public void Dispose()
+			{
+				throw new NotImplementedException();
+			}
 
-		 public void Stop()
-		 {
-			 throw new NotImplementedException();
-		 }
-	 }
+			public void Stop()
+			{
+				throw new NotImplementedException();
+			}
+		}
 	}
 }
