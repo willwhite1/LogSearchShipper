@@ -10,7 +10,7 @@ namespace LogSearchShipper.Core.NxLog
 {
 	static class ServiceControllerEx
 	{
-		public static void CreateService(string name, string filePath)
+		public static void CreateService(string name, string filePath, string userName, string password)
 		{
 			DeleteService(name);
 
@@ -24,9 +24,15 @@ namespace LogSearchShipper.Core.NxLog
 				if (scmHandle == IntPtr.Zero)
 					throw new ApplicationException("Failed to open service manager", new Win32Exception());
 
+				// NOTE when user name is empty, LocalService account is used by default
+				if (userName == "")
+					userName = null;
+				if (password == "")
+					password = null;
+
 				serviceHandle = NativeMethods.CreateService(scmHandle, name, name, NativeMethods.ServiceAccessRights.AllAccess,
 					NativeMethods.SERVICE_WIN32_OWN_PROCESS, NativeMethods.ServiceBootFlag.AutoStart, NativeMethods.ServiceError.Normal,
-					filePath, null, IntPtr.Zero, null, null, null);
+					filePath, null, IntPtr.Zero, null, userName, password);
 
 				if (serviceHandle == IntPtr.Zero)
 				{
