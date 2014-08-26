@@ -37,5 +37,19 @@ namespace LogSearchShipper.Core.ConfigurationSections
 		{
 			get { return (EDBFileWatchCollection) base["edbFileWatchers"]; }
 		}
+
+		[ConfigurationProperty("shipper_service_username", IsRequired = false)]
+		public String ShipperServiceUsername
+		{
+			get { return (String)this["shipper_service_username"]; }
+			set { this["shipper_service_username"] = value; }
+		}
+
+		[ConfigurationProperty("shipper_service_password", IsRequired = false)]
+		public String ShipperServicePassword
+		{
+			get { return (String)this["shipper_service_password"]; }
+			set { this["shipper_service_password"] = value; }
+		}
 	}
 }

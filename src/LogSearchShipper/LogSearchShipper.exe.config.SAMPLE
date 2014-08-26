@@ -18,7 +18,8 @@ Change the settings to fit your environment
 	</configSections>
 
 	<LogSearchShipperGroup>
-		<LogSearchShipper data_folder="data" ingestor_host="ingestor.you-logsearch-cluster.com" ingestor_port="443">
+		<LogSearchShipper data_folder="data" ingestor_host="ingestor.you-logsearch-cluster.com" ingestor_port="443"
+                      shipper_service_username="" shipper_service_password="">
 			<!-- Extract information on what logs to ship from EDB -->
 			<edbFileWatchers>
 				<watch

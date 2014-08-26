@@ -45,7 +45,10 @@ namespace LogSearchShipper.Core.NxLog
 		private Process _process;
 		private string _serviceName;
 
-		public NxLogProcessManager(string dataFolder)
+		private string _userName;
+		private string _password;
+
+		public NxLogProcessManager(string dataFolder, string userName = null, string password = null)
 		{
 			_dataFolder = Path.GetFullPath(dataFolder);
 			InputFiles = new List<FileWatchElement>();
@@ -54,10 +57,13 @@ namespace LogSearchShipper.Core.NxLog
 			var hash = MD5.Create().ComputeHash(Encoding.ASCII.GetBytes(configId));
 			configId = BitConverter.ToString(hash).Replace("-", "");
 			_serviceName = "nxlog_" + configId;
+
+			_userName = userName;
+			_password = password;
 		}
 
 		public NxLogProcessManager()
-			: this(Path.Combine(Path.GetTempPath(), "nxlog-data-" + Guid.NewGuid().ToString("N")))
+			: this(Path.Combine(Path.GetTempPath(), "nxlog-data-" + Guid.NewGuid().ToString("N")), null, null)
 		{
 		}
 
@@ -110,7 +116,7 @@ namespace LogSearchShipper.Core.NxLog
 			_log.InfoFormat("Truncating {0}", NxLogFile);
 			if (File.Exists(NxLogFile)) File.WriteAllText(NxLogFile, string.Empty);
 
-			ServiceControllerEx.CreateService(_serviceName, serviceArguments);
+			ServiceControllerEx.CreateService(_serviceName, serviceArguments, _userName, _password);
 			ServiceControllerEx.StartService(_serviceName);
 
 			_process = Process.GetProcessById(ServiceControllerEx.GetProcessId(_serviceName));
