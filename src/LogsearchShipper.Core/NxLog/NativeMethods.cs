@@ -21,7 +21,8 @@ namespace LogSearchShipper.Core.NxLog
 		[DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
 		public static extern IntPtr CreateService(IntPtr hSCManager, string lpServiceName, string lpDisplayName,
 			ServiceAccessRights dwDesiredAccess, int dwServiceType, ServiceBootFlag dwStartType, ServiceError dwErrorControl,
-			string lpBinaryPathName, string lpLoadOrderGroup, IntPtr lpdwTagId, string lpDependencies, string lp, string lpPassword);
+			string lpBinaryPathName, string lpLoadOrderGroup, IntPtr lpdwTagId, string lpDependencies,
+			string lpServiceStartName, string lpPassword);
 
 		[DllImport("advapi32.dll", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
