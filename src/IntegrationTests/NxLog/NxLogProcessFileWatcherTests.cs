@@ -40,7 +40,6 @@ namespace IntegrationTests.NxLog
 		private NxLogProcessManager _nxLogProcessManager;
 
 		[Test]
-
 		public void ShouldLogEventsSendToNxLogFile()
 		{
 			_nxLogProcessManager.Start();
