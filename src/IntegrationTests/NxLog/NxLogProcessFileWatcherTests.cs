@@ -128,11 +128,16 @@ namespace IntegrationTests.NxLog
 			//There should be more lines logged with rotation than without due to extra "LogFile C:\Users\david.laing\AppData\Local\Temp\nxlog-data-565083914ab7404aaee03df6e8f759e7\nxlog.log reopened" messages
 			Assert.GreaterOrEqual(withRotation.Count, withoutRotation.Count);
 
+			var withoutRotationCount =
+				withoutRotation.GroupBy(val => val, (key, values) => new { Message = key, Count = values.Count() });
+
 			//Every line logged without rotation should appear once with rotation
-			foreach (var logEntry in withoutRotation)
+			foreach (var group in withoutRotationCount)
 			{
-				var matches = withRotation.FindAll(l => l == logEntry);
-				Assert.AreEqual(1, matches.Count, string.Format("{0} should only appear 1 time, but actually appears {1} times with rotation", logEntry, matches.Count));
+				var matches = withRotation.FindAll(l => l == group.Message);
+
+				Assert.IsTrue(matches.Count > 0,
+					string.Format("{0} count doesn't match - {1} without rotation, {2} with rotation", group.Message, group.Count, matches.Count));
 			}
 		}
 
