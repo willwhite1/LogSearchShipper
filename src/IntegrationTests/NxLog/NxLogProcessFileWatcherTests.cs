@@ -103,6 +103,8 @@ namespace IntegrationTests.NxLog
 			_nxLogProcessManager.Stop();
 			Thread.Sleep(TimeSpan.FromSeconds(2)); //Give it time to shutdown
 
+			File.Delete(Path.Combine(_nxLogProcessManager.DataFolder, "nxlog.log"));
+
 			//Get number of lines with log rotation
 			ClearMemoryAppenderEvents();
 			_nxLogProcessManager.MaxNxLogFileSize = "0K";
