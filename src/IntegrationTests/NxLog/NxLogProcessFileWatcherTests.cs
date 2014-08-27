@@ -88,12 +88,12 @@ namespace IntegrationTests.NxLog
 		[Test]
 		public void ShouldLogAllEventsSentToNxLogFile()
 		{
-			ClearMemoryAppenderEvents();
 			//Get number of lines without log rotation
+			ClearMemoryAppenderEvents();
+			_nxLogProcessManager.MaxNxLogFileSize = "100M";
 			_nxLogProcessManager.Start();
-			//Console.WriteLine(_nxLogProcessManager.Config);
 
-			Thread.Sleep(TimeSpan.FromSeconds(5));
+			Thread.Sleep(TimeSpan.FromMinutes(1));
 
 			var withoutRotation = GetLoggedEvents()
 										.Where(item => item.LoggerName == "nxlog.exe")
@@ -103,14 +103,14 @@ namespace IntegrationTests.NxLog
 			_nxLogProcessManager.Stop();
 			Thread.Sleep(TimeSpan.FromSeconds(2)); //Give it time to shutdown
 
-			//Get number of lines with lots of log rotation
+			//Get number of lines with log rotation
 			ClearMemoryAppenderEvents();
 			_nxLogProcessManager.MaxNxLogFileSize = "0K";
-			_nxLogProcessManager.RotateNxLogFileEvery = "2 sec";
+			_nxLogProcessManager.RotateNxLogFileEvery = "15 sec";
 			_nxLogProcessManager.SetupConfigFile();
 			_nxLogProcessManager.StartNxLogProcess();
 
-			Thread.Sleep(TimeSpan.FromSeconds(5));
+			Thread.Sleep(TimeSpan.FromMinutes(1));
 
 			var withRotation = GetLoggedEvents()
 												 .Where(item => item.LoggerName == "nxlog.exe")
