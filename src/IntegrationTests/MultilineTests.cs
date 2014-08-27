@@ -25,23 +25,23 @@ namespace IntegrationTests
 		 var syslogEndpoint = new SyslogEndpoint("localhost", 10121);
 
 			var tmpDir = Path.Combine(Path.GetTempPath(), "ShouldHandleMultilineLog4NetExceptions");
-			var recieverDataFolder = Path.Combine(tmpDir, "reciever");
+			var receiverDataFolder = Path.Combine(tmpDir, "receiver");
 			var shipperDataFolder = Path.Combine(tmpDir, "shipper");
 			var sourceLogFile = Path.Combine(tmpDir, "sourceLogFile.log");
-			var outputFile = Path.Combine(tmpDir, "recieverOutputFile.log");
+			var outputFile = Path.Combine(tmpDir, "receiverOutputFile.log");
 			if (File.Exists(sourceLogFile)) File.WriteAllText(sourceLogFile, string.Empty);
 			if (File.Exists(outputFile)) File.WriteAllText(outputFile, string.Empty);
 			
 			
-			var reciever = new NxLogProcessManager(recieverDataFolder)
+			var receiver = new NxLogProcessManager(receiverDataFolder)
 			{
 				InputSyslog = new SyslogEndpoint("localhost", 10121),
 				OutputFile = outputFile
 			};
-			_nxLogProcessManagers.Add(reciever);
-			if (File.Exists(reciever.NxLogFile)) File.WriteAllText(reciever.NxLogFile, string.Empty);
-			reciever.Start();
-			//Console.WriteLine(reciever.Config);
+			_nxLogProcessManagers.Add(receiver);
+			if (File.Exists(receiver.NxLogFile)) File.WriteAllText(receiver.NxLogFile, string.Empty);
+			receiver.Start();
+			//Console.WriteLine(receiver.Config);
 
 			var shipper = new NxLogProcessManager(shipperDataFolder)
 			{

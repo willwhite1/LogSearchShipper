@@ -351,7 +351,7 @@ SpoolDir	{6}
 		{
 			if (InputSyslog == null) return String.Empty;
 
-			_log.InfoFormat("Recieving data from: syslog-tls://{0}:{1}", InputSyslog.Host, InputSyslog.Port);
+			_log.InfoFormat("Receiving data from: syslog-tls://{0}:{1}", InputSyslog.Host, InputSyslog.Port);
 			var certFile = Path.Combine(DataFolder, @"InputSyslog.crt");
 			var keyFile = Path.Combine(DataFolder, @"InputSyslog.key");
 			File.WriteAllText(certFile, @"-----BEGIN CERTIFICATE-----
@@ -481,7 +481,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			{
 				FileWatchElement inputFile = InputFiles[i];
 
-				_log.InfoFormat("Recieving data from file: {0}", inputFile.Files);
+				_log.InfoFormat("Receiving data from file: {0}", inputFile.Files);
 				filesSection += string.Format(@"
 <Input in_file{0}>
 	Module	im_file
