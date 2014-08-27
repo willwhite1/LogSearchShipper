@@ -25,7 +25,7 @@ namespace IntegrationTests.NxLog
 		{
 			_nxLogProcessManager = new NxLogProcessManager
 			{
-				InputFiles = new List<FileWatchElement>(),
+				InputFiles = new List<FileWatchElement> { new FileWatchElement { Files = Guid.NewGuid().ToString(), Type = "plain" } },
 				OutputSyslog = new SyslogEndpoint("ingestor.example.com", 443)
 			};
 			_nxLogProcessManager.SetupConfigFile();
