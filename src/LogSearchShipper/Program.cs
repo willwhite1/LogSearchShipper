@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using log4net;
 using log4net.Config;
 using LogSearchShipper.Core;
@@ -37,8 +39,13 @@ namespace LogSearchShipper
 		private static readonly ILog _log = LogManager.GetLogger(typeof (LogSearchShipperService));
 		private LogSearchShipperProcessManager _LogSearchShipperProcessManager;
 
+		private volatile bool _terminate;
+
 		public bool Start(HostControl hostControl)
 		{
+			var thread = new Thread(args => WatchForExitKey(hostControl));
+			thread.Start();
+
 			_LogSearchShipperProcessManager = new LogSearchShipperProcessManager();
 			_LogSearchShipperProcessManager.Start();
 
@@ -47,11 +54,48 @@ namespace LogSearchShipper
 
 		public bool Stop(HostControl hostControl)
 		{
+			_terminate = true;
+
 			_log.Debug("Stop: Calling LogSearchShipperProcessManager.Stop()");
 			_LogSearchShipperProcessManager.Stop();
 			_log.Debug("Stop: LogSearchShipperProcessManager.Stop() completed");
 
 			return true;
+		}
+
+		void WatchForExitKey(HostControl hostControl)
+		{
+			while (!_terminate)
+			{
+				Thread.Yield();
+
+				char ch;
+
+				try
+				{
+					if (!Console.KeyAvailable)
+						continue;
+
+					var tmp = Console.ReadKey();
+					ch = tmp.KeyChar;
+				}
+				catch (InvalidOperationException)
+				{
+					// console input is redirected
+
+					var tmp = Console.In.Read();
+					if (tmp == -1)
+						continue;
+
+					ch = (char)tmp;
+				}
+
+				if (ch == 'q')
+				{
+					Stop(hostControl);
+					Environment.Exit(0);
+				}
+			}
 		}
 	}
 }
