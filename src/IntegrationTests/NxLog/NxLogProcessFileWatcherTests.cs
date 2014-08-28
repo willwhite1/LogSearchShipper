@@ -103,7 +103,11 @@ namespace IntegrationTests.NxLog
 			_nxLogProcessManager.Stop();
 			Thread.Sleep(TimeSpan.FromSeconds(2)); //Give it time to shutdown
 
-			File.Delete(Path.Combine(_nxLogProcessManager.DataFolder, "nxlog.log"));
+			// cleanup files from the previous run
+			var deleteFiles = Directory.GetFiles(_nxLogProcessManager.DataFolder).
+				Where(file => Path.GetExtension(file) != ".conf").ToArray();
+			foreach (var file in deleteFiles)
+				File.Delete(file);
 
 			//Get number of lines with log rotation
 			ClearMemoryAppenderEvents();
