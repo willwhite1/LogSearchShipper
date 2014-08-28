@@ -13,9 +13,13 @@ namespace IntegrationTests
 	[TestFixture]
 	class IntegrationTest
 	{
-		[TestFixtureSetUp]
-		public void Init()
+		void Init()
 		{
+			_currentGroupId = Guid.NewGuid().ToString();
+
+			if (_initDone)
+				return;
+
 			_basePath = Path.Combine(Environment.CurrentDirectory, "LogSearchShipper.Test");
 			if (!Directory.Exists(_basePath))
 				Directory.CreateDirectory(_basePath);
@@ -37,6 +41,10 @@ namespace IntegrationTests
 			_exePath = exeFileCopy;
 
 			StartShipperService();
+
+			_initDone = true;
+
+			Utils.WriteDelimiter();
 		}
 
 		[TestFixtureTearDown]
@@ -48,7 +56,8 @@ namespace IntegrationTests
 		[Test]
 		public void TestSimpleFileWriting()
 		{
-			_currentGroupId = Guid.NewGuid().ToString();
+			Init();
+
 			var path = GetTestPath("TestSimpleFileWriting");
 			var filePath = Path.Combine(path, "TestFile.log");
 
@@ -63,7 +72,8 @@ namespace IntegrationTests
 		[Test]
 		public void TestSlowFileWriting()
 		{
-			_currentGroupId = Guid.NewGuid().ToString();
+			Init();
+
 			var path = GetTestPath("TestSlowFileWriting");
 			var filePath = Path.Combine(path, "TestFile.log");
 
@@ -87,7 +97,8 @@ namespace IntegrationTests
 		[Test]
 		public void TestFileRolling()
 		{
-			_currentGroupId = Guid.NewGuid().ToString();
+			Init();
+
 			var path = GetTestPath("TestFileRolling");
 
 			Trace.WriteLine("Writing the files");
@@ -96,10 +107,11 @@ namespace IntegrationTests
 			GetAndValidateRecords(ids);
 		}
 
-		[Test, Ignore("WIP: needs to fix nxlog to get this test working")]
+		[Test]
 		public void TestResumingFileShipping()
 		{
-			_currentGroupId = Guid.NewGuid().ToString();
+			Init();
+
 			var path = GetTestPath("TestResumingFileShipping");
 			var filePath = Path.Combine(path, "TestFile.log");
 
@@ -143,7 +155,7 @@ namespace IntegrationTests
 				File.WriteAllText(filePath, GetLog(out curIds));
 				ids.AddRange(curIds);
 
-				Thread.Sleep(TimeSpan.FromSeconds(15));
+				Thread.Sleep(TimeSpan.FromSeconds(30));
 
 				var newName = filePath + "." + i + ".log";
 				File.Move(filePath, newName);
@@ -232,17 +244,18 @@ namespace IntegrationTests
 
 		void StartShipperService()
 		{
-			Trace.WriteLine("Starting the shipper service");
+			Trace.WriteLine("    Starting the shipper service");
 
 			_shipperProcess = Utils.StartProcess(_exePath, "-instance:OverallTest");
 
-			Console.WriteLine("Waiting 30 seconds for shipper to startup...");
+			Trace.WriteLine("    Waiting 30 seconds for shipper to startup...");
 			Thread.Sleep(TimeSpan.FromSeconds(30));
 		}
 
 		void StopShipperService()
 		{
-			Trace.WriteLine("Stopping the shipper service");
+			Utils.WriteDelimiter();
+			Trace.WriteLine("    Stopping the shipper service");
 
 			Utils.ShutdownProcess(_shipperProcess);
 			_shipperProcess = null;
@@ -267,5 +280,7 @@ namespace IntegrationTests
 
 		private const int LinesPerFile = 100;
 		private const int LogFilesCount = 10;
+
+		private bool _initDone;
 	}
 }

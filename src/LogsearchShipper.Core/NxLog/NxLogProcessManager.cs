@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
@@ -33,7 +35,7 @@ namespace LogSearchShipper.Core.NxLog
 
 	public class NxLogProcessManager : INxLogProcessManager
 	{
-		private static readonly ILog _log = LogManager.GetLogger(typeof (NxLogProcessManager));
+		private static readonly ILog _log = LogManager.GetLogger(typeof(NxLogProcessManager));
 		private readonly string _dataFolder;
 		private readonly TimeSpan _waitForNxLogProcessToExitBeforeKilling = TimeSpan.FromSeconds(1);
 		private string _nxBinFolder;
@@ -41,14 +43,27 @@ namespace LogSearchShipper.Core.NxLog
 		private string _maxNxLogFileSize = "1M";
 		private string _rotateNxLogFileEvery = "1 min";
 		private Process _process;
+		private string _serviceName;
 
-		public NxLogProcessManager(string dataFolder)
+		private string _userName;
+		private string _password;
+
+		public NxLogProcessManager(string dataFolder, string userName = null, string password = null)
 		{
 			_dataFolder = Path.GetFullPath(dataFolder);
 			InputFiles = new List<FileWatchElement>();
+
+			var configId = Path.GetFullPath(dataFolder);
+			var hash = MD5.Create().ComputeHash(Encoding.ASCII.GetBytes(configId));
+			configId = BitConverter.ToString(hash).Replace("-", "");
+			_serviceName = "nxlog_" + configId;
+
+			_userName = userName;
+			_password = password;
 		}
 
-		public NxLogProcessManager() : this(Path.Combine(Path.GetTempPath(), "nxlog-data-" + Guid.NewGuid().ToString("N")))
+		public NxLogProcessManager()
+			: this(Path.Combine(Path.GetTempPath(), "nxlog-data-" + Guid.NewGuid().ToString("N")), null, null)
 		{
 		}
 
@@ -66,7 +81,7 @@ namespace LogSearchShipper.Core.NxLog
 			{
 				if (!string.IsNullOrEmpty(_nxBinFolder)) return _nxBinFolder;
 
-				_nxBinFolder = Path.Combine(DataFolder,"nxlog" );
+				_nxBinFolder = Path.Combine(DataFolder, "nxlog");
 				Directory.CreateDirectory(_nxBinFolder);
 				return _nxBinFolder;
 			}
@@ -92,87 +107,54 @@ namespace LogSearchShipper.Core.NxLog
 			return _process.Id;
 		}
 
-		internal void StartNxLogProcess()
+		public void StartNxLogProcess()
 		{
 			string executablePath = Path.Combine(BinFolder, "nxlog.exe");
-			string arguments = string.Format("-f -c \"{0}\"", ConfigFile);
+			string serviceArguments = string.Format("\"{0}\" -c \"{1}\"", executablePath, ConfigFile);
+			_log.InfoFormat("Running {0} as a service", serviceArguments);
 
 			_log.InfoFormat("Truncating {0}", NxLogFile);
 			if (File.Exists(NxLogFile)) File.WriteAllText(NxLogFile, string.Empty);
 
-		 _log.InfoFormat("Running {0} {1}", executablePath, arguments);
-		 _process = new Process
-			{
-				StartInfo =
-				{
-					FileName = executablePath,
-					Arguments = arguments,
-					RedirectStandardInput = true,
-					CreateNoWindow = true,
-					UseShellExecute = false
-				},
-			};
+			ServiceControllerEx.CreateService(_serviceName, serviceArguments, _userName, _password);
+			ServiceControllerEx.StartService(_serviceName);
 
-			_process.Start();
-
-			_log.InfoFormat("nxlog.exe running with PID: {0}", _process.Id);
+			_process = Process.GetProcessById(ServiceControllerEx.GetProcessId(_serviceName));
 
 			// Start a background task to log nxlog process output every 250ms
 			Task.Run(() => new NxLogFileWatcher(this).WatchAndLog());
 		}
 
 		public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
 
 		private bool _disposed = false;
 
 		protected virtual void Dispose(bool disposing)
-    {
-        if (!_disposed)
-        {
-            if (disposing)
-            {
-                Stop();
-            }
+		{
+			if (!_disposed)
+			{
+				if (disposing)
+				{
+					Stop();
+				}
 
-            _disposed = true;
-        }
-    }
+				_disposed = true;
+			}
+		}
 
-    ~NxLogProcessManager()
-    {
-        Dispose(false);
-    }
+		~NxLogProcessManager()
+		{
+			Dispose(false);
+		}
 
 		public void Stop()
 		{
-			if (_process == null || _process.HasExited)
-			 return;
-
-			try
-			{
-			 _log.Info("Trying to close nxlog.exe gracefully");
-			 _process.StandardInput.Close();
-
-			 if (_process == null || _process.HasExited)
-				return;
-
-				_log.InfoFormat("Waiting for voluntary nxlog.exe exit: Timeout={0}", _waitForNxLogProcessToExitBeforeKilling);
-				_process.WaitForExit(Convert.ToInt32(_waitForNxLogProcessToExitBeforeKilling.TotalMilliseconds));
-			}
-			finally
-			{
-			 // close console forcefully if not finished within allowed timeout
-				if (_process != null || !_process.HasExited)
-				{
-				 _log.InfoFormat("Closing the nxlog.exe forcefully");
-				 _process.Kill();
-				}
-				
-			}
+			_log.Info("Trying to close nxlog service gracefully");
+			ServiceControllerEx.DeleteService(_serviceName);
 		}
 
 		/// <summary>
@@ -225,7 +207,7 @@ namespace LogSearchShipper.Core.NxLog
 		///   $raw_event;
 		///  </Input>
 		/// </summary>
-		internal void SetupConfigFile()
+		public void SetupConfigFile()
 		{
 			string config = string.Format(@"
 LogLevel	{0}
@@ -268,7 +250,7 @@ SpoolDir	{6}
 				MaxNxLogFileSize,
 				Path.GetFullPath(BinFolder),
 				Path.GetFullPath(DataFolder),
-				Path.GetDirectoryName(Assembly.GetAssembly(typeof (NxLogProcessManager)).Location),
+				Path.GetDirectoryName(Assembly.GetAssembly(typeof(NxLogProcessManager)).Location),
 				GenerateOutputSyslogConfig(),
 				GenerateOutputFileConfig(),
 				GenerateInputSyslogConfig(),
@@ -294,9 +276,9 @@ SpoolDir	{6}
 			{
 				if (string.IsNullOrEmpty(_nxLogFile))
 				{
-				 _nxLogFile = Path.Combine(DataFolder, "nxlog.log");
+					_nxLogFile = Path.Combine(DataFolder, "nxlog.log");
 				}
-			 return _nxLogFile;
+				return _nxLogFile;
 			}
 		}
 
@@ -310,7 +292,7 @@ SpoolDir	{6}
 		{
 			get { return _process; }
 		}
-	 
+
 		/// <summary>
 		///  Generates the route config eg:
 		///  <Route to_syslog>
@@ -369,7 +351,7 @@ SpoolDir	{6}
 		{
 			if (InputSyslog == null) return String.Empty;
 
-			_log.InfoFormat("Recieving data from: syslog-tls://{0}:{1}", InputSyslog.Host, InputSyslog.Port);
+			_log.InfoFormat("Receiving data from: syslog-tls://{0}:{1}", InputSyslog.Host, InputSyslog.Port);
 			var certFile = Path.Combine(DataFolder, @"InputSyslog.crt");
 			var keyFile = Path.Combine(DataFolder, @"InputSyslog.key");
 			File.WriteAllText(certFile, @"-----BEGIN CERTIFICATE-----
@@ -499,7 +481,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			{
 				FileWatchElement inputFile = InputFiles[i];
 
-				_log.InfoFormat("Recieving data from file: {0}", inputFile.Files);
+				_log.InfoFormat("Receiving data from file: {0}", inputFile.Files);
 				filesSection += string.Format(@"
 <Input in_file{0}>
 	Module	im_file
