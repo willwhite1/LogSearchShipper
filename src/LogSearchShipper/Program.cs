@@ -21,9 +21,9 @@ namespace LogSearchShipper
 				x.RunAsNetworkService();
 				x.StartAutomatically();
 
-				x.SetDescription("Logsearch Shipper.NET - forwards (Windows) log files to Logsearch cluster");
-				x.SetDisplayName("Logsearch Shipper.NET");
-				x.SetServiceName("logsearch_shipper_net");
+				x.SetDescription("LogSearchShipper - forwards (Windows) log files to Logsearch cluster");
+				x.SetDisplayName("LogSearchShipper");
+				x.SetServiceName("LogSearchShipper");
 
 				x.EnableServiceRecovery(rc => { rc.RestartService(1); // restart the service after 1 minute
 				});
