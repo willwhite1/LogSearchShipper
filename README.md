@@ -4,23 +4,25 @@ A Windows optimised shipper for getting logs into your Logsearch cluster
 
 ### Installing
 
-* Download latest builds from from http://ci-logsearch-shipper.s3-website-eu-west-1.amazonaws.com/
-* Unzip into a new folder
-
+* `SHIPPER_USERNAME`/`SHIPPER_PASSWORD` - A Windows domain account that has read only access to the log files you want to ship.  
+Must also have premissions to register and start/stop other services (eg, be part of the Local machines Admin group)
+* `D:\Apps\LogSearchShipper\current` - `LogSearchShipper.exe` + `.dll`s go here. `SHIPPER_USERNAME` must have read access to this folder
+* `D:\Apps\LogSearchShipper\data` - Working folder for LogSearchShipper.  `SHIPPER_USERNAME` *must* have full write access to this folder
+* `D:\Logs\LogSearchShipper` - Folder for LogSearchShipper to write its logs to.`SHIPPER_USERNAME` *must* have full write access to this folder
 ### Config
 
-Rename `LogSearchShipper.exe.config.SAMPLE` to `LogsearchShipper.Service.exe.config` and configure the `LogsearchShipperGroup` to point at the files you want shipped.
-
-#### Running from the Command line 
-
-```
-LogSearchShipper.exe
-```
+Rename `LogSearchShipper.exe.config.SAMPLE` to `LogsearchShipper.Service.exe.config`
+* configure the `LogsearchShipperGroup` to point at the files you want shipped.
+* configure `ingestor_*` to the logsearch cluster you want to ship to
+* configure `shipper_service_username`/`shipper_service_password` to `SHIPPER_USERNAME`/`SHIPPER_PASSWORD`
+* configure `data_folder` to `D:\Apps\LogSearchShipper\data`
+* configure various `Log4Net` `FileAppender` to `D:\Logs\LogSearchShipper`
 
 #### Running as a Windows Service
 
 ```
-LogSearchShipper.exe install --sudo
+LogSearchShipper.exe install --sudo -username:`SHIPPER_USERNAME` -password:`SHIPPER_PASSWORD`
+LogSearchShipper.exe start
 ```
 
 #### Help
