@@ -21,12 +21,18 @@ namespace IntegrationTests
 						CreateNoWindow = true,
 						UseShellExecute = false,
 						RedirectStandardOutput = true,
+						RedirectStandardError = true,
 						RedirectStandardInput = true,
 					}
 				};
-			process.OutputDataReceived += (sender, args) => Console.WriteLine("{0}: {1}", processPath, args.Data);
+			process.OutputDataReceived += (sender, args) =>
+				Trace.WriteLine(string.Format("{0}: {1}", processPath, args.Data));
+			process.ErrorDataReceived += (sender, args) =>
+				Trace.WriteLine(string.Format("{0}: {1}", processPath, args.Data));
+
 			process.Start();
 			process.BeginOutputReadLine();
+			process.BeginErrorReadLine();
 
 			return process;
 		}
@@ -36,11 +42,18 @@ namespace IntegrationTests
 			if (process == null)
 				return;
 
-			process.StandardInput.Close(); // send Ctrl-C to logstash-forwarder so it can clean up
+			Trace.WriteLine(string.Format("    Trying to close the process {0}", process.ProcessName));
+
+			// send Ctrl-C to the process so it can clean up
+			process.StandardInput.WriteLine("q");
+			process.StandardInput.Close();
+
 			process.CancelOutputRead();
-			process.WaitForExit(5 * 1000);
+			process.WaitForExit(30 * 1000);
+
 			if (!process.HasExited)
 			{
+				Trace.WriteLine(string.Format("    Terminating the process {0} forcibly", process.ProcessName));
 				KillProcessAndChildren(process.Id);
 			}
 		}
@@ -79,5 +92,12 @@ namespace IntegrationTests
 				Directory.Delete(directory);
 			}
 		}
+
+		public static void WriteDelimiter()
+		{
+			Trace.WriteLine(Delimiter);
+		}
+
+		private static readonly string Delimiter = new string('=', 60);
 	}
 }

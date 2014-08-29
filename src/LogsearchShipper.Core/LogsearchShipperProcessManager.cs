@@ -37,7 +37,8 @@ namespace LogSearchShipper.Core
 			{
 				Directory.CreateDirectory(LogSearchShipperConfig.DataFolder);
 			}
-			NxLogProcessManager = new NxLogProcessManager(LogSearchShipperConfig.DataFolder);
+			NxLogProcessManager = new NxLogProcessManager(LogSearchShipperConfig.DataFolder,
+				LogSearchShipperConfig.ShipperServiceUsername, LogSearchShipperConfig.ShipperServicePassword);
 
 			SetupInputFiles();
 			NxLogProcessManager.OutputSyslog = new SyslogEndpoint(LogSearchShipperConfig.IngestorHost,
