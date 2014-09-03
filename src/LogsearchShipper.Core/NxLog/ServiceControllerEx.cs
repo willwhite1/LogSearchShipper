@@ -48,6 +48,9 @@ namespace LogSearchShipper.Core.NxLog
 				if (scmHandle != IntPtr.Zero)
 					NativeMethods.CloseServiceHandle(scmHandle);
 			}
+
+			var args = string.Format(" failure \"{0}\" reset= 3600 actions= restart/60/restart/300/restart/300", name);
+			ProcessUtils.Execute("sc", args);
 		}
 
 		public static void DeleteService(string name)
