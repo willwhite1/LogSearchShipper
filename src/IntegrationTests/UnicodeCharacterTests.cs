@@ -2,7 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Management;
+
+using LogSearchShipper.Core;
 using NUnit.Framework;
 
 namespace IntegrationTests
@@ -25,7 +26,7 @@ namespace IntegrationTests
 			File.Copy("LogSearchShipper.exe.config.ShouldSuccessfullyShipLog4NetLogContainingUnicodeCharacters", "LogSearchShipper.exe.config");
 			try
 			{
-				shipper = Utils.StartProcess(Environment.CurrentDirectory + @"\LogSearchShipper.exe",
+				shipper = ProcessUtils.StartProcess(Environment.CurrentDirectory + @"\LogSearchShipper.exe",
 					"-instance:ShouldSuccessfullyShipLog4NetLogContainingUnicodeCharacters");
 
 				System.Threading.Thread.Sleep(TimeSpan.FromSeconds(30));

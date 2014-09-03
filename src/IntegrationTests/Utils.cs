@@ -10,33 +10,6 @@ namespace IntegrationTests
 {
 	static class Utils
 	{
-		public static Process StartProcess(string processPath, string processArgs)
-		{
-			var process = new Process
-				{
-					StartInfo =
-					{
-						FileName = processPath,
-						Arguments = processArgs,
-						CreateNoWindow = true,
-						UseShellExecute = false,
-						RedirectStandardOutput = true,
-						RedirectStandardError = true,
-						RedirectStandardInput = true,
-					}
-				};
-			process.OutputDataReceived += (sender, args) =>
-				Trace.WriteLine(string.Format("{0}: {1}", processPath, args.Data));
-			process.ErrorDataReceived += (sender, args) =>
-				Trace.WriteLine(string.Format("{0}: {1}", processPath, args.Data));
-
-			process.Start();
-			process.BeginOutputReadLine();
-			process.BeginErrorReadLine();
-
-			return process;
-		}
-
 		public static void ShutdownProcess(Process process)
 		{
 			if (process == null)
