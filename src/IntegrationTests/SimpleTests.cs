@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+
+using LogSearchShipper.Core;
 using NUnit.Framework;
 
 namespace IntegrationTests
@@ -23,7 +25,7 @@ namespace IntegrationTests
 			File.Copy("LogSearchShipper.exe.config.ShouldSuccessfullyShipSimpleJSON", "LogSearchShipper.exe.config");
 			try
 			{
-				shipper = Utils.StartProcess(Environment.CurrentDirectory + @"\LogSearchShipper.exe",
+				shipper = ProcessUtils.StartProcess(Environment.CurrentDirectory + @"\LogSearchShipper.exe",
 					"-instance:ShouldSuccessfullyShipSimpleJSON");
 
 				Console.WriteLine("Waiting 30 seconds for shipper to startup...");

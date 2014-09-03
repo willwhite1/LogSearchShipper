@@ -2,7 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Management;
+
+using LogSearchShipper.Core;
 using NUnit.Framework;
 
 namespace IntegrationTests
@@ -23,9 +24,9 @@ namespace IntegrationTests
 			File.Move("LogSearchShipper.exe.config.ShipDummyService", "LogSearchShipper.exe.config");
 			try
 			{
-				shipper = Utils.StartProcess(Environment.CurrentDirectory + @"\LogSearchShipper.exe",
+				shipper = ProcessUtils.StartProcess(Environment.CurrentDirectory + @"\LogSearchShipper.exe",
 					"-instance:integrationtest001");
-				processWithLogFileRolling = Utils.StartProcess(Environment.CurrentDirectory + @"\DummyServiceWithLogRolling.exe", "");
+				processWithLogFileRolling = ProcessUtils.StartProcess(Environment.CurrentDirectory + @"\DummyServiceWithLogRolling.exe", "");
 
 				System.Threading.Thread.Sleep(TimeSpan.FromSeconds(10));
 
