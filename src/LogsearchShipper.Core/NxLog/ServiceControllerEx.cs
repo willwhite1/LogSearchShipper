@@ -49,7 +49,7 @@ namespace LogSearchShipper.Core.NxLog
 					NativeMethods.CloseServiceHandle(scmHandle);
 			}
 
-			var args = string.Format(" failure \"{0}\" reset= 3600 actions= restart/60/restart/300/restart/300", name);
+			var args = string.Format(" failure \"{0}\" reset= 3600 actions= restart/60/restart/60/restart/60", name);
 			ProcessUtils.Execute("sc", args);
 		}
 
