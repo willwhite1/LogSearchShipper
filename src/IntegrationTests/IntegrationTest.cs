@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
+using LogSearchShipper.Core;
 using NUnit.Framework;
 
 namespace IntegrationTests
@@ -246,7 +247,7 @@ namespace IntegrationTests
 		{
 			Trace.WriteLine("    Starting the shipper service");
 
-			_shipperProcess = Utils.StartProcess(_exePath, "-instance:OverallTest");
+			_shipperProcess = ProcessUtils.StartProcess(_exePath, "-instance:OverallTest");
 
 			Trace.WriteLine("    Waiting 30 seconds for shipper to startup...");
 			Thread.Sleep(TimeSpan.FromSeconds(30));
