@@ -480,6 +480,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			for (int i = 0; i < InputFiles.Count; i++)
 			{
 				FileWatchElement inputFile = InputFiles[i];
+				var inputFileEscaped = inputFile.Files.Replace(@"\", @"\\");
 
 				_log.InfoFormat("Receiving data from file: {0}", inputFile.Files);
 				filesSection += string.Format(@"
@@ -492,9 +493,10 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	CloseWhenIdle TRUE
 	PollInterval 5
 	DirCheckInterval 10
-	Exec	$path = ""{1}""; $type = ""{2}""; ",
+	Exec	$path = ""{2}""; $type = ""{3}""; ",
 					i,
-					inputFile.Files.Replace(@"\", @"\\"),
+					inputFileEscaped,
+					inputFile.Files,
 					inputFile.Type);
 
 				foreach (FieldElement field in inputFile.Fields)
