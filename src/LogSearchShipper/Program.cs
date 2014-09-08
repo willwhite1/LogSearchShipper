@@ -67,7 +67,7 @@ namespace LogSearchShipper
 		{
 			while (!_terminate)
 			{
-				Thread.Yield();
+				Thread.Sleep(TimeSpan.FromMilliseconds(1));
 
 				char ch;
 
