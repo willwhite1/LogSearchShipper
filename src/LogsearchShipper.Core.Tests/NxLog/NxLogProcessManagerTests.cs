@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading;
+
 using log4net;
-using log4net.Core;
-using log4net.Repository.Hierarchy;
 using LogSearchShipper.Core.ConfigurationSections;
 using LogSearchShipper.Core.NxLog;
 using NUnit.Framework;
-using RunProcess;
 
 namespace LogSearchShipper.Core.Tests.NxLog
 {
@@ -85,6 +85,37 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		 AssertConfigContains(@"Module	xm_multiline");
 		 AssertConfigContains(@"HeaderLine	/^([^ ]+).*/");
 		 AssertConfigContains(@"InputType	multiline");
+		}
+
+		[Test]
+		public void ShouldEscapeConfigPathsCorrectly()
+		{
+			var config = File.ReadAllText(_nxLogProcessManager.ConfigFile);
+
+			var inputRegex = new Regex("<Input[ _a-z0-9]+>(.*?)</Input>", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+			// looks for unescaped slash char
+			var notEscapedRegex = new Regex(@"(?<!\\)\\(?!\\)", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+			var inputMatch = inputRegex.Match(config);
+			var atLeastOneInput = false;
+			while (inputMatch.Success)
+			{
+				var inputText = inputMatch.Groups[1].Value;
+				var lines = inputText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+				lines = lines.Select(val => val.Trim()).ToArray();
+
+				var filePathLine = lines.First(val => val.StartsWith("File"));
+				Assert.IsTrue(!notEscapedRegex.Match(filePathLine).Success, string.Format("The File value within '{0}' SHOULD be escaped, but isn't", filePathLine));
+
+				var execLine = lines.First(val => val.StartsWith("Exec"));
+				Assert.IsTrue(notEscapedRegex.Match(execLine).Success, string.Format("The $path value within '{0}' should NOT be escaped but is",execLine));
+
+				atLeastOneInput = true;
+				inputMatch = inputMatch.NextMatch();
+			}
+
+			Assert.IsTrue(atLeastOneInput);
 		}
 
 	 [Test]
