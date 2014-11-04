@@ -147,9 +147,9 @@ namespace LogSearchShipper.Core.NxLog
 					lock (_sync)
 					{
 						ReportCpuUsage(Process.GetCurrentProcess(), "ProcessorUsage",
-							ref _lastProcessorSecondsUsed, ref _lastProcessorUsageSentTime);
+							ref _lastProcessorSecondsUsed, _lastProcessorUsageSentTime);
 						ReportCpuUsage(_process, "NxlogProcessorUsage",
-							ref _lastNxlogProcessorSecondsUsed, ref _lastProcessorUsageSentTime);
+							ref _lastNxlogProcessorSecondsUsed, _lastProcessorUsageSentTime);
 
 						_lastProcessorUsageSentTime = DateTime.UtcNow;
 					}
@@ -163,7 +163,7 @@ namespace LogSearchShipper.Core.NxLog
 			}
 		}
 
-		private static void ReportCpuUsage(Process process, string name, ref double lastProcessorSecondsUsed, ref DateTime lastSentTime)
+		private static void ReportCpuUsage(Process process, string name, ref double lastProcessorSecondsUsed, DateTime lastSentTime)
 		{
 			var processorSecondsUsed = process.TotalProcessorTime.TotalSeconds;
 			if (lastProcessorSecondsUsed != 0)
