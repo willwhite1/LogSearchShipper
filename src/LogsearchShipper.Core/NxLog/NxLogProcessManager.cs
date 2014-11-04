@@ -131,7 +131,7 @@ namespace LogSearchShipper.Core.NxLog
 			GC.SuppressFinalize(this);
 		}
 
-		private bool _disposed = false;
+		private volatile bool _disposed = false;
 
 		protected virtual void Dispose(bool disposing)
 		{
