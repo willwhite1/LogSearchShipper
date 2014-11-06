@@ -169,9 +169,10 @@ namespace LogSearchShipper.Core.NxLog
 			if (lastProcessorSecondsUsed != 0)
 			{
 				var secondsPassed = (DateTime.UtcNow - lastSentTime).TotalSeconds;
-				var averageProcessorUsage = ((processorSecondsUsed - lastProcessorSecondsUsed)/secondsPassed)*100;
+				var averageProcessorUsage = ((processorSecondsUsed - lastProcessorSecondsUsed) / secondsPassed) * 100;
 
-				_log.InfoFormat("{0} {1}", name, averageProcessorUsage);
+				var message = new Dictionary<string, object> { { name, averageProcessorUsage } };
+				_log.Info(message);
 			}
 			lastProcessorSecondsUsed = processorSecondsUsed;
 		}
