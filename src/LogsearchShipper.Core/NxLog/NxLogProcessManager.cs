@@ -173,6 +173,9 @@ namespace LogSearchShipper.Core.NxLog
 
 				var message = new Dictionary<string, object> { { name, averageProcessorUsage } };
 				_log.Info(message);
+
+				var messageNormalized = new Dictionary<string, object> { { name + "Normalized", averageProcessorUsage / Environment.ProcessorCount } };
+				_log.Info(messageNormalized);
 			}
 			lastProcessorSecondsUsed = processorSecondsUsed;
 		}
