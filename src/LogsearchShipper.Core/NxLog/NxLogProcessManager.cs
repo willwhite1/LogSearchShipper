@@ -166,7 +166,7 @@ namespace LogSearchShipper.Core.NxLog
 		private static void ReportCpuUsage(Process process, string name, ref double lastProcessorSecondsUsed, DateTime lastSentTime)
 		{
 			var processorSecondsUsed = process.TotalProcessorTime.TotalSeconds;
-			if (lastProcessorSecondsUsed != 0)
+			if (lastProcessorSecondsUsed > 0)
 			{
 				var secondsPassed = (DateTime.UtcNow - lastSentTime).TotalSeconds;
 				var averageProcessorUsage = ((processorSecondsUsed - lastProcessorSecondsUsed) / secondsPassed) * 100;
