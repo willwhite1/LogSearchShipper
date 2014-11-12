@@ -52,6 +52,7 @@ namespace LogSearchShipper.Core.NxLog
 		private double _lastProcessorSecondsUsed;
 		private double _lastNxlogProcessorSecondsUsed;
 		private DateTime _lastProcessorUsageSentTime;
+		private Thread _processorUsageReportingThread;
 
 		public NxLogProcessManager(string dataFolder, string userName = null, string password = null)
 		{
@@ -114,6 +115,7 @@ namespace LogSearchShipper.Core.NxLog
 			SetupConfigFile();
 			StartNxLogProcess();
 
+			_stopped = false;
 			return _process.Id;
 		}
 
@@ -134,15 +136,18 @@ namespace LogSearchShipper.Core.NxLog
 			// Start a background task to log nxlog process output every 250ms
 			Task.Run(() => new NxLogFileWatcher(this).WatchAndLog());
 
-			var thread = new Thread(ReportProcessorTimeUsage);
-			thread.Start();
+			lock (_sync)
+			{
+				_processorUsageReportingThread = new Thread(ReportProcessorTimeUsage);
+				_processorUsageReportingThread.Start();
+			}
 		}
 
 		void ReportProcessorTimeUsage()
 		{
 			try
 			{
-				while (!_disposed)
+				while (!_disposed && !_stopped)
 				{
 					lock (_sync)
 					{
@@ -157,6 +162,8 @@ namespace LogSearchShipper.Core.NxLog
 					Thread.Sleep(TimeSpan.FromSeconds(60));
 				}
 			}
+			catch (ThreadInterruptedException)
+			{ }
 			catch (Exception exc)
 			{
 				_log.Error(exc.ToString());
@@ -187,6 +194,7 @@ namespace LogSearchShipper.Core.NxLog
 		}
 
 		private volatile bool _disposed = false;
+		private volatile bool _stopped = false;
 
 		protected virtual void Dispose(bool disposing)
 		{
@@ -209,6 +217,13 @@ namespace LogSearchShipper.Core.NxLog
 		public void Stop()
 		{
 			_log.Info("Trying to close nxlog service gracefully");
+			_stopped = true;
+			lock (_sync)
+			{
+				if (_processorUsageReportingThread != null)
+					_processorUsageReportingThread.Interrupt();
+				_processorUsageReportingThread = null;
+			}
 			ServiceControllerEx.DeleteService(_serviceName);
 		}
 
