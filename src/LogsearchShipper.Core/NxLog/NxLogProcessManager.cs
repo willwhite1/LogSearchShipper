@@ -48,6 +48,12 @@ namespace LogSearchShipper.Core.NxLog
 		private string _userName;
 		private string _password;
 
+		private readonly object _sync = new object();
+		private double _lastProcessorSecondsUsed;
+		private double _lastNxlogProcessorSecondsUsed;
+		private DateTime _lastProcessorUsageSentTime;
+		private Thread _processorUsageReportingThread;
+
 		public NxLogProcessManager(string dataFolder, string userName = null, string password = null)
 		{
 			_dataFolder = Path.GetFullPath(dataFolder);
@@ -60,6 +66,11 @@ namespace LogSearchShipper.Core.NxLog
 
 			_userName = userName;
 			_password = password;
+
+			lock (_sync)
+			{
+				_lastProcessorUsageSentTime = DateTime.UtcNow;
+			}
 		}
 
 		public NxLogProcessManager()
@@ -104,6 +115,7 @@ namespace LogSearchShipper.Core.NxLog
 			SetupConfigFile();
 			StartNxLogProcess();
 
+			_stopped = false;
 			return _process.Id;
 		}
 
@@ -123,6 +135,56 @@ namespace LogSearchShipper.Core.NxLog
 
 			// Start a background task to log nxlog process output every 250ms
 			Task.Run(() => new NxLogFileWatcher(this).WatchAndLog());
+
+			lock (_sync)
+			{
+				_processorUsageReportingThread = new Thread(ReportProcessorTimeUsage);
+				_processorUsageReportingThread.Start();
+			}
+		}
+
+		void ReportProcessorTimeUsage()
+		{
+			try
+			{
+				while (!_disposed && !_stopped)
+				{
+					lock (_sync)
+					{
+						ReportCpuUsage(Process.GetCurrentProcess(), "ProcessorUsage",
+							ref _lastProcessorSecondsUsed, _lastProcessorUsageSentTime);
+						ReportCpuUsage(_process, "NxlogProcessorUsage",
+							ref _lastNxlogProcessorSecondsUsed, _lastProcessorUsageSentTime);
+
+						_lastProcessorUsageSentTime = DateTime.UtcNow;
+					}
+
+					Thread.Sleep(TimeSpan.FromSeconds(60));
+				}
+			}
+			catch (ThreadInterruptedException)
+			{ }
+			catch (Exception exc)
+			{
+				_log.Error(exc.ToString());
+			}
+		}
+
+		private static void ReportCpuUsage(Process process, string name, ref double lastProcessorSecondsUsed, DateTime lastSentTime)
+		{
+			var processorSecondsUsed = process.TotalProcessorTime.TotalSeconds;
+			if (lastProcessorSecondsUsed > 0)
+			{
+				var secondsPassed = (DateTime.UtcNow - lastSentTime).TotalSeconds;
+				var averageProcessorUsage = ((processorSecondsUsed - lastProcessorSecondsUsed) / secondsPassed) * 100;
+
+				var message = new Dictionary<string, object> { { name, averageProcessorUsage } };
+				_log.Info(message);
+
+				var messageNormalized = new Dictionary<string, object> { { name + "Normalized", averageProcessorUsage / Environment.ProcessorCount } };
+				_log.Info(messageNormalized);
+			}
+			lastProcessorSecondsUsed = processorSecondsUsed;
 		}
 
 		public void Dispose()
@@ -131,7 +193,8 @@ namespace LogSearchShipper.Core.NxLog
 			GC.SuppressFinalize(this);
 		}
 
-		private bool _disposed = false;
+		private volatile bool _disposed = false;
+		private volatile bool _stopped = false;
 
 		protected virtual void Dispose(bool disposing)
 		{
@@ -154,6 +217,13 @@ namespace LogSearchShipper.Core.NxLog
 		public void Stop()
 		{
 			_log.Info("Trying to close nxlog service gracefully");
+			_stopped = true;
+			lock (_sync)
+			{
+				if (_processorUsageReportingThread != null)
+					_processorUsageReportingThread.Interrupt();
+				_processorUsageReportingThread = null;
+			}
 			ServiceControllerEx.DeleteService(_serviceName);
 		}
 
