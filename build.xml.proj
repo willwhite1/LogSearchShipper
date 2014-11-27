@@ -12,8 +12,8 @@
 	<Target Name="InstallMSBuildCommunityTasks">
 		<Message Text="Installing MSBuildCommunityTasks" />
 		<Exec Command="$(NuGetCommand) install MSBuildTasks -Version 1.4.0.65 -OutputDirectory tools"/>
-		<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
 	</Target>
+	<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
 	
 <!-- Version numbers override -->
 
