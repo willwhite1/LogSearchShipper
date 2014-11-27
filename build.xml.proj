@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+<PropertyGroup>
+	<MSBuildCommunityTasksPath>$(MSBuildProjectDirectory)\tools\MSBuildTasks.1.4.0.65\tools</MSBuildCommunityTasksPath>
+</PropertyGroup>
+
+<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
+
+<!-- Version numbers override -->
+
+	<PropertyGroup>
+		<BUILD_VERSION>dev</BUILD_VERSION>
+		<FullVersion>$(BUILD_VERSION.Replace('-', '.'))</FullVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<AssemblyVersionFiles Include="$(MSBuildProjectDirectory)\**\AssemblyInfo.cs"/>
+	</ItemGroup>
+
+	<Target Name="AssemblyVersionUpdate" Inputs="@(AssemblyVersionFiles)" Outputs="UpdatedAssemblyVersionFiles">
+		<FileUpdate
+			Files="@(AssemblyVersionFiles)"
+			Regex="AssemblyVersion\(&quot;.*&quot;\)"
+			ReplacementText="AssemblyVersion(&quot;$(FullVersion)&quot;)" />
+	</Target>
+
 <!-- /t:Build -->
 
 	<PropertyGroup>
@@ -10,7 +34,7 @@
 	</PropertyGroup>
 
 	<Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-	<Target Name="Build">
+	<Target Name="Build" DependsOnTargets="AssemblyVersionUpdate">
 		<MSBuild Projects="src/LogSearchShipper.sln" Targets="Rebuild" 
 				 Properties="Configuration=$(Configuration);Platform=$(Platform)" />
 	</Target>
@@ -30,13 +54,6 @@
 		<Message Text="*** NUnit tests beginning..." />
 		<Exec Command="$(NUnitCommand) @(TestAssembly) -result=TestResults.xml -out=TestOutput.log"/>
 	</Target>
-
-<!-- /t:Package /p:BUILD_VERSION=42 -->
-
-	<PropertyGroup>
-		<BUILD_VERSION>dev</BUILD_VERSION>
-	</PropertyGroup>
-	<UsingTask AssemblyFile="tools\MSBuildTasks.1.4.0.65\tools\MSBuild.Community.Tasks.dll" TaskName="MSBuild.Community.Tasks.Zip" />
 
 	<Target Name="Package">
 
@@ -60,7 +77,7 @@
 			<PackageExclude Include="bin\*.exe.config" /> 
 			<PackageExclude Include="bin\DummyServiceWithLogRolling.*" /> 
 			<PackageExclude Include="bin\IntegrationTests.*" /> 
-	  	</ItemGroup>   
+		</ItemGroup>
 
 		<ItemGroup>
 			<PackageFiles Include="bin\**\*.*" Exclude="@(PackageExclude)" />
