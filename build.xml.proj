@@ -11,12 +11,6 @@
 
 	<PropertyGroup>
 		<BUILD_VERSION>dev</BUILD_VERSION>
-
-		<MajorVersion>1</MajorVersion>
-		<MinorVersion>0</MinorVersion>
-		<!-- This gets set by the build server -->
-		<BuildVersion>$(BUILD_VERSION)</BuildVersion>
-		<FullVersion>$(MajorVersion).$(MinorVersion).$(BuildVersion)</FullVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -27,7 +21,7 @@
 		<FileUpdate
 			Files="@(AssemblyVersionFiles)"
 			Regex="AssemblyVersion\(&quot;.*&quot;\)"
-			ReplacementText="AssemblyVersion(&quot;$(FullVersion)&quot;)" />
+			ReplacementText="AssemblyVersion(&quot;$(BUILD_VERSION)&quot;)" />
 	</Target>
 
 <!-- /t:Build -->
