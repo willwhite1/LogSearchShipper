@@ -4,9 +4,18 @@
 <PropertyGroup>
 	<MSBuildCommunityTasksPath>$(MSBuildProjectDirectory)\tools\MSBuildTasks.1.4.0.65\tools</MSBuildCommunityTasksPath>
 </PropertyGroup>
-
+<PropertyGroup>
+	<NUnitCommand Condition=" '$(OS)' == 'Windows_NT'">"tools\NUnit.Runners.lite.2.6.3.20131019\nunit-console.exe"</NUnitCommand>
+	<NUnitCommand Condition=" '$(OS)' != 'Windows_NT' ">mono --runtime=v4.0.30319 tools/NUnit.Runners.lite.2.6.3.20131019/nunit-console.exe</NUnitCommand>
+</PropertyGroup>
+	
 <Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
 
+	<Target Name="InstallMSBuildCommunityTasks">
+		<Message Text="Installing MSBuildCommunityTasks" />
+		<Exec Command="$(NuGetCommand) install MSBuildTasks -Version 1.4.0.65 -OutputDirectory tools"/>
+	</Target>
+	
 <!-- Version numbers override -->
 
 	<PropertyGroup>
@@ -18,7 +27,7 @@
 		<AssemblyVersionFiles Include="$(MSBuildProjectDirectory)\**\AssemblyInfo.cs"/>
 	</ItemGroup>
 
-	<Target Name="AssemblyVersionUpdate" Inputs="@(AssemblyVersionFiles)" Outputs="UpdatedAssemblyVersionFiles">
+	<Target Name="AssemblyVersionUpdate" DependsOnTargets="InstallMSBuildCommunityTasks" Inputs="@(AssemblyVersionFiles)" Outputs="UpdatedAssemblyVersionFiles">
 		<FileUpdate
 			Files="@(AssemblyVersionFiles)"
 			Regex="AssemblyVersion\(&quot;.*&quot;\)"
@@ -41,10 +50,6 @@
 
 <!-- /t:RunTests -->
 
-	<PropertyGroup>
-		<NUnitCommand Condition=" '$(OS)' == 'Windows_NT'">"tools\NUnit.Runners.lite.2.6.3.20131019\nunit-console.exe"</NUnitCommand>
-		<NUnitCommand Condition=" '$(OS)' != 'Windows_NT' ">mono --runtime=v4.0.30319 tools/NUnit.Runners.lite.2.6.3.20131019/nunit-console.exe</NUnitCommand>
-	</PropertyGroup>
 	<ItemGroup>
 		<TestAssembly Include="bin\*.Tests.dll" />
 	</ItemGroup>
@@ -55,10 +60,7 @@
 		<Exec Command="$(NUnitCommand) @(TestAssembly) -result=TestResults.xml -out=TestOutput.log"/>
 	</Target>
 
-	<Target Name="Package">
-
-		<Message Text="Installing MSBuildCommunityTasks" />
-		<Exec Command="$(NuGetCommand) install MSBuildTasks -Version 1.4.0.65 -OutputDirectory tools"/>
+	<Target Name="Package" DependsOnTargets="InstallMSBuildCommunityTasks">
 
 		<Message Text="Packaging binaries into ZIP" />
 		<ItemGroup>  
