@@ -11,6 +11,7 @@
 
 	<PropertyGroup>
 		<BUILD_VERSION>dev</BUILD_VERSION>
+		<FullVersion>$(BUILD_VERSION.Replace('-', '.'))</FullVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -21,7 +22,7 @@
 		<FileUpdate
 			Files="@(AssemblyVersionFiles)"
 			Regex="AssemblyVersion\(&quot;.*&quot;\)"
-			ReplacementText="AssemblyVersion(&quot;$(BUILD_VERSION)&quot;)" />
+			ReplacementText="AssemblyVersion(&quot;$(FullVersion)&quot;)" />
 	</Target>
 
 <!-- /t:Build -->
