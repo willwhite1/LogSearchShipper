@@ -9,11 +9,10 @@
 	<NUnitCommand Condition=" '$(OS)' != 'Windows_NT' ">mono --runtime=v4.0.30319 tools/NUnit.Runners.lite.2.6.3.20131019/nunit-console.exe</NUnitCommand>
 </PropertyGroup>
 	
-<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
-
 	<Target Name="InstallMSBuildCommunityTasks">
 		<Message Text="Installing MSBuildCommunityTasks" />
 		<Exec Command="$(NuGetCommand) install MSBuildTasks -Version 1.4.0.65 -OutputDirectory tools"/>
+		<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
 	</Target>
 	
 <!-- Version numbers override -->
