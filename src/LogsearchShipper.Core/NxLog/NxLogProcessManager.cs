@@ -500,7 +500,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	Module	om_file
 	File	""{0}""
 </Output>",
-				OutputFile.Replace(@"\",@"\\"));
+				OutputFile.Replace(@"\", @"\\"));
 		}
 
 		private void ExtractNXLog()
