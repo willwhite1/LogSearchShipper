@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="CustomPatternLayoutConverter.cs" />
     <Compile Include="ConfigurationSections\FieldElement.cs" />
+    <Compile Include="EdbDataFormatter.cs" />
     <Compile Include="NxLog\NativeMethods.cs" />
     <Compile Include="NxLog\NxLogFileWatcher.cs" />
     <Compile Include="NxLog\NxLogOutputParser.cs" />
