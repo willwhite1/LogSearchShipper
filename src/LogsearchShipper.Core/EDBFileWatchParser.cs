@@ -36,6 +36,7 @@ namespace LogSearchShipper.Core
 		public EdbService(XElement source)
 		{
 			Name = source.Element("Name").Value;
+			State = source.Element("State").Value;
 
 			for (int i = 0;; i++)
 			{
@@ -49,6 +50,7 @@ namespace LogSearchShipper.Core
 		}
 
 		public string Name;
+		public string State;
 		public List<string> EventSources = new List<string>();
 	}
 

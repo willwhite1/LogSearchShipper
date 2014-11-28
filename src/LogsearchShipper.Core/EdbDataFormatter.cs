@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
+
+using log4net;
 
 namespace LogSearchShipper.Core
 {
@@ -10,6 +11,8 @@ namespace LogSearchShipper.Core
 	{
 		public static void ReportData(IEnumerable<EDBEnvironment> environments)
 		{
+			var log = LogManager.GetLogger("EdbExpectedEventSourcesLogger");
+
 			foreach (var environment in environments)
 			{
 				var envName = environment.Name;
@@ -27,7 +30,16 @@ namespace LogSearchShipper.Core
 
 							foreach (var eventSource in service.EventSources)
 							{
-								
+								log.Info(
+									new
+									{
+										environment = envName,
+										cluster = cluster,
+										host = host,
+										service = server.Name,
+										event_source = eventSource,
+										expected_state = service.State,
+									});
 							}
 						}
 					}
