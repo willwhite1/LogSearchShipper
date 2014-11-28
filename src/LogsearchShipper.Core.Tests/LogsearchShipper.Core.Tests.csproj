@@ -50,6 +50,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LogJsonFormattingTests.cs" />
     <Compile Include="NxLog\NxLogProcessManagerTests.cs" />
     <Compile Include="NxLog\NXLogOutputParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
