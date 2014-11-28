@@ -31,6 +31,27 @@ namespace LogSearchShipper.Core
 		public List<XElement> Services;
 	}
 
+	public class EdbService
+	{
+		public EdbService(XElement source)
+		{
+			Name = source.Element("Name").Value;
+
+			for (int i = 0;; i++)
+			{
+				var sourceName = "LogPath" + (i == 0 ? "" : i.ToString());
+				var sourceElem = source.Element(sourceName);
+				if (sourceElem == null)
+					break;
+
+				EventSources.Add(sourceElem.Value);
+			}
+		}
+
+		public string Name;
+		public List<string> EventSources = new List<string>();
+	}
+
 	public class EDBEnvironmentComparer : IEqualityComparer<EDBEnvironment>
 	{
 		public bool Equals(EDBEnvironment e1, EDBEnvironment e2)

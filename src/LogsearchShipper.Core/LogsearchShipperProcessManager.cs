@@ -184,6 +184,8 @@ namespace LogSearchShipper.Core
 			_log.Info(string.Format("Logged environment diagram data for {0}", string.Join(",", environments.Select(e => e.Name))));
 
 			LogManager.GetLogger("EnvironmentDiagramLogger").Info(new { Environments = environments });
+
+			EdbDataFormatter.ReportData(environments);
 		}
 
 		public class CodeBlockLocker
