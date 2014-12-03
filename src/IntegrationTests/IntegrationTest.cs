@@ -13,12 +13,6 @@ namespace IntegrationTests
 	[TestFixture]
 	class IntegrationTest : IntegrationTestBase
 	{
-		void Init()
-		{
-			_currentGroupId = Guid.NewGuid().ToString();
-			InitCommon();
-		}
-
 		[Test]
 		public void TestSimpleFileWriting()
 		{
@@ -143,7 +137,7 @@ namespace IntegrationTests
 				var message = string.Format(
 					"{{\"timestamp\":\"{0}\",\"message\":\"{1}\",\"group_id\":\"{2}\",\"source\":\"LogSearchShipper.Test\"," +
 					"\"logger\":\"Test\",\"level\":\"INFO\"}}",
-					DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), id, _currentGroupId);
+					DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), id, CurrentGroupId);
 				buf.AppendLine(message);
 				tmp.Add(id);
 				i++;
@@ -196,7 +190,7 @@ namespace IntegrationTests
 			while (true)
 			{
 				Thread.Sleep(TimeSpan.FromMinutes(1));
-				var records = EsUtil.GetRecords("LogSearchShipper.Test", _currentGroupId, "message");
+				var records = EsUtil.GetRecords("LogSearchShipper.Test", CurrentGroupId, "message");
 				if (records.Count >= ids.Count() || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(waitMinutes))
 				{
 					Trace.WriteLine("Validating retrieved records");
@@ -207,8 +201,6 @@ namespace IntegrationTests
 
 			Trace.WriteLine("Success");
 		}
-
-		private string _currentGroupId;
 
 		private const int LinesPerFile = 100;
 		private const int LogFilesCount = 10;

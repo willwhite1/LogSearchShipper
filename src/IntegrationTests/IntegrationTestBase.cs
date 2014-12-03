@@ -13,14 +13,10 @@ namespace IntegrationTests
 {
 	class IntegrationTestBase
 	{
-		[TestFixtureTearDown]
-		public void TearDown()
+		protected void Init()
 		{
-			StopShipperService();
-		}
+			_currentGroupId = Guid.NewGuid().ToString();
 
-		protected void InitCommon()
-		{
 			if (_initDone)
 				return;
 
@@ -49,6 +45,12 @@ namespace IntegrationTests
 			_initDone = true;
 
 			Utils.WriteDelimiter();
+		}
+
+		[TestFixtureTearDown]
+		public void TearDown()
+		{
+			StopShipperService();
 		}
 
 		protected void StartShipperService()
@@ -86,5 +88,12 @@ namespace IntegrationTests
 		private Process _shipperProcess;
 
 		private bool _initDone;
+
+		protected string CurrentGroupId
+		{
+			get { return _currentGroupId; }
+		}
+
+		private string _currentGroupId;
 	}
 }
