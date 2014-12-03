@@ -60,6 +60,7 @@
     <Compile Include="AppSettings.cs" />
     <Compile Include="EsUtil.cs" />
     <Compile Include="IntegrationTest.cs" />
+    <Compile Include="IntegrationTestBase.cs" />
     <Compile Include="LogsearchShipperProcessManagerTests.cs" />
     <Compile Include="MultilineTests.cs" />
     <Compile Include="NxLog\NxLogProcessFileWatcherTests.cs" />
