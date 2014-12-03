@@ -13,14 +13,14 @@ namespace IntegrationTests
 {
 	class IntegrationTestBase
 	{
-		protected void Init()
+		protected void Init(string folderName, string configName)
 		{
 			_currentGroupId = Guid.NewGuid().ToString();
 
 			if (_initDone)
 				return;
 
-			_basePath = Path.Combine(Environment.CurrentDirectory, "LogSearchShipper.Test");
+			_basePath = Path.Combine(Environment.CurrentDirectory, folderName);
 			if (!Directory.Exists(_basePath))
 				Directory.CreateDirectory(_basePath);
 
@@ -31,7 +31,7 @@ namespace IntegrationTests
 			var exeFileCopy = Path.Combine(_basePath, exeFile);
 			File.Copy(exeFile, exeFileCopy);
 
-			File.Copy("LogsearchShipper.exe.config.Test", Path.Combine(_basePath, "LogsearchShipper.exe.config"));
+			File.Copy(configName, Path.Combine(_basePath, "LogsearchShipper.exe.config"));
 
 			foreach (var file in Directory.GetFiles(Environment.CurrentDirectory, "*.dll"))
 			{

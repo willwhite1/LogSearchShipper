@@ -13,6 +13,11 @@ namespace IntegrationTests
 	[TestFixture]
 	class IntegrationTest : IntegrationTestBase
 	{
+		void Init()
+		{
+			Init("LogSearchShipper.Test", "LogsearchShipper.exe.config.Test");
+		}
+
 		[Test]
 		public void TestSimpleFileWriting()
 		{
