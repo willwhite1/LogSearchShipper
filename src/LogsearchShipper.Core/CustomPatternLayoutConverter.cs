@@ -43,7 +43,9 @@ namespace LogSearchShipper.Core
 				}, Formatting.None);
 			}
 
-			writer.Write(json.Trim(new[] {'{', '}'}));
+			if (json.StartsWith("{") && json.EndsWith("}"))
+				json = json.Substring(1, json.Length - 2);
+			writer.Write(json);
 		}
 	}
 }
