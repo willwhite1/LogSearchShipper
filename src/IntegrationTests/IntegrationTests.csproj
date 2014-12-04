@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
+    <Compile Include="EdbLoggingTest.cs" />
     <Compile Include="EsUtil.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="IntegrationTestBase.cs" />
@@ -75,6 +76,10 @@
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="LogsearchShipper.exe.config.EdbLoggingTest">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="LogsearchShipper.exe.config.ShouldSuccessfullyShipSimpleJSON">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

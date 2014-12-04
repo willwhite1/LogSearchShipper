@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<configuration>
+  <configSections>
+    <sectionGroup name="LogSearchShipperGroup">
+      <section name="LogSearchShipper"
+               type="LogSearchShipper.Core.ConfigurationSections.LogSearchShipperSection, LogSearchShipper.Core"
+               allowLocation="true" allowDefinition="Everywhere" />
+    </sectionGroup>
+    <section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler, log4net" />
+  </configSections>
+  <LogSearchShipperGroup>
+    <LogSearchShipper data_folder="data" ingestor_host="ingestor.meta.logsearch.io" ingestor_port="443"
+                      shipper_service_username="" shipper_service_password="">
+      <fileWatchers>
+        <watch files="LogSearchShipper.log" type="json">
+          <field key="environment" value="LogSearchShipper.EdbLoggingTest" />
+        </watch>
+        <watch files="EDB_expected_event_sources.log" type="json">
+          <field key="environment" value="LogSearchShipper.EdbLoggingTest" />
+        </watch>
+      </fileWatchers>
+      <edbFileWatchers>
+        <watch
+          dataFile="..\SampleData\EDB\ENV1\Latest.xml" logEnvironmentDiagramDataEveryMinutes="10" networkAreas=".*" serverNames=".*" serviceNames=".*">
+          <field key="environment" value="QAT" />
+        </watch>
+      </edbFileWatchers>
+    </LogSearchShipper>
+  </LogSearchShipperGroup>
+  <log4net>
+    <appender name="ConsoleAppender" type="log4net.Appender.ConsoleAppender">
+      <!-- DEBUG is too verbose to see what is going on in the console -->
+      <filter type="log4net.Filter.LevelRangeFilter">
+        <levelMin value="INFO" />
+        <levelMax value="FATAL" />
+      </filter>
+      <layout type="log4net.Layout.PatternLayout">
+        <conversionPattern value="%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline" />
+      </layout>
+    </appender>
+    <!-- Write an excessive amount of info to LogSearchShipperDebug.log; NOT recommended to ship this to LogSearch -->
+    <appender name="RollingFileAppenderDebug" type="log4net.Appender.RollingFileAppender">
+      <file value="LogSearchShipperDebug.log" />
+      <appendToFile value="true" />
+      <maximumFileSize value="250MB" />
+      <maxSizeRollBackups value="2" />
+      <layout type="log4net.Layout.PatternLayout">
+        <conversionPattern value="%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline" />
+      </layout>
+    </appender>
+    <!-- Write a modest amount of logging (>= INFO ) to LogSearchShipper.log; which should be shipped to LogSearch-->
+    <appender name="RollingFileAppender" type="log4net.Appender.RollingFileAppender">
+      <file value="LogSearchShipper.log" />
+      <!-- EnvironmentDiagramLogger data goes in a separate file -->
+      <filter type="log4net.Filter.LoggerMatchFilter">
+        <loggerToMatch value="EnvironmentDiagramLogger" />
+        <acceptOnMatch value="false" />
+      </filter>
+      <!-- DEBUG is too verbose to ship to LogSearch -->
+      <filter type="log4net.Filter.LevelRangeFilter">
+        <levelMin value="INFO" />
+        <levelMax value="FATAL" />
+      </filter>
+      <appendToFile value="true" />
+      <maximumFileSize value="250MB" />
+      <maxSizeRollBackups value="2" />
+      <layout type="log4net.Layout.PatternLayout">
+        <IgnoresException value="False" />
+        <converter>
+          <name value="event_as_json" />
+          <type value="LogSearchShipper.Core.JSONFragmentPatternConverter, LogSearchShipper.Core" />
+        </converter>
+        <converter>
+          <name value="iso8601_date" />
+          <type value="LogSearchShipper.Core.ISO8601DatePatternConverter, LogSearchShipper.Core" />
+        </converter>
+        <conversionPattern value='{"@timestamp":"%iso8601_date",%event_as_json,"logger":"%logger","level":"%level"}%n' />
+      </layout>
+    </appender>
+    <!-- Write details of the EDB environment to EnvironmentDiagramData.log to drive environmentdiagram.cityindex.logsearch.io -->
+    <appender name="EnvironmentDiagramRollingFileAppender" type="log4net.Appender.RollingFileAppender">
+      <file value="EnvironmentDiagramData.log" />
+      <filter type="log4net.Filter.LoggerMatchFilter">
+        <loggerToMatch value="EnvironmentDiagramLogger" />
+      </filter>
+      <filter type="log4net.Filter.DenyAllFilter" />
+      <appendToFile value="true" />
+      <maximumFileSize value="10MB" />
+      <maxSizeRollBackups value="2" />
+      <layout type="log4net.Layout.PatternLayout">
+        <IgnoresException value="False" />
+        <converter>
+          <name value="event_as_json" />
+          <type value="LogSearchShipper.Core.JSONFragmentPatternConverter, LogSearchShipper.Core" />
+        </converter>
+        <converter>
+          <name value="iso8601_date" />
+          <type value="LogSearchShipper.Core.ISO8601DatePatternConverter, LogSearchShipper.Core" />
+        </converter>
+        <conversionPattern value='{"@timestamp":"%iso8601_date",%event_as_json,"logger":"%logger","level":"%level"}%n' />
+      </layout>
+    </appender>
+    <root>
+      <level value="INFO" />
+      <appender-ref ref="ConsoleAppender" />
+      <appender-ref ref="EnvironmentDiagramRollingFileAppender" />
+      <appender-ref ref="RollingFileAppender" />
+      <appender-ref ref="RollingFileAppenderDebug" />
+    </root>
+
+    <appender name="EdbExpectedEventSourcesAppender" type="log4net.Appender.RollingFileAppender">
+      <file value="EDB_expected_event_sources.log" />
+      <appendToFile value="true" />
+      <maximumFileSize value="10MB" />
+      <maxSizeRollBackups value="2" />
+      <layout type="log4net.Layout.PatternLayout">
+        <IgnoresException value="False" />
+        <converter>
+          <name value="event_as_json" />
+          <type value="LogSearchShipper.Core.JSONFragmentPatternConverter, LogSearchShipper.Core" />
+        </converter>
+        <converter>
+          <name value="iso8601_date" />
+          <type value="LogSearchShipper.Core.ISO8601DatePatternConverter, LogSearchShipper.Core" />
+        </converter>
+        <conversionPattern value='{"@timestamp":"%iso8601_date",%event_as_json,"logger":"%logger","level":"%level"}%n' />
+      </layout>
+    </appender>
+
+    <logger name="EdbExpectedEventSourcesLogger" additivity="false">
+      <level value="INFO" />
+      <appender-ref ref="EdbExpectedEventSourcesAppender" />
+    </logger>
+
+  </log4net>
+</configuration>
