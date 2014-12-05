@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Xml;
 using LogSearchShipper.Core;
 
 using NUnit.Framework;
@@ -31,7 +32,11 @@ namespace IntegrationTests
 			var exeFileCopy = Path.Combine(_basePath, exeFile);
 			File.Copy(exeFile, exeFileCopy);
 
-			File.Copy(configName, Path.Combine(_basePath, "LogsearchShipper.exe.config"));
+			var configPath = Path.Combine(_basePath, "LogsearchShipper.exe.config");
+			var config = new XmlDocument();
+			config.Load(configName);
+			AdjustConfig(config);
+			config.Save(configPath);
 
 			foreach (var file in Directory.GetFiles(Environment.CurrentDirectory, "*.dll"))
 			{
@@ -45,6 +50,10 @@ namespace IntegrationTests
 			_initDone = true;
 
 			Utils.WriteDelimiter();
+		}
+
+		public virtual void AdjustConfig(XmlDocument config)
+		{
 		}
 
 		[TestFixtureTearDown]
