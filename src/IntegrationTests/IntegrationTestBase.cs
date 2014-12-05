@@ -80,6 +80,27 @@ namespace IntegrationTests
 			return res;
 		}
 
+		protected void GetAndValidateRecords(Func<List<Record>, bool> validate, int waitMinutes = 10)
+		{
+			Trace.WriteLine("Getting records from ES...");
+
+			var startTime = DateTime.UtcNow;
+
+			while (true)
+			{
+				Thread.Sleep(TimeSpan.FromMinutes(1));
+				var records = EsUtil.GetRecords(TestName, CurrentGroupId, "message");
+
+				var result = validate(records);
+				if (result)
+					break;
+				if (DateTime.UtcNow - startTime > TimeSpan.FromMinutes(waitMinutes))
+					throw new ApplicationException("Can't retrieve data from ES - timed out");
+			}
+
+			Trace.WriteLine("Validation is successful");
+		}
+
 		string LogsPath { get { return Path.Combine(_basePath, "logs"); } }
 
 		private string _basePath;
