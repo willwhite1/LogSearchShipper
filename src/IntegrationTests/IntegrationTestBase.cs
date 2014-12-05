@@ -89,17 +89,11 @@ namespace IntegrationTests
 			return res;
 		}
 
-		protected void GetAndValidateRecords(Func<List<Record>, bool> validate, int waitMinutes = 10)
+		protected void GetAndValidateRecords(Dictionary<string, string> queryArgs, Func<List<Record>, bool> validate, int waitMinutes = 10)
 		{
 			Trace.WriteLine("Getting records from ES...");
 
 			var startTime = DateTime.UtcNow;
-
-			var queryArgs = new Dictionary<string, string>
-			{
-				{ "@source.environment", TestName },
-				{ "@source.currentGroupId", CurrentGroupId },
-			};
 
 			while (true)
 			{
@@ -114,6 +108,16 @@ namespace IntegrationTests
 			}
 
 			Trace.WriteLine("Validation is successful");
+		}
+
+		protected void GetAndValidateRecords(Func<List<Record>, bool> validate, int waitMinutes = 10)
+		{
+			var queryArgs = new Dictionary<string, string>
+			{
+				{ "@source.environment", TestName },
+				{ "@source.currentGroupId", CurrentGroupId },
+			};
+			GetAndValidateRecords(queryArgs, validate, waitMinutes);
 		}
 
 		string LogsPath { get { return Path.Combine(_basePath, "logs"); } }
