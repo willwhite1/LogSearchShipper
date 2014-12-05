@@ -11,16 +11,16 @@ using NUnit.Framework;
 
 namespace IntegrationTests
 {
-	class IntegrationTestBase
+	abstract class IntegrationTestBase
 	{
-		protected void Init(string folderName, string configName)
+		protected void Init(string configName)
 		{
 			_currentGroupId = Guid.NewGuid().ToString();
 
 			if (_initDone)
 				return;
 
-			_basePath = Path.Combine(Environment.CurrentDirectory, folderName);
+			_basePath = Path.Combine(Environment.CurrentDirectory, TestName);
 			if (!Directory.Exists(_basePath))
 				Directory.CreateDirectory(_basePath);
 
@@ -95,5 +95,7 @@ namespace IntegrationTests
 		}
 
 		private string _currentGroupId;
+
+		public abstract string TestName { get; }
 	}
 }
