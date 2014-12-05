@@ -156,7 +156,7 @@ namespace IntegrationTests
 			var recordIdsCount = new Dictionary<string, int>();
 			foreach (var record in records)
 			{
-				var id = (string)record.Value;
+				var id = record.Fields["message"];
 
 				int count;
 				if (!recordIdsCount.TryGetValue(id, out count))
@@ -200,7 +200,9 @@ namespace IntegrationTests
 			while (true)
 			{
 				Thread.Sleep(TimeSpan.FromMinutes(1));
-				var records = EsUtil.GetRecords(queryArgs, "message");
+				var result = EsUtil.GetRecords(queryArgs);
+
+				var records = result.Where(record => record.Fields.ContainsKey("message")).ToList();
 				if (records.Count >= ids.Count() || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(waitMinutes))
 				{
 					Trace.WriteLine("Validating retrieved records");

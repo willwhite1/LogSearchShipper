@@ -12,7 +12,7 @@ namespace IntegrationTests
 	{
 		private const int SegmentSize = 1024;
 
-		public static List<Record> GetRecords(Dictionary<string, string> args, string fieldName)
+		public static List<Record> GetRecords(Dictionary<string, string> args)
 		{
 			var settings = new ConnectionSettings(new Uri(AppSettings.EsServerUrl));
 			var client = new ElasticClient(settings);
@@ -37,13 +37,11 @@ namespace IntegrationTests
 				var res = client.Search(
 					search =>
 						search.Indices(indexNames)
-							.Fields("@timestamp", fieldName)
 							.Size(SegmentSize)
 							.From(SegmentSize * segment).
 							Query(q =>
 							{
 								BaseQuery query = null;
-								query &= q.Filtered(s => s.Filter(fs => fs.Exists(fieldName)));
 								foreach (var arg in args)
 								{
 									query &= q.Term(arg.Key, arg.Value);
@@ -58,24 +56,18 @@ namespace IntegrationTests
 
 				foreach (var hit in res.Hits.Hits)
 				{
-					var fields = ((IEnumerable<KeyValuePair<string, JToken>>)hit.Fields).ToArray();
-
-					var timeArray = (JArray)fields.First(field => field.Key == "@timestamp").Value;
-					if (timeArray.Count != 1)
-						throw new ApplicationException();
-					var timeToken = (JValue)timeArray[0];
-
-					var valueArray = fields.First(field => field.Key == fieldName).Value;
-					if (valueArray.Count() != 1)
-						throw new ApplicationException();
-					var valueToken = (JValue)valueArray[0];
+					var fields = hit.Source;
+					var timeToken = (JValue)fields["@timestamp"];
 
 					var record = new Record
 					{
 						Time = (DateTime)(timeToken.Value),
-						Name = fieldName,
-						Value = valueToken.Value,
 					};
+					foreach (JProperty pair in fields)
+					{
+						record.Fields.Add(pair.Name, pair.Value.ToString());
+					}
+
 					records.Add(record);
 				}
 

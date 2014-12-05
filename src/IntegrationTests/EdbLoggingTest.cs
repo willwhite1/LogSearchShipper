@@ -22,10 +22,12 @@ namespace IntegrationTests
 		{
 			Init();
 
-			GetAndValidateRecords("Message",
+			GetAndValidateRecords(
 				records =>
 				{
-					if (records.Count == 0)
+					var filtered = records.Where(record => record.Fields.ContainsKey("Message")).ToList();
+
+					if (filtered.Count == 0)
 						return false;
 
 					return true;

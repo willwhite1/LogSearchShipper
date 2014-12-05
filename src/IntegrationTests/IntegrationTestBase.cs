@@ -89,7 +89,7 @@ namespace IntegrationTests
 			return res;
 		}
 
-		protected void GetAndValidateRecords(string fieldName, Func<List<Record>, bool> validate, int waitMinutes = 10)
+		protected void GetAndValidateRecords(Func<List<Record>, bool> validate, int waitMinutes = 10)
 		{
 			Trace.WriteLine("Getting records from ES...");
 
@@ -104,7 +104,7 @@ namespace IntegrationTests
 			while (true)
 			{
 				Thread.Sleep(TimeSpan.FromMinutes(1));
-				var records = EsUtil.GetRecords(queryArgs, fieldName);
+				var records = EsUtil.GetRecords(queryArgs);
 
 				var result = validate(records);
 				if (result)
