@@ -15,7 +15,7 @@ namespace IntegrationTests
 	{
 		void Init()
 		{
-			Init("LogSearchShipper.Test", "LogsearchShipper.exe.config.Test");
+			Init("LogsearchShipper.exe.config.Test");
 		}
 
 		[Test]
@@ -209,5 +209,10 @@ namespace IntegrationTests
 
 		private const int LinesPerFile = 100;
 		private const int LogFilesCount = 10;
+
+		public override string TestName
+		{
+			get { return "LogSearchShipper.Test"; }
+		}
 	}
 }

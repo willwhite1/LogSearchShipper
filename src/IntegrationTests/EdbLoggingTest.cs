@@ -12,13 +12,18 @@ namespace IntegrationTests
 	{
 		void Init()
 		{
-			Init("LogSearchShipper.EdbLoggingTest", "LogsearchShipper.exe.config.EdbLoggingTest");
+			Init("LogsearchShipper.exe.config.EdbLoggingTest");
 		}
 
 		[Test]
 		public void TestEdbLogging()
 		{
 			Init();
+		}
+
+		public override string TestName
+		{
+			get { return "LogSearchShipper.EdbLoggingTest"; }
 		}
 	}
 }
