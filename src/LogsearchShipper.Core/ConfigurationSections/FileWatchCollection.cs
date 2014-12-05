@@ -21,6 +21,13 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["type"] = value; }
 		}
 
+		[ConfigurationProperty("readFromLast", IsRequired = false, DefaultValue = true)]
+		public bool ReadFromLast
+		{
+			get { return (bool)this["readFromLast"]; }
+			set { this["readFromLast"] = value; }
+		}
+
 		[ConfigurationProperty("", IsDefaultCollection = true)]
 		public FieldCollection Fields
 		{
