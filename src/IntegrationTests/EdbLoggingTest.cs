@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace IntegrationTests
@@ -22,16 +25,33 @@ namespace IntegrationTests
 		{
 			Init();
 
-			GetAndValidateRecords(
+			var queryArgs = new Dictionary<string, string>
+			{
+				{ "@source.environment", TestName },
+				{ "@source.currentGroupId", CurrentGroupId },
+				{ "@source.path", "EDB_expected_event_sources.log" }
+			};
+
+			var expectedLines = File.ReadAllText(@"Expected\EdbLoggingTest.txt").Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+			var expected = new HashSet<string>(expectedLines);
+
+			GetAndValidateRecords(queryArgs,
 				records =>
 				{
-					var filtered = records.Where(record => record.Fields.ContainsKey("Message")).ToList();
-
-					if (filtered.Count == 0)
+					var filtered = records.Where(record => record.Fields.ContainsKey("@message")).ToList();
+					if (filtered.Count < expected.Count())
 						return false;
 
+					foreach (var record in filtered)
+					{
+						var message = (JContainer)JsonConvert.DeserializeObject(record.Fields["@message"]);
+						message.Children().First().Remove();
+						var lineText = JsonConvert.SerializeObject(message);
+						Assert.IsTrue(expected.Contains(lineText));
+					}
+
 					return true;
-				});
+				}, 3);
 		}
 
 		public override string TestName
