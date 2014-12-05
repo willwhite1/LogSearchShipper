@@ -192,10 +192,15 @@ namespace IntegrationTests
 
 			var startTime = DateTime.UtcNow;
 
+			var queryArgs = new Dictionary<string, string>
+			{
+				{ "source", TestName },
+				{ "group_id", CurrentGroupId },
+			};
 			while (true)
 			{
 				Thread.Sleep(TimeSpan.FromMinutes(1));
-				var records = EsUtil.GetRecords("LogSearchShipper.Test", CurrentGroupId, "message");
+				var records = EsUtil.GetRecords(queryArgs, "message");
 				if (records.Count >= ids.Count() || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(waitMinutes))
 				{
 					Trace.WriteLine("Validating retrieved records");

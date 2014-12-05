@@ -12,7 +12,7 @@ namespace IntegrationTests
 	{
 		private const int SegmentSize = 1024;
 
-		public static List<Record> GetRecords(string sourceName, string groupId, string fieldName)
+		public static List<Record> GetRecords(Dictionary<string, string> args, string fieldName)
 		{
 			var settings = new ConnectionSettings(new Uri(AppSettings.EsServerUrl));
 			var client = new ElasticClient(settings);
@@ -44,8 +44,10 @@ namespace IntegrationTests
 							{
 								BaseQuery query = null;
 								query &= q.Filtered(s => s.Filter(fs => fs.Exists(fieldName)));
-								query &= q.Term("source", sourceName);
-								query &= q.Term("group_id", groupId);
+								foreach (var arg in args)
+								{
+									query &= q.Term(arg.Key, arg.Value);
+								}
 								return query;
 							}
 						)

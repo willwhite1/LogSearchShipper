@@ -80,16 +80,22 @@ namespace IntegrationTests
 			return res;
 		}
 
-		protected void GetAndValidateRecords(Func<List<Record>, bool> validate, int waitMinutes = 10)
+		protected void GetAndValidateRecords(string fieldName, Func<List<Record>, bool> validate, int waitMinutes = 10)
 		{
 			Trace.WriteLine("Getting records from ES...");
 
 			var startTime = DateTime.UtcNow;
 
+			var queryArgs = new Dictionary<string, string>
+			{
+				{ "@source.environment", TestName },
+				{ "@source.currentGroupId", CurrentGroupId },
+			};
+
 			while (true)
 			{
 				Thread.Sleep(TimeSpan.FromMinutes(1));
-				var records = EsUtil.GetRecords(TestName, CurrentGroupId, "message");
+				var records = EsUtil.GetRecords(queryArgs, fieldName);
 
 				var result = validate(records);
 				if (result)
