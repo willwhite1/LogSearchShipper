@@ -142,30 +142,36 @@ namespace LogSearchShipper.Core.NxLog
 
 		void ReportProcessorTimeUsage()
 		{
-			while (!_disposed && !_stopped)
+			try
 			{
-				try
+				while (!_disposed && !_stopped)
 				{
-					lock (_sync)
+					try
 					{
-						ReportCpuUsage(Process.GetCurrentProcess(), "ProcessorUsage",
-							ref _lastProcessorSecondsUsed, _lastProcessorUsageSentTime);
-						ReportCpuUsage(NxLogProcess, "NxlogProcessorUsage",
-							ref _lastNxlogProcessorSecondsUsed, _lastProcessorUsageSentTime);
+						lock (_sync)
+						{
+							ReportCpuUsage(Process.GetCurrentProcess(), "ProcessorUsage",
+								ref _lastProcessorSecondsUsed, _lastProcessorUsageSentTime);
+							ReportCpuUsage(NxLogProcess, "NxlogProcessorUsage",
+								ref _lastNxlogProcessorSecondsUsed, _lastProcessorUsageSentTime);
 
-						_lastProcessorUsageSentTime = DateTime.UtcNow;
+							_lastProcessorUsageSentTime = DateTime.UtcNow;
+						}
 					}
-				}
-				catch (ThreadInterruptedException)
-				{
-					break;
-				}
-				catch (Exception exc)
-				{
-					_log.Error(exc.ToString());
-				}
+					catch (ThreadInterruptedException)
+					{
+						break;
+					}
+					catch (Exception exc)
+					{
+						_log.Error(exc.ToString());
+					}
 
-				Thread.Sleep(TimeSpan.FromSeconds(60));
+					Thread.Sleep(TimeSpan.FromSeconds(60));
+				}
+			}
+			catch (ThreadInterruptedException)
+			{
 			}
 		}
 
