@@ -188,30 +188,23 @@ namespace IntegrationTests
 
 		void GetAndValidateRecords(string[] ids, int waitMinutes = 10)
 		{
-			Trace.WriteLine("Getting records from the server...");
-
-			var startTime = DateTime.UtcNow;
-
 			var queryArgs = new Dictionary<string, string>
 			{
 				{ "source", TestName },
 				{ "group_id", CurrentGroupId },
 			};
-			while (true)
-			{
-				Thread.Sleep(TimeSpan.FromMinutes(1));
-				var result = EsUtil.GetRecords(queryArgs);
 
-				var records = result.Where(record => record.Fields.ContainsKey("message")).ToList();
-				if (records.Count >= ids.Count() || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(waitMinutes))
+			GetAndValidateRecords(queryArgs,
+				records =>
 				{
-					Trace.WriteLine("Validating retrieved records");
-					Validate(records, ids);
-					break;
-				}
-			}
+					var filtered = records.Where(record => record.Fields.ContainsKey("message")).ToList();
+					if (filtered.Count < ids.Count())
+						return false;
 
-			Trace.WriteLine("Success");
+					Validate(filtered, ids);
+
+					return true;
+				}, waitMinutes);
 		}
 
 		private const int LinesPerFile = 100;
