@@ -89,7 +89,8 @@ namespace IntegrationTests
 			return res;
 		}
 
-		protected void GetAndValidateRecords(Dictionary<string, string> queryArgs, Func<List<Record>, bool> validate, int waitMinutes = 10)
+		protected void GetAndValidateRecords(Dictionary<string, string> queryArgs, string[] requiredFields, int expectedCount,
+			Action<List<Record>> validate, int waitMinutes = 10)
 		{
 			Trace.WriteLine("Getting records from ES...");
 
@@ -99,25 +100,27 @@ namespace IntegrationTests
 			{
 				Thread.Sleep(TimeSpan.FromMinutes(1));
 				var records = EsUtil.GetRecords(queryArgs);
+				var filtered = records.Where(record => requiredFields.Any(requiredField => record.Fields.ContainsKey(requiredField))).ToList();
 
-				var result = validate(records);
-				if (result)
+				if (filtered.Count >= expectedCount || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(waitMinutes))
+				{
+					validate(filtered);
 					break;
-				if (DateTime.UtcNow - startTime > TimeSpan.FromMinutes(waitMinutes))
-					throw new ApplicationException("Can't retrieve data from ES - timed out");
+				}
 			}
 
 			Trace.WriteLine("Validation is successful");
 		}
 
-		protected void GetAndValidateRecords(Func<List<Record>, bool> validate, int waitMinutes = 10)
+		protected void GetAndValidateRecords(string[] requiredFields, int expectedCount,
+			Action<List<Record>> validate, int waitMinutes = 10)
 		{
 			var queryArgs = new Dictionary<string, string>
 			{
 				{ "@source.environment", TestName },
 				{ "@source.currentGroupId", CurrentGroupId },
 			};
-			GetAndValidateRecords(queryArgs, validate, waitMinutes);
+			GetAndValidateRecords(queryArgs, requiredFields, expectedCount, validate, waitMinutes);
 		}
 
 		string LogsPath { get { return Path.Combine(_basePath, "logs"); } }
