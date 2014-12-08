@@ -194,17 +194,8 @@ namespace IntegrationTests
 				{ "group_id", CurrentGroupId },
 			};
 
-			GetAndValidateRecords(queryArgs,
-				records =>
-				{
-					var filtered = records.Where(record => record.Fields.ContainsKey("message")).ToList();
-					if (filtered.Count < ids.Count())
-						return false;
-
-					Validate(filtered, ids);
-
-					return true;
-				}, waitMinutes);
+			GetAndValidateRecords(queryArgs, new [] { "message" }, ids.Count(),
+				records => Validate(records, ids), waitMinutes);
 		}
 
 		private const int LinesPerFile = 100;

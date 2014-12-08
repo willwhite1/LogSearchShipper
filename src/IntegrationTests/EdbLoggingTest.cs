@@ -35,22 +35,16 @@ namespace IntegrationTests
 			var expectedLines = File.ReadAllText(@"Expected\EdbLoggingTest.txt").Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 			var expected = new HashSet<string>(expectedLines);
 
-			GetAndValidateRecords(queryArgs,
+			GetAndValidateRecords(queryArgs, new [] { "@message" }, expected.Count(),
 				records =>
 				{
-					var filtered = records.Where(record => record.Fields.ContainsKey("@message")).ToList();
-					if (filtered.Count < expected.Count())
-						return false;
-
-					foreach (var record in filtered)
+					foreach (var record in records)
 					{
 						var message = (JContainer)JsonConvert.DeserializeObject(record.Fields["@message"]);
 						message.Children().First().Remove();
 						var lineText = JsonConvert.SerializeObject(message);
 						Assert.IsTrue(expected.Contains(lineText));
 					}
-
-					return true;
 				}, 3);
 		}
 
