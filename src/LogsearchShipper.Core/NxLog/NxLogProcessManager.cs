@@ -558,14 +558,15 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	Module	im_file
 	InputType	multiline
 	File	""{1}""
-	ReadFromLast TRUE
+	ReadFromLast {2}
 	SavePos	TRUE
 	CloseWhenIdle TRUE
 	PollInterval 5
 	DirCheckInterval 10
-	Exec	$path = ""{2}""; $type = ""{3}""; ",
+	Exec	$path = ""{3}""; $type = ""{4}""; ",
 					i,
 					inputFileEscaped,
+					inputFile.ReadFromLast.ToString().ToUpper(),
 					inputFile.Files,
 					inputFile.Type);
 
