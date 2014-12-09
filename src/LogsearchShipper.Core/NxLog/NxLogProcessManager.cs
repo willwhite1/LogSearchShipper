@@ -42,7 +42,6 @@ namespace LogSearchShipper.Core.NxLog
 		private string _nxLogFile;
 		private string _maxNxLogFileSize = "1M";
 		private string _rotateNxLogFileEvery = "1 min";
-		private Process _process;
 		private string _serviceName;
 
 		private string _userName;
@@ -116,7 +115,7 @@ namespace LogSearchShipper.Core.NxLog
 			StartNxLogProcess();
 
 			_stopped = false;
-			return _process.Id;
+			return NxLogProcess.Id;
 		}
 
 		public void StartNxLogProcess()
@@ -130,8 +129,6 @@ namespace LogSearchShipper.Core.NxLog
 
 			ServiceControllerEx.CreateService(_serviceName, serviceArguments, _userName, _password);
 			ServiceControllerEx.StartService(_serviceName);
-
-			_process = Process.GetProcessById(ServiceControllerEx.GetProcessId(_serviceName));
 
 			// Start a background task to log nxlog process output every 250ms
 			Task.Run(() => new NxLogFileWatcher(this).WatchAndLog());
@@ -149,24 +146,32 @@ namespace LogSearchShipper.Core.NxLog
 			{
 				while (!_disposed && !_stopped)
 				{
-					lock (_sync)
+					try
 					{
-						ReportCpuUsage(Process.GetCurrentProcess(), "ProcessorUsage",
-							ref _lastProcessorSecondsUsed, _lastProcessorUsageSentTime);
-						ReportCpuUsage(_process, "NxlogProcessorUsage",
-							ref _lastNxlogProcessorSecondsUsed, _lastProcessorUsageSentTime);
+						lock (_sync)
+						{
+							ReportCpuUsage(Process.GetCurrentProcess(), "ProcessorUsage",
+								ref _lastProcessorSecondsUsed, _lastProcessorUsageSentTime);
+							ReportCpuUsage(NxLogProcess, "NxlogProcessorUsage",
+								ref _lastNxlogProcessorSecondsUsed, _lastProcessorUsageSentTime);
 
-						_lastProcessorUsageSentTime = DateTime.UtcNow;
+							_lastProcessorUsageSentTime = DateTime.UtcNow;
+						}
+					}
+					catch (ThreadInterruptedException)
+					{
+						break;
+					}
+					catch (Exception exc)
+					{
+						_log.Error(exc.ToString());
 					}
 
 					Thread.Sleep(TimeSpan.FromSeconds(60));
 				}
 			}
 			catch (ThreadInterruptedException)
-			{ }
-			catch (Exception exc)
 			{
-				_log.Error(exc.ToString());
 			}
 		}
 
@@ -360,7 +365,7 @@ SpoolDir	{6}
 
 		public Process NxLogProcess
 		{
-			get { return _process; }
+			get { return Process.GetProcessById(ServiceControllerEx.GetProcessId(_serviceName)); }
 		}
 
 		/// <summary>
@@ -500,7 +505,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	Module	om_file
 	File	""{0}""
 </Output>",
-				OutputFile.Replace(@"\",@"\\"));
+				OutputFile.Replace(@"\", @"\\"));
 		}
 
 		private void ExtractNXLog()
