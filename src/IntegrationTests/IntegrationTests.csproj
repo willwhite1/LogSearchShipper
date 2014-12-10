@@ -58,8 +58,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
+    <Compile Include="EdbLoggingTest.cs" />
     <Compile Include="EsUtil.cs" />
     <Compile Include="IntegrationTest.cs" />
+    <Compile Include="IntegrationTestBase.cs" />
     <Compile Include="LogsearchShipperProcessManagerTests.cs" />
     <Compile Include="MultilineTests.cs" />
     <Compile Include="NxLog\NxLogProcessFileWatcherTests.cs" />
@@ -74,6 +76,10 @@
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="LogsearchShipper.exe.config.EdbLoggingTest">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="LogsearchShipper.exe.config.ShouldSuccessfullyShipSimpleJSON">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -95,6 +101,11 @@
       <Project>{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}</Project>
       <Name>LogSearchShipper.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Expected\EdbLoggingTest.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

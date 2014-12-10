@@ -13,7 +13,7 @@ namespace LogSearchShipper.Core
 {
 	public class LogSearchShipperProcessManager
 	{
-		private static readonly ILog _log = LogManager.GetLogger(typeof (LogSearchShipperProcessManager));
+		private static readonly ILog _log = LogManager.GetLogger(typeof(LogSearchShipperProcessManager));
 
 		private readonly Dictionary<string, Timer> _environmentDiagramLoggingTimers = new Dictionary<string, Timer>();
 		private readonly List<FileSystemWatcher> _watchedConfigFiles = new List<FileSystemWatcher>();
@@ -46,7 +46,7 @@ namespace LogSearchShipper.Core
 
 			var processId = NxLogProcessManager.Start();
 
-			var configChanging = new CodeBlockLocker {isBusy = false};
+			var configChanging = new CodeBlockLocker { isBusy = false };
 
 			WhenConfigFileChanges(() =>
 			{
@@ -178,12 +178,14 @@ namespace LogSearchShipper.Core
 
 		public static void LogEnvironmentData(object state)
 		{
-			var parser = new EDBFileWatchParser((EnvironmentWatchElement) state);
+			var parser = new EDBFileWatchParser((EnvironmentWatchElement)state);
 			IEnumerable<EDBEnvironment> environments = parser.GenerateLogsearchEnvironmentDiagram();
 
 			_log.Info(string.Format("Logged environment diagram data for {0}", string.Join(",", environments.Select(e => e.Name))));
 
-			LogManager.GetLogger("EnvironmentDiagramLogger").Info(new {Environments = environments});
+			LogManager.GetLogger("EnvironmentDiagramLogger").Info(new { Environments = environments });
+
+			EdbDataFormatter.ReportData(environments);
 		}
 
 		public class CodeBlockLocker
