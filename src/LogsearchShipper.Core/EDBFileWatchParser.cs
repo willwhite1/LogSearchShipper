@@ -11,7 +11,47 @@ namespace LogSearchShipper.Core
 	public class EDBEnvironment
 	{
 		public string Name { get; set; }
-		public object ServerGroups { get; set; }
+		public List<EDBServerGroup> ServerGroups { get; set; }
+	}
+
+	public class EDBServerGroup
+	{
+		public string Name;
+		public List<EdbServer> Servers;
+	}
+
+	public class EdbServer
+	{
+		public string Name;
+		public string Description;
+		public string Tags;
+		public string Domain;
+		public string Environment;
+		public string NetworkArea;
+		public List<XElement> Services;
+	}
+
+	public class EdbService
+	{
+		public EdbService(XElement source)
+		{
+			Name = source.Element("Name").Value;
+			State = source.Element("State").Value;
+
+			for (int i = 0;; i++)
+			{
+				var sourceName = "LogPath" + (i == 0 ? "" : i.ToString());
+				var sourceElem = source.Element(sourceName);
+				if (sourceElem == null)
+					break;
+
+				EventSources.Add(sourceElem.Value);
+			}
+		}
+
+		public string Name;
+		public string State;
+		public List<string> EventSources = new List<string>();
 	}
 
 	public class EDBEnvironmentComparer : IEqualityComparer<EDBEnvironment>
@@ -37,7 +77,7 @@ namespace LogSearchShipper.Core
 
 	public class EDBFileWatchParser
 	{
-		private static readonly ILog _log = LogManager.GetLogger(typeof (EDBFileWatchParser));
+		private static readonly ILog _log = LogManager.GetLogger(typeof(EDBFileWatchParser));
 
 		private readonly EnvironmentWatchElement _environmentWatchElement;
 
@@ -152,9 +192,8 @@ namespace LogSearchShipper.Core
 				}
 				).Distinct().ToArray();
 
-
 			var servers = (from server in environmentDataXml.Descendants("Servers").Descendants("Server")
-				select new
+				select new EdbServer
 				{
 					Name = server.Element("Name").Value,
 					Description = (string) server.Elements("Description").FirstOrDefault(),
@@ -162,8 +201,8 @@ namespace LogSearchShipper.Core
 					Domain = server.Element("Domain").Value,
 					Environment = server.Element("Environment").Value,
 					NetworkArea = server.Element("NetworkArea").Value,
-					Services = from service in server.Descendants("Services").Descendants("Entity")
-						select service
+					Services = (from service in server.Descendants("Services").Descendants("Entity")
+								select service).ToList()
 				}).Distinct().ToArray();
 
 			var environmentHierarchy = new List<EDBEnvironment>
@@ -171,14 +210,14 @@ namespace LogSearchShipper.Core
 				new EDBEnvironment
 				{
 					Name = environmentDataXml.Element("Environment").Element("Name").Value,
-					ServerGroups = from serverGroup in networkAreas
-						select new
+					ServerGroups = (from serverGroup in networkAreas
+						select new EDBServerGroup
 						{
-							serverGroup.Name,
-							Servers = from server in servers
+							Name = serverGroup.Name,
+							Servers = (from server in servers
 								where server.NetworkArea == serverGroup.Name
-								select server
-						}
+								select server).ToList(),
+						}).ToList()
 				}
 			};
 

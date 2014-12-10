@@ -8,12 +8,12 @@ namespace IntegrationTests
 	class Record
 	{
 		public DateTime Time;
-		public string Name;
-		public object Value;
+
+		public Dictionary<string, string> Fields = new Dictionary<string, string>();
 
 		public override string ToString()
 		{
-			return string.Format("{0} {1}:{2}", Time, Name, Value);
+			return string.Format("{0} {1}", Time, string.Join(", ", Fields));
 		}
 	}
 }
