@@ -48,8 +48,6 @@
 		<TestAssembly Include="bin\*.Tests.dll" />
 	</ItemGroup>
 	<Target Name="RunTests">
-		<Message Text="Installing NUnit runners" />
-		<Exec Command="$(NuGetCommand) install nunit.runners.lite -Version 2.6.3.20131019 -OutputDirectory tools"/>
 		<Message Text="*** NUnit tests beginning..." />
 		<Exec Command="$(NUnitCommand) @(TestAssembly) -result=TestResults.xml -out=TestOutput.log"/>
 	</Target>
