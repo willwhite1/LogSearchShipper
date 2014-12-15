@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="InstallDependancies" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<MSBuildCommunityTasksPath>$(MSBuildProjectDirectory)\tools\MSBuildTasks.1.4.0.65\tools</MSBuildCommunityTasksPath>
+	</PropertyGroup>
+	<PropertyGroup>
+		<SolutionDir>src\</SolutionDir>
+	</PropertyGroup>
+	<Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+	
+	<Target Name="InstallDependancies">
+		<Message Text="Installing MSBuildCommunityTasks" />
+		<Exec Command="$(NuGetCommand) install MSBuildTasks -Version 1.4.0.65 -OutputDirectory tools"/>
+		<Message Text="Installing NUnit runners" />
+		<Exec Command="$(NuGetCommand) install nunit.runners.lite -Version 2.6.3.20131019 -OutputDirectory tools"/>
+	</Target>
+</Project>
