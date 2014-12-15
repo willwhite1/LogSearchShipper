@@ -52,7 +52,7 @@
 		<Exec Command="$(NUnitCommand) @(TestAssembly) -result=TestResults.xml -out=TestOutput.log"/>
 	</Target>
 
-	<Target Name="Package" DependsOnTargets="InstallMSBuildCommunityTasks">
+	<Target Name="Package">
 
 		<Message Text="Packaging binaries into ZIP" />
 		<ItemGroup>  
