@@ -77,6 +77,7 @@
 		<Zip Files="@(PackageFiles)"
 		  ZipFileName="LogSearchShipper-$(BUILD_VERSION).zip"
 		  WorkingDirectory="bin\"
-		  ZipLevel="9" />
+		  ZipLevel="9"
+		  ParallelCompression="False"/>
 	</Target>
 </Project>
