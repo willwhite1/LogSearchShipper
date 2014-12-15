@@ -4,9 +4,9 @@
 	<PropertyGroup>
 		<NUnitCommand Condition=" '$(OS)' == 'Windows_NT'">"tools\NUnit.Runners.lite.2.6.3.20131019\nunit-console.exe"</NUnitCommand>
 		<NUnitCommand Condition=" '$(OS)' != 'Windows_NT' ">mono --runtime=v4.0.30319 tools/NUnit.Runners.lite.2.6.3.20131019/nunit-console.exe</NUnitCommand>
+		<MSBuildCommunityTasksPath>$(MSBuildProjectDirectory)\tools\MSBuildTasks.1.4.0.78\tools</MSBuildCommunityTasksPath>
 	</PropertyGroup>
-	<Import Project="$(MSBuildProjectDirectory)\tools\MSBuildTasks.1.4.0.78\tools\MSBuild.Community.Tasks.Targets"/>
-	
+	<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets" />
 <!-- Version numbers override -->
 
 	<PropertyGroup>
