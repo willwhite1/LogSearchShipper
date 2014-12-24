@@ -53,6 +53,14 @@ namespace LogSearchShipper
 						newAppender.ActivateOptions();
 						BasicConfigurator.Configure(newAppender);
 					}
+
+					var mainAppender = appenders.FirstOrDefault(val => val.Name == "MainLogAppender");
+					if (mainAppender == null)
+					{
+						var newAppender = new MainLogAppender();
+						newAppender.ActivateOptions();
+						BasicConfigurator.Configure(newAppender);
+					}
 				}
 			}
 		}
