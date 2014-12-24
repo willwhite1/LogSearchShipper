@@ -9,7 +9,7 @@ using log4net.Layout;
 namespace LogSearchShipper.Appenders
 {
 	// Write an excessive amount of info to LogSearchShipperDebug.log; NOT recommended to ship this to LogSearch
-	public class DebugLogAppender : RollingFileAppender
+	public sealed class DebugLogAppender : RollingFileAppender
 	{
 		public DebugLogAppender()
 		{
