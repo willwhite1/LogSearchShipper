@@ -46,7 +46,7 @@ namespace LogSearchShipper
 				var appenders = repository.GetAppenders();
 				if (appenders != null)
 				{
-					var debugAppender = appenders.FirstOrDefault(val => val.Name == "RollingFileAppenderDebug");
+					var debugAppender = appenders.FirstOrDefault(val => val.Name == "DebugLogAppender");
 					if (debugAppender == null)
 					{
 						var newAppender = new DebugLogAppender();
