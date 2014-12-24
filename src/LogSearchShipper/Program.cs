@@ -3,10 +3,9 @@ using System.Linq;
 using System.Threading;
 
 using log4net;
-using log4net.Appender;
 using log4net.Config;
-using log4net.Layout;
 using log4net.Repository.Hierarchy;
+using LogSearchShipper.Appenders;
 using LogSearchShipper.Core;
 using Topshelf;
 
@@ -19,33 +18,7 @@ namespace LogSearchShipper
 		public static void Main(string[] args)
 		{
 			XmlConfigurator.Configure();
-
-			var repository = LogManager.GetRepository() as Hierarchy;
-			if (repository != null)
-			{
-				var appenders = repository.GetAppenders();
-				if (appenders != null)
-				{
-					if (appenders.FirstOrDefault(val => val.Name == "RollingFileAppenderDebug") == null)
-					{
-						// Write an excessive amount of info to LogSearchShipperDebug.log; NOT recommended to ship this to LogSearch
-						var layout = new PatternLayout("%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline");
-						layout.ActivateOptions();
-						var newAppender = new RollingFileAppender()
-						{
-							Name = "RollingFileAppenderDebug",
-							File = "LogSearchShipperDebug.log",
-							RollingStyle = RollingFileAppender.RollingMode.Size,
-							AppendToFile = true,
-							MaximumFileSize = "250MB",
-							MaxSizeRollBackups = 2,
-							Layout = layout,
-						};
-						newAppender.ActivateOptions();
-						BasicConfigurator.Configure(newAppender);
-					}
-				}
-			}
+			ConfigureDefaultAppenders();
 
 			HostFactory.Run(x =>
 			{
@@ -63,6 +36,25 @@ namespace LogSearchShipper
 				x.UseLog4Net();
 				x.UseLinuxIfAvailable();
 			});
+		}
+
+		static void ConfigureDefaultAppenders()
+		{
+			var repository = LogManager.GetRepository() as Hierarchy;
+			if (repository != null)
+			{
+				var appenders = repository.GetAppenders();
+				if (appenders != null)
+				{
+					var debugAppender = appenders.FirstOrDefault(val => val.Name == "RollingFileAppenderDebug");
+					if (debugAppender == null)
+					{
+						var newAppender = new DebugLogAppender();
+						newAppender.ActivateOptions();
+						BasicConfigurator.Configure(newAppender);
+					}
+				}
+			}
 		}
 	}
 
