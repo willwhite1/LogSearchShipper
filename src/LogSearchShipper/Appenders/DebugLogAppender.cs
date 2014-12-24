@@ -16,7 +16,7 @@ namespace LogSearchShipper.Appenders
 			var layout = new PatternLayout("%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline");
 			layout.ActivateOptions();
 
-			Name = "RollingFileAppenderDebug";
+			Name = GetType().Name;
 			File = "LogSearchShipperDebug.log";
 			RollingStyle = RollingMode.Size;
 			AppendToFile = true;
