@@ -11,7 +11,7 @@ using log4net.Util;
 
 using LogSearchShipper.Core;
 
-namespace LogSearchShipper.Appenders
+namespace LogSearchShipper.Log4net
 {
 	// Write a modest amount of logging (>= INFO ) to LogSearchShipper.log; which should be shipped to LogSearch
 	public sealed class MainLogAppender : RollingFileAppender
