@@ -4,8 +4,6 @@ using System.Threading;
 
 using log4net;
 using log4net.Config;
-using log4net.Repository.Hierarchy;
-using LogSearchShipper.Log4net;
 using LogSearchShipper.Core;
 using Topshelf;
 
@@ -18,7 +16,6 @@ namespace LogSearchShipper
 		public static void Main(string[] args)
 		{
 			XmlConfigurator.Configure();
-			ConfigureDefaultAppenders();
 
 			HostFactory.Run(x =>
 			{
@@ -36,25 +33,6 @@ namespace LogSearchShipper
 				x.UseLog4Net();
 				x.UseLinuxIfAvailable();
 			});
-		}
-
-		static void ConfigureDefaultAppenders()
-		{
-			var repository = LogManager.GetRepository() as Hierarchy;
-			if (repository != null)
-			{
-				var appenders = repository.GetAppenders();
-				if (appenders != null)
-				{
-					var mainAppender = appenders.FirstOrDefault(val => val.Name == "MainLogAppender");
-					if (mainAppender == null)
-					{
-						var newAppender = new DefaultFileAppender();
-						newAppender.ActivateOptions();
-						BasicConfigurator.Configure(newAppender);
-					}
-				}
-			}
 		}
 	}
 
