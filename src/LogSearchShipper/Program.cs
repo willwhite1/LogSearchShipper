@@ -49,7 +49,7 @@ namespace LogSearchShipper
 					var mainAppender = appenders.FirstOrDefault(val => val.Name == "MainLogAppender");
 					if (mainAppender == null)
 					{
-						var newAppender = new MainLogAppender();
+						var newAppender = new DefaultFileAppender();
 						newAppender.ActivateOptions();
 						BasicConfigurator.Configure(newAppender);
 					}
