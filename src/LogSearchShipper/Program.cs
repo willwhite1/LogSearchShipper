@@ -46,14 +46,6 @@ namespace LogSearchShipper
 				var appenders = repository.GetAppenders();
 				if (appenders != null)
 				{
-					var debugAppender = appenders.FirstOrDefault(val => val.Name == "DebugLogAppender");
-					if (debugAppender == null)
-					{
-						var newAppender = new DebugLogAppender();
-						newAppender.ActivateOptions();
-						BasicConfigurator.Configure(newAppender);
-					}
-
 					var mainAppender = appenders.FirstOrDefault(val => val.Name == "MainLogAppender");
 					if (mainAppender == null)
 					{
