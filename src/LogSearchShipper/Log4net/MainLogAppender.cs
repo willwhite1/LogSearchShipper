@@ -6,10 +6,6 @@ using System.Text;
 using log4net.Appender;
 using log4net.Core;
 using log4net.Filter;
-using log4net.Layout;
-using log4net.Util;
-
-using LogSearchShipper.Core;
 
 namespace LogSearchShipper.Log4net
 {
@@ -18,13 +14,7 @@ namespace LogSearchShipper.Log4net
 	{
 		public MainLogAppender()
 		{
-			var layout = new PatternLayout
-			{
-				ConversionPattern = "{\"@timestamp\":\"%iso8601_date\",%event_as_json,\"logger\":\"%logger\",\"level\":\"%level\"}%n",
-				IgnoresException = false,
-			};
-			layout.AddConverter(new ConverterInfo { Name = "event_as_json", Type = typeof(JSONFragmentPatternConverter) });
-			layout.AddConverter(new ConverterInfo { Name = "iso8601_date", Type = typeof(ISO8601DatePatternConverter) });
+			var layout = new JsonLayout();
 			layout.ActivateOptions();
 
 			Name = GetType().Name;
