@@ -57,6 +57,9 @@ Change the settings to fit your environment
 				<conversionPattern value="%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline" />
 			</layout>
 		</appender>
+		<appender name="MainLogAppender" type="LogSearchShipper.Log4net.MainLogAppender">
+			<file value="LogSearchShipper.log" /> <!-- this field is optional -->
+		</appender>
 		<!-- Write details of the EDB environment to EnvironmentDiagramData.log to drive environmentdiagram.cityindex.logsearch.io -->
 		<appender name="EnvironmentDiagramRollingFileAppender" type="log4net.Appender.RollingFileAppender">
 			<file value="EnvironmentDiagramData.log" />
@@ -83,6 +86,7 @@ Change the settings to fit your environment
 		<root>
 			<level value="INFO" /> <!-- Warning: DEBUG level causes a 10% increase in CPU load -->
 			<appender-ref ref="ConsoleAppender" />
+			<appender-ref ref="MainLogAppender" />
 			<appender-ref ref="EnvironmentDiagramRollingFileAppender" />
 		</root>
 	</log4net>

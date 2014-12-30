@@ -4,29 +4,30 @@ using System.Linq;
 using System.Text;
 
 using log4net.Appender;
-using log4net.Core;
-using log4net.Filter;
 
 namespace LogSearchShipper.Log4net
 {
 	// Write a modest amount of logging (>= INFO ) to LogSearchShipper.log; which should be shipped to LogSearch
-	public sealed class DefaultFileAppender : RollingFileAppender
+	public class DefaultFileAppender : RollingFileAppender
 	{
 		public DefaultFileAppender()
 		{
-			var layout = new JsonLayout();
-			layout.ActivateOptions();
-
-			Name = GetType().Name;
-			File = "LogSearchShipper.log";
 			RollingStyle = RollingMode.Size;
 			AppendToFile = true;
 			MaximumFileSize = "250MB";
 			MaxSizeRollBackups = 2;
-			Layout = layout;
+		}
 
-			AddFilter(new LevelRangeFilter { LevelMin = Level.Info, LevelMax = Level.Fatal, });
-			AddFilter(new LoggerMatchFilter { LoggerToMatch = "EnvironmentDiagramLogger", AcceptOnMatch = false, });
+		public override void ActivateOptions()
+		{
+			if (Layout == null)
+			{
+				var layout = new JsonLayout();
+				layout.ActivateOptions();
+				Layout = layout;
+			}
+
+			base.ActivateOptions();
 		}
 	}
 }
