@@ -5,7 +5,7 @@ using System.Threading;
 using log4net;
 using log4net.Config;
 using log4net.Repository.Hierarchy;
-using LogSearchShipper.Appenders;
+using LogSearchShipper.Log4net;
 using LogSearchShipper.Core;
 using Topshelf;
 
