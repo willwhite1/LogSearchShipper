@@ -39,27 +39,7 @@
       </filter>
       <maximumFileSize value="10MB" />
     </appender>
-    <appender name="EnvironmentDiagramRollingFileAppender" type="log4net.Appender.RollingFileAppender">
-      <file value="EnvironmentDiagramData.log" />
-      <filter type="log4net.Filter.LoggerMatchFilter">
-        <loggerToMatch value="EnvironmentDiagramLogger" />
-      </filter>
-      <filter type="log4net.Filter.DenyAllFilter" />
-      <appendToFile value="true" />
-      <maximumFileSize value="10MB" />
-      <maxSizeRollBackups value="2" />
-      <layout type="log4net.Layout.PatternLayout">
-        <IgnoresException value="False" />
-        <converter>
-          <name value="event_as_json" />
-          <type value="LogSearchShipper.Core.JSONFragmentPatternConverter, LogSearchShipper.Core" />
-        </converter>
-        <converter>
-          <name value="iso8601_date" />
-          <type value="LogSearchShipper.Core.ISO8601DatePatternConverter, LogSearchShipper.Core" />
-        </converter>
-        <conversionPattern value='{"@timestamp":"%iso8601_date",%event_as_json,"logger":"%logger","level":"%level"}%n' />
-      </layout>
+    <appender name="EnvironmentDiagramRollingFileAppender" type="LogSearchShipper.Log4net.EnvironmentDiagramAppender">
     </appender>
     <root>
       <level value="DEBUG" />
