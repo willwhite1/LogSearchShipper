@@ -57,11 +57,11 @@ Change the settings to fit your environment
 				<conversionPattern value="%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline" />
 			</layout>
 		</appender>
+
 		<appender name="MainLogAppender" type="LogSearchShipper.Log4net.MainLogAppender">
 			<file value="LogSearchShipper.log" /> <!-- this field is optional -->
 		</appender>
 		<!-- Write details of the EDB environment to EnvironmentDiagramData.log to drive environmentdiagram.cityindex.logsearch.io -->
-
 		<appender name="EnvironmentDiagramRollingFileAppender" type="LogSearchShipper.Log4net.EnvironmentDiagramAppender">
 		</appender>
 		<appender name="EdbExpectedEventSourcesAppender" type="LogSearchShipper.Log4net.EdbExpectedEventSourcesAppender">

@@ -39,10 +39,12 @@
         <conversionPattern value="%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline" />
       </layout>
     </appender>
+
     <appender name="MainLogAppender" type="LogSearchShipper.Log4net.MainLogAppender">
     </appender>
-
     <appender name="EnvironmentDiagramRollingFileAppender" type="LogSearchShipper.Log4net.EnvironmentDiagramAppender">
+    </appender>
+    <appender name="EdbExpectedEventSourcesAppender" type="LogSearchShipper.Log4net.EdbExpectedEventSourcesAppender">
     </appender>
 
     <root>
@@ -51,9 +53,6 @@
       <appender-ref ref="MainLogAppender" />
       <appender-ref ref="EnvironmentDiagramRollingFileAppender" />
     </root>
-
-    <appender name="EdbExpectedEventSourcesAppender" type="LogSearchShipper.Log4net.EdbExpectedEventSourcesAppender">
-    </appender>
 
     <logger name="EdbExpectedEventSourcesLogger" additivity="false">
       <level value="INFO" />
