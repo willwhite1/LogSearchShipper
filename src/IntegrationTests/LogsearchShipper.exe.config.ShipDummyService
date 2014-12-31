@@ -32,6 +32,7 @@
         <conversionPattern value="%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline" />
       </layout>
     </appender>
+
     <appender name="MainLogAppender" type="LogSearchShipper.Appenders.MainLogAppender">
       <filter type="log4net.Filter.LevelRangeFilter">
         <levelMin value="ALL" />
@@ -41,6 +42,7 @@
     </appender>
     <appender name="EnvironmentDiagramRollingFileAppender" type="LogSearchShipper.Log4net.EnvironmentDiagramAppender">
     </appender>
+
     <root>
       <level value="DEBUG" />
       <appender-ref ref="ConsoleAppender" />
