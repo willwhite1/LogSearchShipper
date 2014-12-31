@@ -61,34 +61,24 @@ Change the settings to fit your environment
 			<file value="LogSearchShipper.log" /> <!-- this field is optional -->
 		</appender>
 		<!-- Write details of the EDB environment to EnvironmentDiagramData.log to drive environmentdiagram.cityindex.logsearch.io -->
-		<appender name="EnvironmentDiagramRollingFileAppender" type="log4net.Appender.RollingFileAppender">
-			<file value="EnvironmentDiagramData.log" />
-			<filter type="log4net.Filter.LoggerMatchFilter">
-				<loggerToMatch value="EnvironmentDiagramLogger" />
-			</filter>
-			<filter type="log4net.Filter.DenyAllFilter" />
-			<appendToFile value="true" />
-			<maximumFileSize value="10MB" />
-			<maxSizeRollBackups value="2" />
-			<layout type="log4net.Layout.PatternLayout">
-				<IgnoresException value="False" />
-				<converter>
-					<name value="event_as_json" />
-					<type value="LogSearchShipper.Core.JSONFragmentPatternConverter, LogSearchShipper.Core" />
-				</converter>
-				<converter>
-					<name value="iso8601_date" />
-					<type value="LogSearchShipper.Core.ISO8601DatePatternConverter, LogSearchShipper.Core" />
-				</converter>
-				<conversionPattern value='{"@timestamp":"%iso8601_date",%event_as_json,"logger":"%logger","level":"%level"}%n' />
-			</layout>
+
+		<appender name="EnvironmentDiagramRollingFileAppender" type="LogSearchShipper.Log4net.EnvironmentDiagramAppender">
 		</appender>
+		<appender name="EdbExpectedEventSourcesAppender" type="LogSearchShipper.Log4net.EdbExpectedEventSourcesAppender">
+		</appender>
+
 		<root>
 			<level value="INFO" /> <!-- Warning: DEBUG level causes a 10% increase in CPU load -->
 			<appender-ref ref="ConsoleAppender" />
 			<appender-ref ref="MainLogAppender" />
 			<appender-ref ref="EnvironmentDiagramRollingFileAppender" />
 		</root>
+
+		<logger name="EdbExpectedEventSourcesLogger" additivity="false">
+			<level value="INFO" />
+			<appender-ref ref="EdbExpectedEventSourcesAppender" />
+		</logger>
+
 	</log4net>
 
 	<runtime>
