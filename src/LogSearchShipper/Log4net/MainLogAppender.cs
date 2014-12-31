@@ -13,9 +13,17 @@ namespace LogSearchShipper.Log4net
 		public MainLogAppender()
 		{
 			File = "LogSearchShipper.log";
+		}
 
-			AddFilter(new LevelRangeFilter { LevelMin = Level.Info, LevelMax = Level.Fatal, });
-			AddFilter(new LoggerMatchFilter { LoggerToMatch = "EnvironmentDiagramLogger", AcceptOnMatch = false, });
+		public override void ActivateOptions()
+		{
+			if (FilterHead == null)
+			{
+				AddFilter(new LevelRangeFilter { LevelMin = Level.Info, LevelMax = Level.Fatal, });
+				AddFilter(new LoggerMatchFilter { LoggerToMatch = "EnvironmentDiagramLogger", AcceptOnMatch = false, });
+			}
+
+			base.ActivateOptions();
 		}
 	}
 }
