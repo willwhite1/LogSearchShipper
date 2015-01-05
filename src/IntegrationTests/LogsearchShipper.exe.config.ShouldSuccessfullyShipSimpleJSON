@@ -17,22 +17,22 @@
       <fileWatchers>
         <watch files="json.log" type="json">
           <field key="environment" value="LogSearchShipperIntegrationTests" />
-					<field key="TestName" value="ShouldSuccessfullyShipSimpleJSON" />
+          <field key="TestName" value="ShouldSuccessfullyShipSimpleJSON" />
         </watch>
       </fileWatchers>
     </LogSearchShipper>
   </LogSearchShipperGroup>
 
   <log4net>
-    <appender name="ConsoleAppender" type="log4net.Appender.ConsoleAppender">
-      <layout type="log4net.Layout.PatternLayout">
-        <conversionPattern value="%-5level %.255message%newline" />
-      </layout>
+    <appender name="ConsoleAppender" type="LogSearchShipper.Log4net.DefaultConsoleAppender">
     </appender>
-    
+    <appender name="MainLogAppender" type="LogSearchShipper.Log4net.MainLogAppender">
+    </appender>
+
     <root>
       <level value="INFO" />
       <appender-ref ref="ConsoleAppender" />
+      <appender-ref ref="MainLogAppender" />
     </root>
   </log4net>
 

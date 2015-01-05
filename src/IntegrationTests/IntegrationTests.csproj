@@ -101,6 +101,10 @@
       <Project>{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}</Project>
       <Name>LogSearchShipper.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LogSearchShipper\LogSearchShipper.csproj">
+      <Project>{e728f5f0-84d6-4a57-9a09-504d4adf4636}</Project>
+      <Name>LogSearchShipper</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Expected\EdbLoggingTest.txt">
