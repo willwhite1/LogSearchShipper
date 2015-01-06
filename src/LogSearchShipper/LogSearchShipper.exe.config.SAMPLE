@@ -8,11 +8,11 @@ Change the settings to fit your environment
 	<configSections>
 		<sectionGroup name="LogSearchShipperGroup">
 			<section
-        name="LogSearchShipper"
-        type="LogSearchShipper.Core.ConfigurationSections.LogSearchShipperSection, LogSearchShipper.Core"
-        allowLocation="true"
-        allowDefinition="Everywhere"
-      />
+			        name="LogSearchShipper"
+			        type="LogSearchShipper.Core.ConfigurationSections.LogSearchShipperSection, LogSearchShipper.Core"
+			        allowLocation="true"
+			        allowDefinition="Everywhere"
+			      />
 		</sectionGroup>
 		<section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler, log4net" />
 	</configSections>
@@ -45,31 +45,32 @@ Change the settings to fit your environment
 			</fileWatchers>
 		</LogSearchShipper>
 	</LogSearchShipperGroup>
-
+	
 	<log4net>
-		<appender name="ConsoleAppender" type="LogSearchShipper.Log4net.DefaultConsoleAppender">
-		</appender>
-		<appender name="MainLogAppender" type="LogSearchShipper.Log4net.MainLogAppender">
-			<file value="LogSearchShipper.log" /> <!-- this field is optional -->
-		</appender>
-		<!-- Write details of the EDB environment to EnvironmentDiagramData.log to drive environmentdiagram.cityindex.logsearch.io -->
-		<appender name="EnvironmentDiagramRollingFileAppender" type="LogSearchShipper.Log4net.EnvironmentDiagramAppender">
-		</appender>
-		<appender name="EdbExpectedEventSourcesAppender" type="LogSearchShipper.Log4net.EdbExpectedEventSourcesAppender">
-		</appender>
-
 		<root>
 			<level value="INFO" /> <!-- Warning: DEBUG level causes a 10% increase in CPU load -->
 			<appender-ref ref="ConsoleAppender" />
 			<appender-ref ref="MainLogAppender" />
-			<appender-ref ref="EnvironmentDiagramRollingFileAppender" />
 		</root>
-
+		<logger name="EnvironmentDiagramLogger" additivity="false">
+			<level value="INFO" />
+			<appender-ref ref="EnvironmentDiagramRollingFileAppender" />
+		</logger>
 		<logger name="EdbExpectedEventSourcesLogger" additivity="false">
 			<level value="INFO" />
 			<appender-ref ref="EdbExpectedEventSourcesAppender" />
 		</logger>
-
+		<appender name="ConsoleAppender" type="LogSearchShipper.Log4net.DefaultConsoleAppender" />
+		<appender name="MainLogAppender" type="LogSearchShipper.Log4net.MainLogAppender">
+			<file value="C:\Logs\LogSearchShipper-QAT\LogSearchShipper.log" />
+		</appender>
+		<!-- Write details of the EDB environment to EnvironmentDiagramData.log to drive environmentdiagram.cityindex.logsearch.io -->
+		<appender name="EnvironmentDiagramRollingFileAppender" type="LogSearchShipper.Log4net.EnvironmentDiagramAppender">
+			<file value="C:\Logs\LogSearchShipper-QAT\EnvironmentDiagramData.log" />
+		</appender>
+		<appender name="EdbExpectedEventSourcesAppender" type="LogSearchShipper.Log4net.EdbExpectedEventSourcesAppender">
+			<file value="C:\Logs\LogSearchShipper-QAT\EDB_expected_event_sources.log" />
+		</appender>
 	</log4net>
 
 	<runtime>
