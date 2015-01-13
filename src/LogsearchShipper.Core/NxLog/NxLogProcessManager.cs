@@ -120,6 +120,8 @@ namespace LogSearchShipper.Core.NxLog
 
 		public void StartNxLogProcess()
 		{
+			_log.Info("NxLogProcessManager.StartNxLogProcess");
+
 			string executablePath = Path.Combine(BinFolder, "nxlog.exe");
 			string serviceArguments = string.Format("\"{0}\" -c \"{1}\"", executablePath, ConfigFile);
 			_log.InfoFormat("Running {0} as a service", serviceArguments);
@@ -221,7 +223,7 @@ namespace LogSearchShipper.Core.NxLog
 
 		public void Stop()
 		{
-			_log.Info("Trying to close nxlog service gracefully");
+			_log.Info("NxLogProcessManager.Stop");
 			_stopped = true;
 			lock (_sync)
 			{
@@ -229,6 +231,7 @@ namespace LogSearchShipper.Core.NxLog
 					_processorUsageReportingThread.Interrupt();
 				_processorUsageReportingThread = null;
 			}
+			_log.Info("Trying to close nxlog service gracefully");
 			ServiceControllerEx.DeleteService(_serviceName);
 		}
 
