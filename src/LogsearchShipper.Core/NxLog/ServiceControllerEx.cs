@@ -6,6 +6,8 @@ using System.Management;
 using System.ServiceProcess;
 using System.Text;
 
+using log4net;
+
 namespace LogSearchShipper.Core.NxLog
 {
 	static class ServiceControllerEx
@@ -99,9 +101,10 @@ namespace LogSearchShipper.Core.NxLog
 				service.Stop();
 				service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromMinutes(2));
 			}
-			catch (InvalidOperationException)
+			catch (InvalidOperationException exc)
 			{
 				// the service doesn't exist
+				Log.Warn(exc);
 			}
 		}
 
@@ -117,5 +120,7 @@ namespace LogSearchShipper.Core.NxLog
 
 			throw new ApplicationException();
 		}
+
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ServiceControllerEx));
 	}
 }
