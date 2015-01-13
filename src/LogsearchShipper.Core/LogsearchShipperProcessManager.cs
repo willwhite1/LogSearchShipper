@@ -33,6 +33,8 @@ namespace LogSearchShipper.Core
 
 		public int Start()
 		{
+			_log.Info("LogSearchShipperProcessManager.Start");
+
 			if (!Directory.Exists(LogSearchShipperConfig.DataFolder))
 			{
 				Directory.CreateDirectory(LogSearchShipperConfig.DataFolder);
@@ -50,6 +52,8 @@ namespace LogSearchShipper.Core
 
 			WhenConfigFileChanges(() =>
 			{
+				_log.Info("LogSearchShipperProcessManager - configs have changed");
+
 				if (configChanging.isBusy)
 				{
 					_log.Info("Already in the process of updating config; ignoring trigger");
@@ -74,6 +78,8 @@ namespace LogSearchShipper.Core
 
 		public void Stop()
 		{
+			_log.Info("LogSearchShipperProcessManager.Stop");
+
 			_log.Info("Stopping Environment Diagram logger...");
 			foreach (Timer environmentDiagramLoggingTimer in _environmentDiagramLoggingTimers.Values)
 			{

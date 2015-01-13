@@ -67,8 +67,11 @@ namespace LogSearchShipper.Core.NxLog
 				serviceHandle = NativeMethods.OpenService(scmHandle, name, NativeMethods.ServiceAccessRights.AllAccess);
 				if (serviceHandle != IntPtr.Zero)
 				{
-					NativeMethods.DeleteService(serviceHandle);
-					NativeMethods.CloseServiceHandle(serviceHandle);
+					if (!NativeMethods.DeleteService(serviceHandle))
+					{
+						var message = string.Format("Failed to delete service {0}", name);
+						throw new ApplicationException(message, new Win32Exception());
+					}
 				}
 			}
 			finally
