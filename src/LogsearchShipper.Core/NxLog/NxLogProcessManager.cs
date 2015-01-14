@@ -232,7 +232,14 @@ namespace LogSearchShipper.Core.NxLog
 				_processorUsageReportingThread = null;
 			}
 			_log.Info("Trying to close nxlog service gracefully");
-			ServiceControllerEx.DeleteService(_serviceName);
+			try
+			{
+				ServiceControllerEx.DeleteService(_serviceName);
+			}
+			catch (Exception exc)
+			{
+				_log.Error(exc);
+			}
 		}
 
 		/// <summary>

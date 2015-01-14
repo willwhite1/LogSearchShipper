@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Management;
 using System.ServiceProcess;
@@ -95,18 +96,48 @@ namespace LogSearchShipper.Core.NxLog
 
 		public static void StopService(string name)
 		{
+			var timeout = TimeSpan.FromMinutes(2);
+			var processId = GetProcessId(name);
+			var service = new ServiceController(name);
+			var startTime = DateTime.UtcNow;
+
 			try
 			{
-				var service = new ServiceController(name);
 				service.Stop();
-				service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromMinutes(2));
+				return;
 			}
 			catch (InvalidOperationException exc)
 			{
-				// the service doesn't exist
-				Log.Warn(exc);
+				var win32Exc = exc.InnerException as Win32Exception;
+				if (win32Exc == null)
+					throw;
+
+				var errCode = win32Exc.NativeErrorCode;
+				if (errCode == ERROR_SERVICE_DOES_NOT_EXIST || errCode == ERROR_SERVICE_NOT_ACTIVE)
+					return;
+				if (errCode != ERROR_SERVICE_REQUEST_TIMEOUT)
+					throw;
 			}
+
+			Process process;
+			try
+			{
+				process = Process.GetProcessById(processId);
+			}
+			catch (ArgumentException)
+			{
+				// there is no process with such Id
+				return;
+			}
+
+			var timeoutLeft = timeout - (DateTime.UtcNow - startTime);
+			if (!process.WaitForExit((int)timeoutLeft.TotalMilliseconds))
+				Log.Warn(string.Format("The service {0} stop attempt has timed out", name));
 		}
+
+		private const int ERROR_SERVICE_REQUEST_TIMEOUT = 1053;
+		private const int ERROR_SERVICE_DOES_NOT_EXIST = 1060;
+		private const int ERROR_SERVICE_NOT_ACTIVE = 1062;
 
 		public static int GetProcessId(string serviceName)
 		{
