@@ -110,15 +110,22 @@ namespace LogSearchShipper.Core.NxLog
 
 		public static int GetProcessId(string serviceName)
 		{
-			var searcher = new ManagementObjectSearcher(string.Format("SELECT ProcessId FROM Win32_Service WHERE Name='{0}'", serviceName));
-			var moc = searcher.Get();
-			foreach (var cur in moc)
+			var query = string.Format("SELECT ProcessId FROM Win32_Service WHERE Name='{0}'", serviceName);
+			using (var searcher = new ManagementObjectSearcher(query))
 			{
-				var mo = (ManagementObject)cur;
-				return Convert.ToInt32(mo["ProcessId"]);
+				using (var vals = searcher.Get())
+				{
+					if (vals.Count == 0)
+						return 0;
+					if (vals.Count != 1)
+						throw new ApplicationException();
+					var tmp = new ManagementBaseObject[1];
+					vals.CopyTo(tmp, 0);
+					var responseObject = tmp[0];
+					var res = Convert.ToInt32(responseObject["ProcessId"]);
+					return res;
+				}
 			}
-
-			throw new ApplicationException();
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ServiceControllerEx));
