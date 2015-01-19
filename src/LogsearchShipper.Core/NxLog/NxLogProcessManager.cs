@@ -225,17 +225,19 @@ namespace LogSearchShipper.Core.NxLog
 		public void Stop()
 		{
 			_log.Info("NxLogProcessManager.Stop");
+
 			_stopped = true;
 			lock (_sync)
 			{
 				if (_processorUsageReportingThread != null)
 				{
 					_processorUsageReportingThread.Interrupt();
-					_processorUsageReportingThread.Join(TimeSpan.FromSeconds(5));
-					_processorUsageReportingThread.Abort();
+					if (!_processorUsageReportingThread.Join(TimeSpan.FromSeconds(5)))
+						_processorUsageReportingThread.Abort();
 					_processorUsageReportingThread = null;
 				}
 			}
+
 			_log.Info("Trying to close nxlog service gracefully");
 			try
 			{
