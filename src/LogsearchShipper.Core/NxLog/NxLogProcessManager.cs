@@ -229,8 +229,12 @@ namespace LogSearchShipper.Core.NxLog
 			lock (_sync)
 			{
 				if (_processorUsageReportingThread != null)
+				{
 					_processorUsageReportingThread.Interrupt();
-				_processorUsageReportingThread = null;
+					_processorUsageReportingThread.Join(TimeSpan.FromSeconds(5));
+					_processorUsageReportingThread.Abort();
+					_processorUsageReportingThread = null;
+				}
 			}
 			_log.Info("Trying to close nxlog service gracefully");
 			try
