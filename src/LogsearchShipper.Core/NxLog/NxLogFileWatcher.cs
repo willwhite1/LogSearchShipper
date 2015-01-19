@@ -17,6 +17,7 @@ namespace LogSearchShipper.Core.NxLog
 
 		public NxLogFileWatcher(INxLogProcessManager nxLogProcessManager)
 		{
+			_log.Info("NxLogFileWatcher created");
 			_nxLogProcessManager = nxLogProcessManager;
 		}
 

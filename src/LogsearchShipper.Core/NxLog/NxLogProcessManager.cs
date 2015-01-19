@@ -143,6 +143,7 @@ namespace LogSearchShipper.Core.NxLog
 
 		void ReportProcessorTimeUsage()
 		{
+			_log.Info("ReportProcessorTimeUsage() started");
 			try
 			{
 				while (!_disposed && !_stopped)
@@ -174,6 +175,7 @@ namespace LogSearchShipper.Core.NxLog
 			catch (ThreadInterruptedException)
 			{
 			}
+			_log.Info("ReportProcessorTimeUsage() finished");
 		}
 
 		private static void ReportCpuUsage(Process process, string name, ref double lastProcessorSecondsUsed, DateTime lastSentTime)
