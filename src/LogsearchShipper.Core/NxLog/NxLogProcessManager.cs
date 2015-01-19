@@ -65,11 +65,6 @@ namespace LogSearchShipper.Core.NxLog
 
 			_userName = userName;
 			_password = password;
-
-			lock (_sync)
-			{
-				_lastProcessorUsageSentTime = DateTime.UtcNow;
-			}
 		}
 
 		public NxLogProcessManager()
@@ -137,6 +132,10 @@ namespace LogSearchShipper.Core.NxLog
 
 			lock (_sync)
 			{
+				_lastProcessorUsageSentTime = DateTime.UtcNow;
+				_lastProcessorSecondsUsed = 0;
+				_lastNxlogProcessorSecondsUsed = 0;
+
 				_processorUsageReportingThread = new Thread(ReportProcessorTimeUsage);
 				_processorUsageReportingThread.Start();
 			}
