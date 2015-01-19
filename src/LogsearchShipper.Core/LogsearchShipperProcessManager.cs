@@ -112,8 +112,15 @@ namespace LogSearchShipper.Core
 			{
 				watcher.Changed += (s, e) =>
 				{
-					_log.InfoFormat("Detected change in file: {0}", e.FullPath);
-					actionsToRun();
+					try
+					{
+						_log.InfoFormat("Detected change in file: {0}", e.FullPath);
+						actionsToRun();
+					}
+					catch (Exception exc)
+					{
+						_log.Error(exc);
+					}
 				};
 				watcher.EnableRaisingEvents = true;
 			}
