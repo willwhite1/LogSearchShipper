@@ -12,7 +12,7 @@ namespace LogSearchShipper.Log4net
 		public EnvironmentDiagramAppender()
 		{
 			File = "EnvironmentDiagramData.log";
-			MaximumFileSize = "10MB";
+			MaximumFileSize = "50MB";
 
 			AddFilter(new LoggerMatchFilter { LoggerToMatch = "EnvironmentDiagramLogger" });
 			AddFilter(new DenyAllFilter());

@@ -14,7 +14,7 @@ namespace LogSearchShipper.Log4net
 		{
 			RollingStyle = RollingMode.Size;
 			AppendToFile = true;
-			MaximumFileSize = "250MB";
+			MaximumFileSize = "50MB";
 			MaxSizeRollBackups = 2;
 		}
 
