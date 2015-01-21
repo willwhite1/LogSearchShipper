@@ -30,7 +30,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 				@"2014-07-14 11:39:54 DEBUG evaluating expression 'substr' at C:\Apps\LogSearchShipper-DEV-data\nxlog.conf:69";
 
 			Assert.AreEqual(Level.Debug, CreateLog4NetLogEvent(log).Level);
-			Assert.AreEqual(@"evaluating expression 'substr' at C:\Apps\LogSearchShipper-DEV-data\nxlog.conf:69",
+			Assert.AreEqual(@"{Message=evaluating expression 'substr' at C:\Apps\LogSearchShipper-DEV-data\nxlog.conf:69}",
 				CreateLog4NetLogEvent(log).RenderedMessage);
 		}
 
@@ -40,8 +40,8 @@ namespace LogSearchShipper.Core.Tests.NxLog
 			string log =
 				"2014-07-14 11:43:36 ERROR failed to open \\\\PKH-QAT-APP03\\Logs\\Apps\\MarginAutoCloseoutService; Access is denied.";
 
-			Assert.AreEqual(Level.Error, CreateLog4NetLogEvent(log).Level);
-			Assert.AreEqual("failed to open \\\\PKH-QAT-APP03\\Logs\\Apps\\MarginAutoCloseoutService; Access is denied.",
+			Assert.AreEqual(Level.Warn, CreateLog4NetLogEvent(log).Level);
+			Assert.AreEqual("{Message=failed to open \\\\PKH-QAT-APP03\\Logs\\Apps\\MarginAutoCloseoutService; Access is denied., Category=MISSING_FILE}",
 				CreateLog4NetLogEvent(log).RenderedMessage);
 		}
 
@@ -53,7 +53,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 					 @"2014-07-19 07:18:03 ERROR [router.c:351/nx_add_route()] route route_to_file is not functional without output modules, ignored at C:\Users\david.laing\AppData\Local\Temp\nxlog-data-1c380b9197e94d37a0e64cf6b29034e7\nxlog.conf:35";
 
 			Assert.AreEqual(Level.Error, CreateLog4NetLogEvent(log).Level);
-			Assert.AreEqual(@"[router.c:351/nx_add_route()] route route_to_file is not functional without output modules, ignored at C:\Users\david.laing\AppData\Local\Temp\nxlog-data-1c380b9197e94d37a0e64cf6b29034e7\nxlog.conf:35",
+			Assert.AreEqual(@"{Message=[router.c:351/nx_add_route()] route route_to_file is not functional without output modules, ignored at C:\Users\david.laing\AppData\Local\Temp\nxlog-data-1c380b9197e94d37a0e64cf6b29034e7\nxlog.conf:35}",
 				CreateLog4NetLogEvent(log).RenderedMessage);
 		}
 
@@ -64,7 +64,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 				"2014-07-14 09:38:04 INFO connecting to ingestor.cityindex.logsearch.io:5514";
 
 			Assert.AreEqual(Level.Info, CreateLog4NetLogEvent(log).Level);
-			Assert.AreEqual("connecting to ingestor.cityindex.logsearch.io:5514", CreateLog4NetLogEvent(log).RenderedMessage);
+			Assert.AreEqual("{Message=connecting to ingestor.cityindex.logsearch.io:5514}", CreateLog4NetLogEvent(log).RenderedMessage);
 		}
 
 		[Test]
@@ -75,7 +75,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 
 			Assert.AreEqual(Level.Warn, CreateLog4NetLogEvent(log).Level);
 			Assert.AreEqual(CreateLog4NetLogEvent(log).RenderedMessage,
-				"input file does not exist: \\\\PKH-QAT-APP21\\Logs\\ClientPreferenceGateway\\Diagnostics.log");
+				"{Message=input file does not exist: \\\\PKH-QAT-APP21\\Logs\\ClientPreferenceGateway\\Diagnostics.log, Category=MISSING_FILE}");
 		}
 
 		[Test]
@@ -83,11 +83,11 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		{
 			NxLogOutputParser.NxLogEvent nxLogOutput = _nxlogOutputParser.Parse(
 				"2014-07-14 11:43:36 ERROR failed to open \\\\PKH-QAT-APP03\\Logs\\Apps\\MarginAutoCloseoutService; Access is denied.");
-			Assert.AreEqual("ERROR", nxLogOutput.LogLevel);
+			Assert.AreEqual("WARN", nxLogOutput.LogLevel);
 
 			nxLogOutput = _nxlogOutputParser.Parse(
 				"2014-07-14 12:48:27 WARNING input file does not exist: \\\\PKH-QAT-APP21\\Logs\\ClientPreferenceGateway\\Diagnostics.log");
-			Assert.AreEqual("WARNING", nxLogOutput.LogLevel);
+			Assert.AreEqual("WARN", nxLogOutput.LogLevel);
 		}
 
 		[Test]
@@ -105,6 +105,46 @@ namespace LogSearchShipper.Core.Tests.NxLog
 			NxLogOutputParser.NxLogEvent nxLogOutput = _nxlogOutputParser.Parse(
 				"2014-07-14 11:43:36 ERROR failed to open \\\\PKH-QAT-APP03\\Logs\\Apps\\MarginAutoCloseoutService; Access is denied.");
 			Assert.AreEqual("2014-07-14 11:43:36", nxLogOutput.Timestamp);
+		}
+
+		[Test]
+		public void ShouldSetCategoryTo_MISSING_FILE_WhenContains()
+		{
+			{
+				var log = "2014-07-14 12:48:27 WARNING input file does not exist: \\\\PKH-QAT-APP21\\Logs\\ClientPreferenceGateway\\Diagnostics.log";
+				var logEvent = CreateLog4NetLogEvent(log);
+				Assert.AreEqual(Level.Warn, logEvent.Level);
+				Assert.AreEqual(
+					"{Message=input file does not exist: \\\\PKH-QAT-APP21\\Logs\\ClientPreferenceGateway\\Diagnostics.log, Category=MISSING_FILE}",
+					logEvent.RenderedMessage);
+			}
+
+			{
+				var log = "2014-07-14 12:48:27 ERROR failed to open \\\\INX-SRV-APPL09\\Logs\\tibco\\*.log; The filename, directory name, or volume label syntax is incorrect.";
+				var logEvent = CreateLog4NetLogEvent(log);
+				Assert.AreEqual(Level.Warn, logEvent.Level);
+				Assert.AreEqual(
+					"{Message=failed to open \\\\INX-SRV-APPL09\\Logs\\tibco\\*.log; The filename, directory name, or volume label syntax is incorrect., Category=MISSING_FILE}",
+					logEvent.RenderedMessage);
+			}
+
+			{
+				var log = "2014-07-14 12:48:27 ERROR apr_stat failed on file \\\\INX-SRV-TIB03\\Logs\\tibco\\*.log; The filename, directory name, or volume label syntax is incorrect.";
+				var logEvent = CreateLog4NetLogEvent(log);
+				Assert.AreEqual(Level.Warn, logEvent.Level);
+				Assert.AreEqual(
+					"{Message=apr_stat failed on file \\\\INX-SRV-TIB03\\Logs\\tibco\\*.log; The filename, directory name, or volume label syntax is incorrect., Category=MISSING_FILE}",
+					logEvent.RenderedMessage);
+			}
+		}
+
+		[Test]
+		public void ShouldNotSetCategoryWhen()
+		{
+			var log = "2014-07-14 09:38:04 INFO connecting to ingestor.cityindex.logsearch.io:5514";
+			var logEvent = CreateLog4NetLogEvent(log);
+			Assert.AreEqual(Level.Info, logEvent.Level);
+			Assert.AreEqual("{Message=connecting to ingestor.cityindex.logsearch.io:5514}", logEvent.RenderedMessage);
 		}
 	}
 }
