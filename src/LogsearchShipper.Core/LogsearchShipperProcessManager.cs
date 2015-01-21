@@ -181,10 +181,11 @@ namespace LogSearchShipper.Core
 				_environmentDiagramLoggingTimers[key].Dispose();
 			}
 
+			var period = Convert.ToInt64(TimeSpan.FromMinutes(envWatchElement.LogEnvironmentDiagramDataEveryMinutes).TotalMilliseconds);
 			var timer = new Timer(
-				LogEnvironmentData, envWatchElement, 0, //Run once immediately
-				Convert.ToInt64(TimeSpan.FromMinutes(envWatchElement.LogEnvironmentDiagramDataEveryMinutes).TotalMilliseconds)
-				);
+				LogEnvironmentData,
+				envWatchElement, 0, //Run once immediately
+				period);
 
 			_environmentDiagramLoggingTimers[key] = timer;
 		}
