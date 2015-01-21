@@ -178,14 +178,22 @@ namespace LogSearchShipper.Core
 
 		public static void LogEnvironmentData(object state)
 		{
-			var parser = new EDBFileWatchParser((EnvironmentWatchElement)state);
-			IEnumerable<EDBEnvironment> environments = parser.GenerateLogsearchEnvironmentDiagram();
+			try
+			{
+				var parser = new EDBFileWatchParser((EnvironmentWatchElement) state);
+				IEnumerable<EDBEnvironment> environments = parser.GenerateLogsearchEnvironmentDiagram();
 
-			_log.Info(string.Format("Logged environment diagram data for {0}", string.Join(",", environments.Select(e => e.Name))));
+				_log.Info(string.Format("Logged environment diagram data for {0}",
+					string.Join(",", environments.Select(e => e.Name))));
 
-			LogManager.GetLogger("EnvironmentDiagramLogger").Info(new { Environments = environments });
+				LogManager.GetLogger("EnvironmentDiagramLogger").Info(new {Environments = environments});
 
-			EdbDataFormatter.ReportData(environments);
+				EdbDataFormatter.ReportData(environments);
+			}
+			catch (Exception exc)
+			{
+				_log.Error(exc);
+			}
 		}
 
 		public class CodeBlockLocker
