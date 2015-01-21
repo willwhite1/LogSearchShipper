@@ -106,5 +106,45 @@ namespace LogSearchShipper.Core.Tests.NxLog
 				"2014-07-14 11:43:36 ERROR failed to open \\\\PKH-QAT-APP03\\Logs\\Apps\\MarginAutoCloseoutService; Access is denied.");
 			Assert.AreEqual("2014-07-14 11:43:36", nxLogOutput.Timestamp);
 		}
+
+		[Test]
+		public void ShouldSetCategoryTo_MISSING_FILE_WhenContains()
+		{
+			{
+				var log = "2014-07-14 12:48:27 WARNING input file does not exist: \\\\PKH-QAT-APP21\\Logs\\ClientPreferenceGateway\\Diagnostics.log";
+				var logEvent = CreateLog4NetLogEvent(log);
+				Assert.AreEqual(Level.Warn, logEvent.Level);
+				Assert.AreEqual(
+					"{Message=input file does not exist: \\\\PKH-QAT-APP21\\Logs\\ClientPreferenceGateway\\Diagnostics.log, Category=MISSING_FILE}",
+					logEvent.RenderedMessage);
+			}
+
+			{
+				var log = "2014-07-14 12:48:27 ERROR failed to open \\\\INX-SRV-APPL09\\Logs\\tibco\\*.log; The filename, directory name, or volume label syntax is incorrect.";
+				var logEvent = CreateLog4NetLogEvent(log);
+				Assert.AreEqual(Level.Warn, logEvent.Level);
+				Assert.AreEqual(
+					"{Message=failed to open \\\\INX-SRV-APPL09\\Logs\\tibco\\*.log; The filename, directory name, or volume label syntax is incorrect., Category=MISSING_FILE}",
+					logEvent.RenderedMessage);
+			}
+
+			{
+				var log = "2014-07-14 12:48:27 ERROR apr_stat failed on file \\\\INX-SRV-TIB03\\Logs\\tibco\\*.log; The filename, directory name, or volume label syntax is incorrect.";
+				var logEvent = CreateLog4NetLogEvent(log);
+				Assert.AreEqual(Level.Warn, logEvent.Level);
+				Assert.AreEqual(
+					"{Message=apr_stat failed on file \\\\INX-SRV-TIB03\\Logs\\tibco\\*.log; The filename, directory name, or volume label syntax is incorrect., Category=MISSING_FILE}",
+					logEvent.RenderedMessage);
+			}
+		}
+
+		[Test]
+		public void ShouldNotSetCategoryWhen()
+		{
+			var log = "2014-07-14 09:38:04 INFO connecting to ingestor.cityindex.logsearch.io:5514";
+			var logEvent = CreateLog4NetLogEvent(log);
+			Assert.AreEqual(Level.Info, logEvent.Level);
+			Assert.AreEqual("{Message=connecting to ingestor.cityindex.logsearch.io:5514}", logEvent.RenderedMessage);
+		}
 	}
 }
