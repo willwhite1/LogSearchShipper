@@ -10,7 +10,7 @@ namespace LogSearchShipper.Log4net
 		public EdbExpectedEventSourcesAppender()
 		{
 			File = "EDB_expected_event_sources.log";
-			MaximumFileSize = "10MB";
+			MaximumFileSize = "50MB";
 		}
 	}
 }
