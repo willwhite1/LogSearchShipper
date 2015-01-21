@@ -169,8 +169,9 @@ namespace LogSearchShipper.Core
 		private XDocument LoadEDBXml()
 		{
 			XDocument environmentDataXml;
+			var path = _environmentWatchElement.DataFile.Replace('\\', Path.DirectorySeparatorChar);
 			//Use StreamReader to autodetect file encoding - http://stackoverflow.com/a/4569093/13238
-			using (var sr = new StreamReader(_environmentWatchElement.DataFile.Replace('\\', Path.DirectorySeparatorChar), true))
+			using (var sr = new StreamReader(path, true))
 			{
 				environmentDataXml = XDocument.Load(sr);
 			}
