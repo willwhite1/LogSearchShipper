@@ -105,6 +105,8 @@ namespace LogSearchShipper.Core.NxLog
 
 		public int Start()
 		{
+			if (_disposed)
+				throw new ObjectDisposedException(GetType().Name);
 			_stopped = false;
 
 			ExtractNXLog();
@@ -207,6 +209,7 @@ namespace LogSearchShipper.Core.NxLog
 
 		protected virtual void Dispose(bool disposing)
 		{
+			_log.Info("NxLogProcessManager.Dispose()");
 			if (!_disposed)
 			{
 				if (disposing)
