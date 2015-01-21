@@ -105,11 +105,12 @@ namespace LogSearchShipper.Core.NxLog
 
 		public int Start()
 		{
+			_stopped = false;
+
 			ExtractNXLog();
 			SetupConfigFile();
 			StartNxLogProcess();
 
-			_stopped = false;
 			return NxLogProcess.Id;
 		}
 
