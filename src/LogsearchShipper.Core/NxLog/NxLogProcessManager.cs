@@ -65,11 +65,6 @@ namespace LogSearchShipper.Core.NxLog
 
 			_userName = userName;
 			_password = password;
-
-			lock (_sync)
-			{
-				_lastProcessorUsageSentTime = DateTime.UtcNow;
-			}
 		}
 
 		public NxLogProcessManager()
@@ -110,16 +105,21 @@ namespace LogSearchShipper.Core.NxLog
 
 		public int Start()
 		{
+			if (_disposed)
+				throw new ObjectDisposedException(GetType().Name);
+			_stopped = false;
+
 			ExtractNXLog();
 			SetupConfigFile();
 			StartNxLogProcess();
 
-			_stopped = false;
 			return NxLogProcess.Id;
 		}
 
 		public void StartNxLogProcess()
 		{
+			_log.Info("NxLogProcessManager.StartNxLogProcess");
+
 			string executablePath = Path.Combine(BinFolder, "nxlog.exe");
 			string serviceArguments = string.Format("\"{0}\" -c \"{1}\"", executablePath, ConfigFile);
 			_log.InfoFormat("Running {0} as a service", serviceArguments);
@@ -135,6 +135,10 @@ namespace LogSearchShipper.Core.NxLog
 
 			lock (_sync)
 			{
+				_lastProcessorUsageSentTime = DateTime.UtcNow;
+				_lastProcessorSecondsUsed = 0;
+				_lastNxlogProcessorSecondsUsed = 0;
+
 				_processorUsageReportingThread = new Thread(ReportProcessorTimeUsage);
 				_processorUsageReportingThread.Start();
 			}
@@ -142,6 +146,7 @@ namespace LogSearchShipper.Core.NxLog
 
 		void ReportProcessorTimeUsage()
 		{
+			_log.Info("ReportProcessorTimeUsage() started");
 			try
 			{
 				while (!_disposed && !_stopped)
@@ -173,6 +178,7 @@ namespace LogSearchShipper.Core.NxLog
 			catch (ThreadInterruptedException)
 			{
 			}
+			_log.Info("ReportProcessorTimeUsage() finished");
 		}
 
 		private static void ReportCpuUsage(Process process, string name, ref double lastProcessorSecondsUsed, DateTime lastSentTime)
@@ -203,6 +209,7 @@ namespace LogSearchShipper.Core.NxLog
 
 		protected virtual void Dispose(bool disposing)
 		{
+			_log.Info("NxLogProcessManager.Dispose()");
 			if (!_disposed)
 			{
 				if (disposing)
@@ -221,15 +228,29 @@ namespace LogSearchShipper.Core.NxLog
 
 		public void Stop()
 		{
-			_log.Info("Trying to close nxlog service gracefully");
+			_log.Info("NxLogProcessManager.Stop");
+
 			_stopped = true;
 			lock (_sync)
 			{
 				if (_processorUsageReportingThread != null)
+				{
 					_processorUsageReportingThread.Interrupt();
-				_processorUsageReportingThread = null;
+					if (!_processorUsageReportingThread.Join(TimeSpan.FromSeconds(5)))
+						_processorUsageReportingThread.Abort();
+					_processorUsageReportingThread = null;
+				}
 			}
-			ServiceControllerEx.DeleteService(_serviceName);
+
+			_log.Info("Trying to close nxlog service gracefully");
+			try
+			{
+				ServiceControllerEx.DeleteService(_serviceName);
+			}
+			catch (Exception exc)
+			{
+				_log.Error(exc);
+			}
 		}
 
 		/// <summary>
