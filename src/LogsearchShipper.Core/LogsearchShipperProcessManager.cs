@@ -33,6 +33,8 @@ namespace LogSearchShipper.Core
 
 		public int Start()
 		{
+			_log.Info("LogSearchShipperProcessManager.Start");
+
 			if (!Directory.Exists(LogSearchShipperConfig.DataFolder))
 			{
 				Directory.CreateDirectory(LogSearchShipperConfig.DataFolder);
@@ -50,6 +52,8 @@ namespace LogSearchShipper.Core
 
 			WhenConfigFileChanges(() =>
 			{
+				_log.Info("LogSearchShipperProcessManager - configs have changed");
+
 				if (configChanging.isBusy)
 				{
 					_log.Info("Already in the process of updating config; ignoring trigger");
@@ -74,6 +78,8 @@ namespace LogSearchShipper.Core
 
 		public void Stop()
 		{
+			_log.Info("LogSearchShipperProcessManager.Stop");
+
 			_log.Info("Stopping Environment Diagram logger...");
 			foreach (Timer environmentDiagramLoggingTimer in _environmentDiagramLoggingTimers.Values)
 			{
@@ -106,8 +112,15 @@ namespace LogSearchShipper.Core
 			{
 				watcher.Changed += (s, e) =>
 				{
-					_log.InfoFormat("Detected change in file: {0}", e.FullPath);
-					actionsToRun();
+					try
+					{
+						_log.InfoFormat("Detected change in file: {0}", e.FullPath);
+						actionsToRun();
+					}
+					catch (Exception exc)
+					{
+						_log.Error(exc);
+					}
 				};
 				watcher.EnableRaisingEvents = true;
 			}
@@ -168,10 +181,11 @@ namespace LogSearchShipper.Core
 				_environmentDiagramLoggingTimers[key].Dispose();
 			}
 
+			var period = Convert.ToInt64(TimeSpan.FromMinutes(envWatchElement.LogEnvironmentDiagramDataEveryMinutes).TotalMilliseconds);
 			var timer = new Timer(
-				LogEnvironmentData, envWatchElement, 0, //Run once immediately
-				Convert.ToInt64(TimeSpan.FromMinutes(envWatchElement.LogEnvironmentDiagramDataEveryMinutes).TotalMilliseconds)
-				);
+				LogEnvironmentData,
+				envWatchElement, 0, //Run once immediately
+				period);
 
 			_environmentDiagramLoggingTimers[key] = timer;
 		}

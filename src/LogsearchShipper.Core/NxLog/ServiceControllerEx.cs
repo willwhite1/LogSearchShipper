@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Management;
 using System.ServiceProcess;
 using System.Text;
+
+using log4net;
 
 namespace LogSearchShipper.Core.NxLog
 {
@@ -67,8 +70,11 @@ namespace LogSearchShipper.Core.NxLog
 				serviceHandle = NativeMethods.OpenService(scmHandle, name, NativeMethods.ServiceAccessRights.AllAccess);
 				if (serviceHandle != IntPtr.Zero)
 				{
-					NativeMethods.DeleteService(serviceHandle);
-					NativeMethods.CloseServiceHandle(serviceHandle);
+					if (!NativeMethods.DeleteService(serviceHandle))
+					{
+						var message = string.Format("Failed to delete service {0}", name);
+						throw new ApplicationException(message, new Win32Exception());
+					}
 				}
 			}
 			finally
@@ -85,34 +91,74 @@ namespace LogSearchShipper.Core.NxLog
 		{
 			var service = new ServiceController(name);
 			service.Start();
-			service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+			service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromMinutes(1));
 		}
 
 		public static void StopService(string name)
 		{
+			var timeout = TimeSpan.FromMinutes(2);
+			var processId = GetProcessId(name);
+			var service = new ServiceController(name);
+			var startTime = DateTime.UtcNow;
+
 			try
 			{
-				var service = new ServiceController(name);
 				service.Stop();
-				service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+				return;
 			}
-			catch (InvalidOperationException)
+			catch (InvalidOperationException exc)
 			{
-				// service doesn't exist
+				var win32Exc = exc.InnerException as Win32Exception;
+				if (win32Exc == null)
+					throw;
+
+				var errCode = win32Exc.NativeErrorCode;
+				if (errCode == ERROR_SERVICE_DOES_NOT_EXIST || errCode == ERROR_SERVICE_NOT_ACTIVE)
+					return;
+				if (errCode != ERROR_SERVICE_REQUEST_TIMEOUT)
+					throw;
 			}
+
+			Process process;
+			try
+			{
+				process = Process.GetProcessById(processId);
+			}
+			catch (ArgumentException)
+			{
+				// there is no process with such Id
+				return;
+			}
+
+			var timeoutLeft = timeout - (DateTime.UtcNow - startTime);
+			if (!process.WaitForExit((int)timeoutLeft.TotalMilliseconds))
+				Log.Warn(string.Format("The service {0} stop attempt has timed out", name));
 		}
+
+		private const int ERROR_SERVICE_REQUEST_TIMEOUT = 1053;
+		private const int ERROR_SERVICE_DOES_NOT_EXIST = 1060;
+		private const int ERROR_SERVICE_NOT_ACTIVE = 1062;
 
 		public static int GetProcessId(string serviceName)
 		{
-			var searcher = new ManagementObjectSearcher(string.Format("SELECT ProcessId FROM Win32_Service WHERE Name='{0}'", serviceName));
-			var moc = searcher.Get();
-			foreach (var cur in moc)
+			var query = string.Format("SELECT ProcessId FROM Win32_Service WHERE Name='{0}'", serviceName);
+			using (var searcher = new ManagementObjectSearcher(query))
 			{
-				var mo = (ManagementObject)cur;
-				return Convert.ToInt32(mo["ProcessId"]);
+				using (var vals = searcher.Get())
+				{
+					if (vals.Count == 0)
+						return 0;
+					if (vals.Count != 1)
+						throw new ApplicationException();
+					var tmp = new ManagementBaseObject[1];
+					vals.CopyTo(tmp, 0);
+					var responseObject = tmp[0];
+					var res = Convert.ToInt32(responseObject["ProcessId"]);
+					return res;
+				}
 			}
-
-			throw new ApplicationException();
 		}
+
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ServiceControllerEx));
 	}
 }
