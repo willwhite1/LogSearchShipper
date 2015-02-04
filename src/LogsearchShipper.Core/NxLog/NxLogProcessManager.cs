@@ -130,9 +130,6 @@ namespace LogSearchShipper.Core.NxLog
 			ServiceControllerEx.CreateService(_serviceName, serviceArguments, _userName, _password);
 			ServiceControllerEx.StartService(_serviceName);
 
-			// Start a background task to log nxlog process output every 250ms
-			Task.Run(() => new NxLogFileWatcher(this).WatchAndLog());
-
 			lock (_sync)
 			{
 				_lastProcessorUsageSentTime = DateTime.UtcNow;
