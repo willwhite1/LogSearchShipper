@@ -64,7 +64,6 @@
     <Compile Include="IntegrationTestBase.cs" />
     <Compile Include="LogsearchShipperProcessManagerTests.cs" />
     <Compile Include="MultilineTests.cs" />
-    <Compile Include="NxLog\NxLogProcessFileWatcherTests.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="SimpleTests.cs" />
     <Compile Include="UnicodeCharacterTests.cs" />
