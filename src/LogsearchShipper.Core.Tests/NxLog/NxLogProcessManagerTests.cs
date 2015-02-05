@@ -17,7 +17,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 	[TestFixture]
 	public class NxLogProcessManagerTests
 	{
-		private const string NxlogCustomConfigLine1 = "	Exec	$Message = substr($raw_event, 0, 1040000);";
+		private const string NxlogCustomConfigLine1 = "Exec if ($raw_event =~ /DEBUG/ ) drop();";
 		private const string NxlogCustomConfigLine2 = "	Exec   if not ($raw_event =~ /MarginCalculationHandler/ ) drop();";
 
 		[SetUp]
