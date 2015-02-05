@@ -42,6 +42,13 @@ Change the settings to fit your environment
 <!--					<field key="environment" value="ENV1" />-->
 <!--					<field key="service" value="WindowsUpdate" />-->
 <!--				</watch>-->
+				<!-- Specify custom nxlog config code, if necessary -->
+<!--			<watch files="\\inx-srv-appl50\Logs\Apps\MarginEventProcessorService\Log*.log" type="ci_log4net"
+							customNxLogConfig="Exec   if not ($raw_event =~ /MarginCalculationHandler/ ) drop();">
+					<field key="environment" value="LIVE" />
+					<field key="host" value="INX-SRV-APPL50" />
+					<field key="service" value="MarginEventProcessorService" />
+				</watch>-->
 			</fileWatchers>
 		</LogSearchShipper>
 	</LogSearchShipperGroup>

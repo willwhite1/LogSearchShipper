@@ -601,9 +601,13 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 					filesSection += string.Format(@"${0} = ""{1}""; ", field.Key, field.Value);
 				}
 				// Limit maximum message size to just less than 1MB; or NXLog dies with: ERROR string limit (1048576 bytes) reached
-				filesSection += @"$Message = substr($raw_event, 0, 1040000);
-</Input>
-";
+				filesSection += @"$Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
+
+				if (!string.IsNullOrWhiteSpace(inputFile.CustomNxlogConfig))
+					filesSection += "\t" + inputFile.CustomNxlogConfig + Environment.NewLine;
+
+				filesSection += @"</Input>" + Environment.NewLine;
+
 			}
 
 			return filesSection;
