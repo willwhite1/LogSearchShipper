@@ -31,9 +31,9 @@ namespace LogSearchShipper.Core.ConfigurationSections
 		}
 
 		[ConfigurationProperty("customNxLogConfig")]
-		public string CustomNxlogConfig
+		public CustomNxlogConfig CustomNxlogConfig
 		{
-			get { return (string)this["customNxLogConfig"]; }
+			get { return (CustomNxlogConfig)this["customNxLogConfig"]; }
 			set { this["customNxLogConfig"] = value; }
 		}
 
@@ -49,6 +49,17 @@ namespace LogSearchShipper.Core.ConfigurationSections
 				return _fieldCollection;
 			}
 			set { _fieldCollection = value; }
+		}
+	}
+
+	public class CustomNxlogConfig : ConfigurationElement
+	{
+		public string Value { get; set; }
+
+		protected override void DeserializeElement(XmlReader reader, bool serializeCollectionKey)
+		{
+			Value = (string)reader.ReadElementContentAs(typeof(string), null);
+			Value = Value.Trim();
 		}
 	}
 

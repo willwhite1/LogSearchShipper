@@ -48,6 +48,9 @@ Change the settings to fit your environment
 					<field key="environment" value="LIVE" />
 					<field key="host" value="INX-SRV-APPL50" />
 					<field key="service" value="MarginEventProcessorService" />
+					<customNxLogConfig>
+						Exec   if not ($raw_event =~ /MarginCalculationHandler/ ) drop();
+					</customNxLogConfig>
 				</watch>-->
 			</fileWatchers>
 		</LogSearchShipper>
