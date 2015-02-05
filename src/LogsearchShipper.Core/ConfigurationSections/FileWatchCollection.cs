@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Xml;
 
 namespace LogSearchShipper.Core.ConfigurationSections
 {
@@ -26,6 +28,13 @@ namespace LogSearchShipper.Core.ConfigurationSections
 		{
 			get { return (bool)this["readFromLast"]; }
 			set { this["readFromLast"] = value; }
+		}
+
+		[ConfigurationProperty("customNxLogConfig")]
+		public string CustomNxlogConfig
+		{
+			get { return (string)this["customNxLogConfig"]; }
+			set { this["customNxLogConfig"] = value; }
 		}
 
 		[ConfigurationProperty("", IsDefaultCollection = true)]
