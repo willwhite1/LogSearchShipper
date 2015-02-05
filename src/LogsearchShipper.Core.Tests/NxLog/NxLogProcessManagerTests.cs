@@ -83,7 +83,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		[Test]
 		public void ShouldGenerateNxLogConfigWithCorrectLogFile()
 		{
-		 AssertConfigContains(@"LogFile		{0}", _nxLogProcessManager.NxLogFile);
+			AssertConfigContains(@"LogFile		{0}", _nxLogProcessManager.NxLogFile);
 		}
 
 		[Test]
