@@ -54,12 +54,17 @@ namespace LogSearchShipper.Core.ConfigurationSections
 
 	public class CustomNxlogConfig : ConfigurationElement
 	{
-		public string Value { get; set; }
+		private string _value;
+
+		public string Value
+		{
+			get { return _value; }
+			set { _value = value.Trim(); }
+		}
 
 		protected override void DeserializeElement(XmlReader reader, bool serializeCollectionKey)
 		{
 			Value = (string)reader.ReadElementContentAs(typeof(string), null);
-			Value = Value.Trim();
 		}
 	}
 
