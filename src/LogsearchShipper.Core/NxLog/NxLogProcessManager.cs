@@ -633,7 +633,6 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 <Input in_internal>
    Module im_internal
    Exec $logger = 'nxlog.exe';
-   Exec	$environment = 'Nxlog.Test';
    Exec delete($SourceModuleType); delete($SourceModuleName); delete($SeverityValue); delete($ProcessID);
    Exec delete($SourceName); delete($EventReceivedTime); delete($Hostname);
    Exec rename_field('Severity', 'level');
