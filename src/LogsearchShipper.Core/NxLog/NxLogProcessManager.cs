@@ -513,7 +513,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 		Host	{0}
 		Port	{1}
 		AllowUntrusted TRUE
-		Exec	$Message=replace($Message,""\n"",""¬""); 
+		Exec	if $Message $Message=replace($Message,""\n"",""¬""); 
 		Exec	to_syslog_ietf();
 </Output>",
 				OutputSyslog.Host, OutputSyslog.Port);
@@ -606,7 +606,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 					filesSection += string.Format(@"${0} = ""{1}""; ", field.Key, field.Value);
 				}
 				// Limit maximum message size to just less than 1MB; or NXLog dies with: ERROR string limit (1048576 bytes) reached
-				filesSection += @"$Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
+				filesSection += @"if $Message $Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
 
 				if (inputFile.CustomNxlogConfig != null)
 				{
