@@ -632,15 +632,12 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			var res = string.Format(@"
 <Input in_internal>
    Module im_internal
-   Exec create_var('TZ_OFFSET');
-   Exec set_var('TZ_OFFSET', '{0}');
-
    Exec $logger = 'nxlog.exe';
    Exec	$environment = 'Nxlog.Test';
    Exec delete($SourceModuleType); delete($SourceModuleName); delete($SeverityValue); delete($ProcessID);
    Exec delete($SourceName); delete($EventReceivedTime); delete($Hostname);
    Exec rename_field('Severity', 'level');
-   Exec $timestamp = strftime($EventTime, '%Y-%m-%dT%H:%M:%S' + get_var('TZ_OFFSET')); delete($EventTime);
+   Exec $timestamp = strftime($EventTime, '%Y-%m-%dT%H:%M:%S' + '{0}'); delete($EventTime);
 
    Exec if string($Message) =~ /^failed to open/ $Category = 'MISSING_FILE';
    Exec if string($Message) =~ /^input file does not exist:/ $Category = 'MISSING_FILE';
