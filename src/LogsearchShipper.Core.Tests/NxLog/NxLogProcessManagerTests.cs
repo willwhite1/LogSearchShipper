@@ -112,11 +112,19 @@ namespace LogSearchShipper.Core.Tests.NxLog
 				var lines = inputText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 				lines = lines.Select(val => val.Trim()).ToArray();
 
-				var filePathLine = lines.First(val => val.StartsWith("File"));
-				Assert.IsTrue(!notEscapedRegex.Match(filePathLine).Success, string.Format("The File value within '{0}' SHOULD be escaped, but isn't", filePathLine));
+				foreach (var filePathLine in lines.Where(val => val.StartsWith("File")))
+				{
+					Assert.IsTrue(!notEscapedRegex.Match(filePathLine).Success,
+						string.Format("The File value within '{0}' SHOULD be escaped, but isn't", filePathLine));
+				}
 
-				var execLine = lines.First(val => val.StartsWith("Exec"));
-				Assert.IsTrue(notEscapedRegex.Match(execLine).Success, string.Format("The $path value within '{0}' should NOT be escaped but is",execLine));
+				foreach (var execLine in lines.Where(val => val.StartsWith("Exec")))
+				{
+					if (!execLine.Contains('\\'))
+						continue;
+					Assert.IsTrue(notEscapedRegex.Match(execLine).Success,
+						string.Format("The $path value within '{0}' should NOT be escaped but is", execLine));
+				}
 
 				atLeastOneInput = true;
 				inputMatch = inputMatch.NextMatch();
