@@ -17,6 +17,9 @@ namespace LogSearchShipper.Core.Tests.NxLog
 	[TestFixture]
 	public class NxLogProcessManagerTests
 	{
+		private const string NxlogCustomConfigLine1 = "Exec if ($raw_event =~ /DEBUG/ ) drop();";
+		private const string NxlogCustomConfigLine2 = "	Exec   if not ($raw_event =~ /MarginCalculationHandler/ ) drop();";
+
 		[SetUp]
 		public void Setup()
 		{
@@ -26,7 +29,11 @@ namespace LogSearchShipper.Core.Tests.NxLog
 				new FileWatchElement
 					{
 						Files = @"C:\Logs\mylog.log",
-						Type = "plain"
+						Type = "plain",
+						CustomNxlogConfig = new CustomNxlogConfig
+							{
+								Value = NxlogCustomConfigLine1 + Environment.NewLine + NxlogCustomConfigLine2
+							},
 					}
 				},
 				OutputSyslog = new SyslogEndpoint("ingestor.example.com", 443)
@@ -76,7 +83,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		[Test]
 		public void ShouldGenerateNxLogConfigWithCorrectLogFile()
 		{
-		 AssertConfigContains(@"LogFile		{0}", _nxLogProcessManager.NxLogFile);
+			AssertConfigContains(@"LogFile		{0}", _nxLogProcessManager.NxLogFile);
 		}
 
 		[Test]
@@ -154,6 +161,13 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		public void ShouldStoreConfigFileInDataFolder()
 		{
 			Assert.AreEqual(Path.Combine(_nxLogProcessManager.DataFolder, "nxlog.conf"), _nxLogProcessManager.ConfigFile);
+		}
+
+		[Test]
+		public void ShouldContainCustomNxlog()
+		{
+			AssertConfigContains(NxlogCustomConfigLine1);
+			AssertConfigContains(NxlogCustomConfigLine2);
 		}
 	}
 }
