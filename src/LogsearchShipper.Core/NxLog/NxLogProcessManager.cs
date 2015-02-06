@@ -315,7 +315,11 @@ LogFile		{1}
 			 Exec		if (file_size('{1}') >= {3}) file_cycle('{1}', 1);
 		</Schedule>
 </Extension>
-	
+
+<Extension json>
+	Module	xm_json
+</Extension>
+
 ModuleDir	{4}\modules
 CacheDir	{5}
 PidFile		{5}\nxlog.pid
@@ -336,6 +340,7 @@ SpoolDir	{6}
 {9}
 {10}
 {11}
+{12}
 ",
 				_log.IsDebugEnabled ? "DEBUG" : "INFO",
 				NxLogFile,
@@ -348,6 +353,7 @@ SpoolDir	{6}
 				GenerateOutputFileConfig(),
 				GenerateInputSyslogConfig(),
 				GenerateInputFilesConfig(),
+				GenerateInternalLoggingConfig(),
 				GenerateRoutes()
 				);
 
@@ -409,6 +415,8 @@ SpoolDir	{6}
 				allInputs += "in_file" + i + ",";
 			}
 			allInputs = allInputs.TrimEnd(new[] { ',' });
+
+			allInputs = "in_internal," + allInputs;
 
 			if (OutputSyslog != null)
 			{
@@ -611,6 +619,37 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			}
 
 			return filesSection;
+		}
+
+		private string GenerateInternalLoggingConfig()
+		{
+			// nxlog doesn't handle time zone correctly, so we need to set the correct time zone variable to be used in the nxlog config file
+			var timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
+			var timeZoneText = timeZoneOffset.ToString("hh\\:mm");
+			if (timeZoneOffset >= TimeSpan.Zero)
+				timeZoneText = "+" + timeZoneText;
+
+			var res = string.Format(@"
+<Input in_internal>
+   Module im_internal
+   Exec create_var('TZ_OFFSET');
+   Exec set_var('TZ_OFFSET', '{0}');
+
+   Exec $logger = 'nxlog.exe';
+   Exec	$environment = 'Nxlog.Test';
+   Exec delete($SourceModuleType); delete($SourceModuleName); delete($SeverityValue); delete($ProcessID);
+   Exec delete($SourceName); delete($EventReceivedTime); delete($Hostname);
+   Exec rename_field('Severity', 'level');
+   Exec $timestamp = strftime($EventTime, '%Y-%m-%dT%H:%M:%S' + get_var('TZ_OFFSET')); delete($EventTime);
+
+   Exec if string($Message) =~ /^failed to open/ $Category = 'MISSING_FILE';
+   Exec if string($Message) =~ /^input file does not exist:/ $Category = 'MISSING_FILE';
+   Exec if string($Message) =~ /^apr_stat failed on file/ $Category = 'MISSING_FILE';
+   Exec rename_field('Message', 'nxlog_message');
+
+   Exec to_json();  $type = 'json';
+</Input>", timeZoneText);
+			return res;
 		}
 	}
 }
