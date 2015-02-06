@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Xml;
 
 namespace LogSearchShipper.Core.ConfigurationSections
 {
@@ -28,6 +30,13 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["readFromLast"] = value; }
 		}
 
+		[ConfigurationProperty("customNxLogConfig")]
+		public CustomNxlogConfig CustomNxlogConfig
+		{
+			get { return (CustomNxlogConfig)this["customNxLogConfig"]; }
+			set { this["customNxLogConfig"] = value; }
+		}
+
 		[ConfigurationProperty("", IsDefaultCollection = true)]
 		public FieldCollection Fields
 		{
@@ -40,6 +49,22 @@ namespace LogSearchShipper.Core.ConfigurationSections
 				return _fieldCollection;
 			}
 			set { _fieldCollection = value; }
+		}
+	}
+
+	public class CustomNxlogConfig : ConfigurationElement
+	{
+		private string _value;
+
+		public string Value
+		{
+			get { return _value; }
+			set { _value = value.Trim(); }
+		}
+
+		protected override void DeserializeElement(XmlReader reader, bool serializeCollectionKey)
+		{
+			Value = (string)reader.ReadElementContentAs(typeof(string), null);
 		}
 	}
 
