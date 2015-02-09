@@ -626,8 +626,8 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			// nxlog doesn't handle time zone correctly, so we need to set the correct time zone variable to be used in the nxlog config file
 			var timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
 			var timeZoneText = timeZoneOffset.ToString("hh\\:mm");
-			if (timeZoneOffset >= TimeSpan.Zero)
-				timeZoneText = "+" + timeZoneText;
+			var sign = (timeZoneOffset >= TimeSpan.Zero) ? "+" : "-";
+			timeZoneText = sign + timeZoneText;
 
 			var res = string.Format(@"
 <Input in_internal>
