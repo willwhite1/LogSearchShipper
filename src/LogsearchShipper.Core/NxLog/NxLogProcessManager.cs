@@ -80,7 +80,7 @@ namespace LogSearchShipper.Core.NxLog
 
 		public string ConfigFile { get; private set; }
 
-		public bool IncludeSessionId { get; set; }
+		public string SessionId { get; set; }
 
 		public string BinFolder
 		{
@@ -111,7 +111,9 @@ namespace LogSearchShipper.Core.NxLog
 				throw new ObjectDisposedException(GetType().Name);
 			_stopped = false;
 
-			_sessionId = Guid.NewGuid().ToString();
+			_curSessionId = SessionId == "*"
+				? Guid.NewGuid().ToString()
+				: SessionId;
 
 			ExtractNXLog();
 			SetupConfigFile();
@@ -658,12 +660,12 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 
 		string GetSessionId()
 		{
-			if (!IncludeSessionId)
+			if (string.IsNullOrEmpty(_curSessionId))
 				return "";
-			var res = string.Format("   Exec $sessionId = '{0}';" + Environment.NewLine, _sessionId);
+			var res = string.Format("   Exec $sessionId = '{0}';" + Environment.NewLine, _curSessionId);
 			return res;
 		}
 
-		private string _sessionId;
+		private string _curSessionId;
 	}
 }

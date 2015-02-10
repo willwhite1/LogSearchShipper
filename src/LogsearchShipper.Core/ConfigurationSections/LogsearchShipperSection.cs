@@ -52,11 +52,11 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["shipper_service_password"] = value; }
 		}
 
-		[ConfigurationProperty("includeSessionId", IsRequired = false)]
-		public bool IncludeSessionId
+		[ConfigurationProperty("sessionId", IsRequired = false)]
+		public string SessionId
 		{
-			get { return (bool)this["includeSessionId"]; }
-			set { this["includeSessionId"] = value; }
+			get { return (string)this["sessionId"]; }
+			set { this["sessionId"] = value; }
 		}
 	}
 }
