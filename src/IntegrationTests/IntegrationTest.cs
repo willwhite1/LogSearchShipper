@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Xml;
 
 using NUnit.Framework;
 
@@ -32,6 +33,21 @@ namespace IntegrationTests
 			File.WriteAllText(filePath, GetLog(out ids));
 
 			GetAndValidateRecords(ids);
+		}
+
+		[Test]
+		public void TestNxlogStatusLogging()
+		{
+			Init();
+
+			var queryArgs = new Dictionary<string, string>
+			{
+				{ "@source.sessionId", CurrentGroupId },
+				{ "logger", "nxlog.exe" },
+			};
+
+			GetAndValidateRecords(queryArgs, new[] { "nxlog_message" }, 1,
+				records => Assert.IsTrue(records.Count > 0));
 		}
 
 		[Test]
@@ -186,7 +202,7 @@ namespace IntegrationTests
 				Trace.WriteLine("--- Validation warning - there are some duplicate records");
 		}
 
-		void GetAndValidateRecords(string[] ids, int waitMinutes = 10)
+		void GetAndValidateRecords(string[] ids, int waitMinutes = WaitResultPeriodMinutes)
 		{
 			var queryArgs = new Dictionary<string, string>
 			{
@@ -200,10 +216,20 @@ namespace IntegrationTests
 
 		private const int LinesPerFile = 100;
 		private const int LogFilesCount = 10;
+		private const int WaitResultPeriodMinutes = 10;
 
 		public override string TestName
 		{
 			get { return "LogSearchShipper.Test"; }
+		}
+
+		public override void AdjustConfig(XmlDocument config)
+		{
+			var nodes = config.SelectNodes("/configuration/LogSearchShipperGroup/LogSearchShipper");
+			foreach (XmlElement node in nodes)
+			{
+				node.SetAttribute("sessionId", CurrentGroupId);
+			}
 		}
 	}
 }
