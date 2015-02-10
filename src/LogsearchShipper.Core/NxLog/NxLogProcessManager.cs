@@ -80,6 +80,8 @@ namespace LogSearchShipper.Core.NxLog
 
 		public string ConfigFile { get; private set; }
 
+		public bool IncludeSessionId { get; set; }
+
 		public string BinFolder
 		{
 			get
@@ -108,6 +110,8 @@ namespace LogSearchShipper.Core.NxLog
 			if (_disposed)
 				throw new ObjectDisposedException(GetType().Name);
 			_stopped = false;
+
+			_sessionId = Guid.NewGuid().ToString();
 
 			ExtractNXLog();
 			SetupConfigFile();
@@ -615,6 +619,8 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 						filesSection += "\t" + customNxlog + Environment.NewLine;
 				}
 
+				filesSection += GetSessionId();
+
 				filesSection += @"</Input>" + Environment.NewLine;
 
 			}
@@ -645,8 +651,19 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
    Exec rename_field('Message', 'nxlog_message');
 
    Exec to_json();  $type = 'json';
-</Input>", timeZoneText);
+{1}
+</Input>", timeZoneText, GetSessionId());
 			return res;
 		}
+
+		string GetSessionId()
+		{
+			if (!IncludeSessionId)
+				return "";
+			var res = string.Format("   Exec $sessionId = '{0}';" + Environment.NewLine, _sessionId);
+			return res;
+		}
+
+		private string _sessionId;
 	}
 }
