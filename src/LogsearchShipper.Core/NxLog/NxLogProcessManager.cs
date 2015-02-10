@@ -611,7 +611,8 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 				if (inputFile.CustomNxlogConfig != null)
 				{
 					var customNxlog = inputFile.CustomNxlogConfig.Value;
-					filesSection += "\t" + customNxlog + Environment.NewLine;
+					if (!string.IsNullOrWhiteSpace(customNxlog))
+						filesSection += "\t" + customNxlog + Environment.NewLine;
 				}
 
 				filesSection += @"</Input>" + Environment.NewLine;
