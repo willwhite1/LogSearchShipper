@@ -49,30 +49,32 @@ namespace LogSearchShipper.Core
 
 			var processId = NxLogProcessManager.Start();
 
-			WhenConfigFileChanges(() =>
-			{
-				_log.Info("LogSearchShipperProcessManager - configs have changed");
-
-				if (_configChanging.isBusy)
-				{
-					_log.Info("Already in the process of updating config; ignoring trigger");
-					return;
-				}
-
-				lock (_configChanging)
-				{
-					_configChanging.isBusy = true;
-
-					_log.Info("Updating config and restarting shipping...");
-					NxLogProcessManager.Stop();
-					SetupInputFiles();
-					NxLogProcessManager.Start();
-
-					_configChanging.isBusy = false;
-				}
-			});
+			WhenConfigFileChanges(OnEdbConfigChange);
 
 			return processId;
+		}
+
+		private void OnEdbConfigChange()
+		{
+			_log.Info("LogSearchShipperProcessManager - configs have changed");
+
+			if (_configChanging.isBusy)
+			{
+				_log.Info("Already in the process of updating config; ignoring trigger");
+				return;
+			}
+
+			lock (_configChanging)
+			{
+				_configChanging.isBusy = true;
+
+				_log.Info("Updating config and restarting shipping...");
+				NxLogProcessManager.Stop();
+				SetupInputFiles();
+				NxLogProcessManager.Start();
+
+				_configChanging.isBusy = false;
+			}
 		}
 
 		// TODO code around this probably is not thread safe
