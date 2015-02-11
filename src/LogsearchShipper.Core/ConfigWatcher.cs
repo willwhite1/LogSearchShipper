@@ -12,29 +12,43 @@ namespace LogSearchShipper.Core
 		public ConfigWatcher(string fullPath, ILog log)
 		{
 			_log = log;
-			Watcher = new FileSystemWatcher(Path.GetDirectoryName(fullPath), Path.GetFileName(fullPath));
-			Watcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size;
+			Watcher = new FileSystemWatcher(Path.GetDirectoryName(fullPath), Path.GetFileName(fullPath))
+			{
+				NotifyFilter = NotifyFilters.FileName | NotifyFilters .LastWrite | NotifyFilters.Size,
+			};
 		}
 
-		public DateTime LastWriteTime;
 		public readonly FileSystemWatcher Watcher;
-		public event Action Changed;
 
 		public void SubscribeConfigFileChanges(Action actionsToRun)
 		{
-			Watcher.Changed += (s, e) =>
-			{
-				try
-				{
-					_log.InfoFormat("Detected change in file: {0}", e.FullPath);
-					actionsToRun();
-				}
-				catch (Exception exc)
-				{
-					_log.Error(exc);
-				}
-			};
+			Watcher.Changed += (s, e) => OnChanged(actionsToRun, e);
 			Watcher.EnableRaisingEvents = true;
+		}
+
+		private void OnChanged(Action actionsToRun, FileSystemEventArgs e)
+		{
+			try
+			{
+				var lastWriteTime = File.GetLastWriteTimeUtc(e.FullPath);
+				lock (_sync)
+				{
+					if (_lastWriteTime == lastWriteTime)
+						return;
+				}
+
+				_log.InfoFormat("Detected change in file: {0}", e.FullPath);
+				actionsToRun();
+
+				lock (_sync)
+				{
+					_lastWriteTime = lastWriteTime;
+				}
+			}
+			catch (Exception exc)
+			{
+				_log.Error(exc);
+			}
 		}
 
 		public void Dispose()
@@ -43,6 +57,8 @@ namespace LogSearchShipper.Core
 			Watcher.Dispose();
 		}
 
+		private DateTime _lastWriteTime;
 		private readonly ILog _log;
+		readonly object _sync = new object();
 	}
 }
