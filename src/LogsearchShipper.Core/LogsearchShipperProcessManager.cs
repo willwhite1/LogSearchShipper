@@ -58,27 +58,33 @@ namespace LogSearchShipper.Core
 		{
 			_log.Info("LogSearchShipperProcessManager - configs have changed");
 
-			if (_configChanging.isBusy)
+			lock (_configChangingSync)
 			{
-				_log.Info("Already in the process of updating config; ignoring trigger");
-				return;
-			}
+				if (_configChanging)
+				{
+					_log.Info("Already in the process of updating config; ignoring trigger");
+					return;
+				}
 
-			lock (_configChanging)
-			{
-				_configChanging.isBusy = true;
+				_configChanging = true;
 
-				_log.Info("Updating config and restarting shipping...");
-				NxLogProcessManager.Stop();
-				SetupInputFiles();
-				NxLogProcessManager.Start();
-
-				_configChanging.isBusy = false;
+				try
+				{
+					_log.Info("\r\n######################\r\n");
+					_log.Info("Updating config and restarting shipping...");
+					NxLogProcessManager.Stop();
+					SetupInputFiles();
+					NxLogProcessManager.Start();
+				}
+				finally
+				{
+					_configChanging = false;
+				}
 			}
 		}
 
-		// TODO code around this probably is not thread safe
-		readonly CodeBlockLocker _configChanging = new CodeBlockLocker { isBusy = false };
+		readonly object _configChangingSync = new object();
+		private bool _configChanging;
 
 		public void Stop()
 		{
