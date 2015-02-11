@@ -49,33 +49,34 @@ namespace LogSearchShipper.Core
 
 			var processId = NxLogProcessManager.Start();
 
-			var configChanging = new CodeBlockLocker { isBusy = false };
-
 			WhenConfigFileChanges(() =>
 			{
 				_log.Info("LogSearchShipperProcessManager - configs have changed");
 
-				if (configChanging.isBusy)
+				if (_configChanging.isBusy)
 				{
 					_log.Info("Already in the process of updating config; ignoring trigger");
 					return;
 				}
 
-				lock (configChanging)
+				lock (_configChanging)
 				{
-					configChanging.isBusy = true;
+					_configChanging.isBusy = true;
 
 					_log.Info("Updating config and restarting shipping...");
 					NxLogProcessManager.Stop();
 					SetupInputFiles();
 					NxLogProcessManager.Start();
 
-					configChanging.isBusy = false;
+					_configChanging.isBusy = false;
 				}
 			});
 
 			return processId;
 		}
+
+		// TODO code around this probably is not thread safe
+		readonly CodeBlockLocker _configChanging = new CodeBlockLocker { isBusy = false };
 
 		public void Stop()
 		{
