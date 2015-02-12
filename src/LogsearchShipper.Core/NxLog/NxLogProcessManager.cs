@@ -80,6 +80,8 @@ namespace LogSearchShipper.Core.NxLog
 
 		public string ConfigFile { get; private set; }
 
+		public string SessionId { get; set; }
+
 		public string BinFolder
 		{
 			get
@@ -109,6 +111,10 @@ namespace LogSearchShipper.Core.NxLog
 				throw new ObjectDisposedException(GetType().Name);
 			_stopped = false;
 
+			_curSessionId = SessionId == "*"
+				? Guid.NewGuid().ToString()
+				: SessionId;
+
 			ExtractNXLog();
 			SetupConfigFile();
 			StartNxLogProcess();
@@ -129,9 +135,6 @@ namespace LogSearchShipper.Core.NxLog
 
 			ServiceControllerEx.CreateService(_serviceName, serviceArguments, _userName, _password);
 			ServiceControllerEx.StartService(_serviceName);
-
-			// Start a background task to log nxlog process output every 250ms
-			Task.Run(() => new NxLogFileWatcher(this).WatchAndLog());
 
 			lock (_sync)
 			{
@@ -318,7 +321,11 @@ LogFile		{1}
 			 Exec		if (file_size('{1}') >= {3}) file_cycle('{1}', 1);
 		</Schedule>
 </Extension>
-	
+
+<Extension json>
+	Module	xm_json
+</Extension>
+
 ModuleDir	{4}\modules
 CacheDir	{5}
 PidFile		{5}\nxlog.pid
@@ -339,6 +346,7 @@ SpoolDir	{6}
 {9}
 {10}
 {11}
+{12}
 ",
 				_log.IsDebugEnabled ? "DEBUG" : "INFO",
 				NxLogFile,
@@ -351,6 +359,7 @@ SpoolDir	{6}
 				GenerateOutputFileConfig(),
 				GenerateInputSyslogConfig(),
 				GenerateInputFilesConfig(),
+				GenerateInternalLoggingConfig(),
 				GenerateRoutes()
 				);
 
@@ -412,6 +421,8 @@ SpoolDir	{6}
 				allInputs += "in_file" + i + ",";
 			}
 			allInputs = allInputs.TrimEnd(new[] { ',' });
+
+			allInputs = "in_internal," + allInputs;
 
 			if (OutputSyslog != null)
 			{
@@ -508,7 +519,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 		Host	{0}
 		Port	{1}
 		AllowUntrusted TRUE
-		Exec	$Message=replace($Message,""\n"",""¬""); 
+		Exec	if $Message $Message=replace($Message,""\n"",""¬""); 
 		Exec	to_syslog_ietf();
 </Output>",
 				OutputSyslog.Host, OutputSyslog.Port);
@@ -601,13 +612,16 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 					filesSection += string.Format(@"${0} = ""{1}""; ", field.Key, field.Value);
 				}
 				// Limit maximum message size to just less than 1MB; or NXLog dies with: ERROR string limit (1048576 bytes) reached
-				filesSection += @"$Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
+				filesSection += @"if $Message $Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
 
 				if (inputFile.CustomNxlogConfig != null)
 				{
 					var customNxlog = inputFile.CustomNxlogConfig.Value;
-					filesSection += "\t" + customNxlog + Environment.NewLine;
+					if (!string.IsNullOrWhiteSpace(customNxlog))
+						filesSection += "\t" + customNxlog + Environment.NewLine;
 				}
+
+				filesSection += GetSessionId();
 
 				filesSection += @"</Input>" + Environment.NewLine;
 
@@ -615,5 +629,43 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 
 			return filesSection;
 		}
+
+		private string GenerateInternalLoggingConfig()
+		{
+			// nxlog doesn't handle time zone correctly, so we need to set the correct time zone variable to be used in the nxlog config file
+			var timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
+			var timeZoneText = timeZoneOffset.ToString("hh\\:mm");
+			var sign = (timeZoneOffset >= TimeSpan.Zero) ? "+" : "-";
+			timeZoneText = sign + timeZoneText;
+
+			var res = string.Format(@"
+<Input in_internal>
+   Module im_internal
+   Exec $logger = 'nxlog.exe';
+   Exec delete($SourceModuleType); delete($SourceModuleName); delete($SeverityValue); delete($ProcessID);
+   Exec delete($SourceName); delete($EventReceivedTime); delete($Hostname);
+   Exec rename_field('Severity', 'level');
+   Exec $timestamp = strftime($EventTime, '%Y-%m-%dT%H:%M:%S' + '{0}'); delete($EventTime);
+
+   Exec if string($Message) =~ /^failed to open/ $Category = 'MISSING_FILE';
+   Exec if string($Message) =~ /^input file does not exist:/ $Category = 'MISSING_FILE';
+   Exec if string($Message) =~ /^apr_stat failed on file/ $Category = 'MISSING_FILE';
+   Exec rename_field('Message', 'nxlog_message');
+
+   Exec to_json();  $type = 'json';
+{1}
+</Input>", timeZoneText, GetSessionId());
+			return res;
+		}
+
+		string GetSessionId()
+		{
+			if (string.IsNullOrEmpty(_curSessionId))
+				return "";
+			var res = string.Format("   Exec $sessionId = '{0}';" + Environment.NewLine, _curSessionId);
+			return res;
+		}
+
+		private string _curSessionId;
 	}
 }
