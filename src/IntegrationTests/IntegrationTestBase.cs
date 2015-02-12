@@ -100,6 +100,7 @@ namespace IntegrationTests
 			{
 				Thread.Sleep(TimeSpan.FromMinutes(1));
 				var records = EsUtil.GetRecords(queryArgs);
+				Trace.WriteLine(string.Format("    Checking ES records: {0} total found", records.Count));
 				var filtered = records.Where(record => requiredFields.Any(requiredField => record.Fields.ContainsKey(requiredField))).ToList();
 
 				if (filtered.Count >= expectedCount || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(waitMinutes))

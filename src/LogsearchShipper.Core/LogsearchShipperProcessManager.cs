@@ -41,6 +41,7 @@ namespace LogSearchShipper.Core
 			}
 			NxLogProcessManager = new NxLogProcessManager(LogSearchShipperConfig.DataFolder,
 				LogSearchShipperConfig.ShipperServiceUsername, LogSearchShipperConfig.ShipperServicePassword);
+			NxLogProcessManager.SessionId = LogSearchShipperConfig.SessionId;
 
 			SetupInputFiles();
 			NxLogProcessManager.OutputSyslog = new SyslogEndpoint(LogSearchShipperConfig.IngestorHost,
