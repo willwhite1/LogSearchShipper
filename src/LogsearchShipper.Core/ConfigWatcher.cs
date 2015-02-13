@@ -34,7 +34,10 @@ namespace LogSearchShipper.Core
 				lock (_sync)
 				{
 					if (_lastWriteTime == lastWriteTime)
+					{
+						_log.DebugFormat("Ignoring change in file: {0} since last write time hasn't changed", e.FullPath);
 						return;
+					}
 				}
 
 				_log.InfoFormat("Detected change in file: {0}", e.FullPath);
