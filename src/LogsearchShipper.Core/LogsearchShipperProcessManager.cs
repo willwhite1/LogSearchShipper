@@ -16,7 +16,7 @@ namespace LogSearchShipper.Core
 		private static readonly ILog _log = LogManager.GetLogger(typeof(LogSearchShipperProcessManager));
 
 		private readonly Dictionary<string, Timer> _environmentDiagramLoggingTimers = new Dictionary<string, Timer>();
-		private readonly List<FileSystemWatcher> _watchedConfigFiles = new List<FileSystemWatcher>();
+		private readonly List<ConfigWatcher> _watchedConfigFiles = new List<ConfigWatcher>();
 
 		public NxLogProcessManager NxLogProcessManager { get; private set; }
 
@@ -49,33 +49,42 @@ namespace LogSearchShipper.Core
 
 			var processId = NxLogProcessManager.Start();
 
-			var configChanging = new CodeBlockLocker { isBusy = false };
+			foreach (var watcher in _watchedConfigFiles)
+				watcher.SubscribeConfigFileChanges(OnEdbConfigChange);
 
-			WhenConfigFileChanges(() =>
+			return processId;
+		}
+
+		private void OnEdbConfigChange()
+		{
+			_log.Info("LogSearchShipperProcessManager - configs have changed");
+
+			lock (_configChangingSync)
 			{
-				_log.Info("LogSearchShipperProcessManager - configs have changed");
-
-				if (configChanging.isBusy)
+				if (_configChanging)
 				{
 					_log.Info("Already in the process of updating config; ignoring trigger");
 					return;
 				}
 
-				lock (configChanging)
-				{
-					configChanging.isBusy = true;
+				_configChanging = true;
 
+				try
+				{
 					_log.Info("Updating config and restarting shipping...");
 					NxLogProcessManager.Stop();
 					SetupInputFiles();
 					NxLogProcessManager.Start();
-
-					configChanging.isBusy = false;
 				}
-			});
-
-			return processId;
+				finally
+				{
+					_configChanging = false;
+				}
+			}
 		}
+
+		readonly object _configChangingSync = new object();
+		private bool _configChanging;
 
 		public void Stop()
 		{
@@ -87,9 +96,8 @@ namespace LogSearchShipper.Core
 				environmentDiagramLoggingTimer.Dispose();
 			}
 			_log.Info("Stopping EDB file watchers...");
-			foreach (FileSystemWatcher watchedConfigFile in _watchedConfigFiles)
+			foreach (var watchedConfigFile in _watchedConfigFiles)
 			{
-				watchedConfigFile.EnableRaisingEvents = false;
 				watchedConfigFile.Dispose();
 			}
 
@@ -107,45 +115,24 @@ namespace LogSearchShipper.Core
 			NxLogProcessManager.InputFiles = watches;
 		}
 
-		private void WhenConfigFileChanges(Action actionsToRun)
-		{
-			foreach (FileSystemWatcher watcher in _watchedConfigFiles)
-			{
-				watcher.Changed += (s, e) =>
-				{
-					try
-					{
-						_log.InfoFormat("Detected change in file: {0}", e.FullPath);
-						actionsToRun();
-					}
-					catch (Exception exc)
-					{
-						_log.Error(exc);
-					}
-				};
-				watcher.EnableRaisingEvents = true;
-			}
-		}
-
 		private void AddWatchedConfigFile(string filePath)
 		{
 			string fullPath = Path.GetFullPath(filePath);
-			if (WatcherAlreadyExists(fullPath)) return;
-			var watcher = new FileSystemWatcher(Path.GetDirectoryName(fullPath), Path.GetFileName(fullPath));
-			watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size;
+			if (WatcherAlreadyExists(fullPath))
+				return;
+			var watcher = new ConfigWatcher(fullPath, _log);
 			_watchedConfigFiles.Add(watcher);
 		}
 
 		private bool WatcherAlreadyExists(string fullPath)
 		{
-			foreach (FileSystemWatcher watcher in _watchedConfigFiles)
+			foreach (var watcher in _watchedConfigFiles)
 			{
-				if (Path.Combine(watcher.Path, watcher.Filter) == fullPath)
+				if (Path.Combine(watcher.Watcher.Path, watcher.Watcher.Filter) == fullPath)
 					return true;
 			}
 			return false;
 		}
-
 
 		private static void ExtractFileWatchers(LogSearchShipperSection LogSearchShipperConfig, List<FileWatchElement> watches)
 		{
@@ -195,13 +182,13 @@ namespace LogSearchShipper.Core
 		{
 			try
 			{
-				var parser = new EDBFileWatchParser((EnvironmentWatchElement) state);
+				var parser = new EDBFileWatchParser((EnvironmentWatchElement)state);
 				IEnumerable<EDBEnvironment> environments = parser.GenerateLogsearchEnvironmentDiagram();
 
 				_log.Info(string.Format("Logged environment diagram data for {0}",
 					string.Join(",", environments.Select(e => e.Name))));
 
-				LogManager.GetLogger("EnvironmentDiagramLogger").Info(new {Environments = environments});
+				LogManager.GetLogger("EnvironmentDiagramLogger").Info(new { Environments = environments });
 
 				EdbDataFormatter.ReportData(environments);
 			}
@@ -209,11 +196,6 @@ namespace LogSearchShipper.Core
 			{
 				_log.Error(exc);
 			}
-		}
-
-		public class CodeBlockLocker
-		{
-			public bool isBusy { get; set; }
 		}
 	}
 }
