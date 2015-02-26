@@ -58,5 +58,19 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			get { return (string)this["sessionId"]; }
 			set { this["sessionId"] = value; }
 		}
+
+		[ConfigurationProperty("processor_usage_reporting_interval_seconds", IsRequired = false, DefaultValue = 60.0d)]
+		public double ProcessorUsageReportingIntervalSeconds
+		{
+			get { return (double)this["processor_usage_reporting_interval_seconds"]; }
+			set { this["processor_usage_reporting_interval_seconds"] = value; }
+		}
+
+		[ConfigurationProperty("file_poll_interval_seconds", IsRequired = false, DefaultValue = 5.0d)]
+		public double FilePollIntervalSeconds
+		{
+			get { return (double)this["file_poll_interval_seconds"]; }
+			set { this["file_poll_interval_seconds"] = value; }
+		}
 	}
 }
