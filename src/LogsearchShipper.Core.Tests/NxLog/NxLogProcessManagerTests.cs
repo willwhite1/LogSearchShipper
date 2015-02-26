@@ -36,7 +36,8 @@ namespace LogSearchShipper.Core.Tests.NxLog
 							},
 					}
 				},
-				OutputSyslog = new SyslogEndpoint("ingestor.example.com", 443)
+				OutputSyslog = new SyslogEndpoint("ingestor.example.com", 443),
+				FilePollIntervalSeconds = 5,
 			};
 			_nxLogProcessManager.SetupConfigFile();
 		}
@@ -176,6 +177,13 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		{
 			AssertConfigContains(NxlogCustomConfigLine1);
 			AssertConfigContains(NxlogCustomConfigLine2);
+		}
+
+		[Test]
+		public void ShouldSetPollingIntervals()
+		{
+			AssertConfigContains(@"PollInterval 5");
+			AssertConfigContains(@"DirCheckInterval 10");
 		}
 	}
 }
