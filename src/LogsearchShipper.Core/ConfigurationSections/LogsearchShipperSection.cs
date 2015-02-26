@@ -59,7 +59,7 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["sessionId"] = value; }
 		}
 
-		[ConfigurationProperty("processor_usage_reporting_interval_seconds", IsRequired = false, DefaultValue = 1.0d)]
+		[ConfigurationProperty("processor_usage_reporting_interval_seconds", IsRequired = false, DefaultValue = 60.0d)]
 		public double ProcessorUsageReportingIntervalSeconds
 		{
 			get { return (double)this["processor_usage_reporting_interval_seconds"]; }
