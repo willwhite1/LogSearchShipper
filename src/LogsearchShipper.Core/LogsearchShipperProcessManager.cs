@@ -40,8 +40,12 @@ namespace LogSearchShipper.Core
 				Directory.CreateDirectory(LogSearchShipperConfig.DataFolder);
 			}
 			NxLogProcessManager = new NxLogProcessManager(LogSearchShipperConfig.DataFolder,
-				LogSearchShipperConfig.ShipperServiceUsername, LogSearchShipperConfig.ShipperServicePassword);
-			NxLogProcessManager.SessionId = LogSearchShipperConfig.SessionId;
+				LogSearchShipperConfig.ShipperServiceUsername, LogSearchShipperConfig.ShipperServicePassword)
+				{
+					SessionId = LogSearchShipperConfig.SessionId,
+					ProcessorUsageReportingIntervalSeconds = LogSearchShipperConfig.ProcessorUsageReportingIntervalSeconds,
+					FilePollIntervalSeconds = LogSearchShipperConfig.FilePollIntervalSeconds,
+				};
 
 			SetupInputFiles();
 			NxLogProcessManager.OutputSyslog = new SyslogEndpoint(LogSearchShipperConfig.IngestorHost,

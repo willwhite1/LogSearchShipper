@@ -82,6 +82,10 @@ namespace LogSearchShipper.Core.NxLog
 
 		public string SessionId { get; set; }
 
+		public double FilePollIntervalSeconds { get; set; }
+
+		public double ProcessorUsageReportingIntervalSeconds { get; set; }
+
 		public string BinFolder
 		{
 			get
@@ -175,7 +179,7 @@ namespace LogSearchShipper.Core.NxLog
 						_log.Error(exc.ToString());
 					}
 
-					Thread.Sleep(TimeSpan.FromSeconds(60));
+					Thread.Sleep(TimeSpan.FromSeconds(ProcessorUsageReportingIntervalSeconds));
 				}
 			}
 			catch (ThreadInterruptedException)
@@ -598,14 +602,15 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	ReadFromLast {2}
 	SavePos	TRUE
 	CloseWhenIdle TRUE
-	PollInterval 5
+	PollInterval {5}
 	DirCheckInterval 10
 	Exec	$path = ""{3}""; $type = ""{4}""; ",
 					i,
 					inputFileEscaped,
 					inputFile.ReadFromLast.ToString().ToUpper(),
 					inputFile.Files,
-					inputFile.Type);
+					inputFile.Type,
+					FilePollIntervalSeconds * 2);
 
 				foreach (FieldElement field in inputFile.Fields)
 				{
