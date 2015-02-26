@@ -603,13 +603,14 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	SavePos	TRUE
 	CloseWhenIdle TRUE
 	PollInterval {5}
-	DirCheckInterval 10
+	DirCheckInterval {6}
 	Exec	$path = ""{3}""; $type = ""{4}""; ",
 					i,
 					inputFileEscaped,
 					inputFile.ReadFromLast.ToString().ToUpper(),
 					inputFile.Files,
 					inputFile.Type,
+					FilePollIntervalSeconds,
 					FilePollIntervalSeconds * 2);
 
 				foreach (FieldElement field in inputFile.Fields)
