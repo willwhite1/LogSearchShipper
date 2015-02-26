@@ -77,7 +77,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		public void ShouldGenerateNxLogConfigWithCorrectSpoolDir()
 		{
 			AssertConfigContains(@"SpoolDir	{0}",
-			Path.GetDirectoryName(Assembly.GetAssembly(typeof (NxLogProcessManager)).Location));
+			Path.GetDirectoryName(Assembly.GetAssembly(typeof(NxLogProcessManager)).Location));
 		}
 
 		[Test]
@@ -89,9 +89,9 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		[Test]
 		public void ShouldGenerateNxLogConfigWithMultiline()
 		{
-		 AssertConfigContains(@"Module	xm_multiline");
-		 AssertConfigContains(@"HeaderLine	/^([^ ]+).*/");
-		 AssertConfigContains(@"InputType	multiline");
+			AssertConfigContains(@"Module	xm_multiline");
+			AssertConfigContains(@"HeaderLine	/^([^ ]+).*/");
+			AssertConfigContains(@"InputType	multiline");
 		}
 
 		[Test]
@@ -133,12 +133,12 @@ namespace LogSearchShipper.Core.Tests.NxLog
 			Assert.IsTrue(atLeastOneInput);
 		}
 
-	 [Test]
-	 public void ShouldGenerateNXLogConfigWithCorrectLogLevelBasedOnLog4NETSetting()
-	 {
-		 var expectedLevel = LogManager.GetLogger(typeof(NxLogProcessManager)).IsDebugEnabled ? "DEBUG" : "INFO";
-		 AssertConfigContains("LogLevel	{0}", expectedLevel);
-	 }
+		[Test]
+		public void ShouldGenerateNXLogConfigWithCorrectLogLevelBasedOnLog4NETSetting()
+		{
+			var expectedLevel = LogManager.GetLogger(typeof(NxLogProcessManager)).IsDebugEnabled ? "DEBUG" : "INFO";
+			AssertConfigContains("LogLevel	{0}", expectedLevel);
+		}
 
 		[Test]
 		public void ShouldGenerateNxLogConfigWithCorrectSyslogOutputSettings()
@@ -160,7 +160,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		{
 			var _processId = _nxLogProcessManager.Start();
 
-		 Thread.Sleep(TimeSpan.FromSeconds(1));
+			Thread.Sleep(TimeSpan.FromSeconds(1));
 
 			Assert.IsNotNull(Process.GetProcessById(Convert.ToInt32(_processId)), "a NXLog process wasn't started");
 		}
