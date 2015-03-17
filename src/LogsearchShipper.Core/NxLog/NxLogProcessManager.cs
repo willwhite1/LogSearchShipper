@@ -557,8 +557,8 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			_log.Info(string.Format("Extracting nxlog.zip => {0}", BinFolder));
 			using (var fStream = new FileStream(zipFile, FileMode.Create))
 			{
-				fStream.Write(Resource.nxlog_ce_2_8_1248_zip,
-					0, Resource.nxlog_ce_2_8_1248_zip.Length);
+				var nxlogFile = Resource.nxlog_ce_2_9_1347;
+				fStream.Write(nxlogFile, 0, nxlogFile.Length);
 			}
 
 			using (ZipArchive archive = ZipFile.Open(zipFile, ZipArchiveMode.Read))
