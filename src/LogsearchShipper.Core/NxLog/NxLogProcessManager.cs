@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -551,17 +552,29 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 
 			_log.Info(string.Format("BinFolder => {0}", BinFolder));
 
-			string zipFile = Path.Combine(BinFolder, "nxlog.zip");
-			if (File.Exists(zipFile)) return;
+			var zipProperty = typeof(Resource).GetProperties(BindingFlags.Static | BindingFlags.NonPublic).
+				First(property => property.Name.StartsWith("nxlog_ce_"));
+			var newZipFile = (byte[])zipProperty.GetValue(null);
+			var zipFileName = Path.Combine(BinFolder, zipProperty.Name + ".zip");
 
-			_log.Info(string.Format("Extracting nxlog.zip => {0}", BinFolder));
-			using (var fStream = new FileStream(zipFile, FileMode.Create))
+			if (File.Exists(zipFileName) && File.Exists(Path.Combine(BinFolder, "nxlog.exe")))
 			{
-				var nxlogFile = Resource.nxlog_ce_2_9_1347;
-				fStream.Write(nxlogFile, 0, nxlogFile.Length);
+				_log.InfoFormat("'{0}' already exists", zipFileName);
+				return;
 			}
 
-			using (ZipArchive archive = ZipFile.Open(zipFile, ZipArchiveMode.Read))
+			foreach (var file in Directory.GetFiles(BinFolder, "*", SearchOption.AllDirectories))
+			{
+				File.Delete(file);
+			}
+
+			_log.Info(string.Format("Extracting nxlog.zip => {0}", BinFolder));
+			using (var fStream = new FileStream(zipFileName, FileMode.Create))
+			{
+				fStream.Write(newZipFile, 0, newZipFile.Length);
+			}
+
+			using (var archive = ZipFile.Open(zipFileName, ZipArchiveMode.Read))
 			{
 				archive.ExtractToDirectory(BinFolder);
 			}
