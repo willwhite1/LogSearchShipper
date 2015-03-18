@@ -40,6 +40,13 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["networkAreas"] = value; }
 		}
 
+		[ConfigurationProperty("networkAreasNegative", IsRequired = false)]
+		public String NetworkAreasNegative
+		{
+			get { return (String)this["networkAreasNegative"] ?? ""; }
+			set { this["networkAreasNegative"] = value; }
+		}
+
 		[ConfigurationProperty("serverNames", IsRequired = false)]
 		public String ServerNames
 		{
@@ -54,6 +61,13 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["serverNames"] = value; }
 		}
 
+		[ConfigurationProperty("serverNamesNegative", IsRequired = false)]
+		public String ServerNamesNegative
+		{
+			get { return (String)this["serverNamesNegative"] ?? ""; }
+			set { this["serverNamesNegative"] = value; }
+		}
+
 		[ConfigurationProperty("serviceNames", IsRequired = false)]
 		public String ServiceNames
 		{
@@ -66,6 +80,13 @@ namespace LogSearchShipper.Core.ConfigurationSections
 				return string.Empty;
 			}
 			set { this["serviceNames"] = value; }
+		}
+
+		[ConfigurationProperty("serviceNamesNegative", IsRequired = false)]
+		public String ServiceNamesNegative
+		{
+			get { return (String)this["serviceNamesNegative"] ?? ""; }
+			set { this["serviceNamesNegative"] = value; }
 		}
 
 		[ConfigurationProperty("", IsDefaultCollection = true)]
