@@ -94,9 +94,9 @@ namespace LogSearchShipper.Core
 
 			var serversFiltered = environmentDataXml.Descendants("Servers").Descendants("Server").Where(
 				server => server.Element("Name").Value.RegExMatches(_environmentWatchElement.ServerNames) &&
-					!server.Element("Name").Value.RegExMatches(_environmentWatchElement.ServerNamesNegative) &&
+					!server.Element("Name").Value.RegExMatches(_environmentWatchElement.ServerNamesNotMatch) &&
 					server.Element("NetworkArea").Value.RegExMatches(_environmentWatchElement.NetworkAreas) &&
-					!server.Element("NetworkArea").Value.RegExMatches(_environmentWatchElement.NetworkAreasNegative)
+					!server.Element("NetworkArea").Value.RegExMatches(_environmentWatchElement.NetworkAreasNotMatch)
 				).ToArray();
 
 			var servers = (from server in serversFiltered
@@ -106,7 +106,7 @@ namespace LogSearchShipper.Core
 					NetworkArea = server.Element("NetworkArea").Value,
 					Services = from service in server.Descendants("Services").Descendants("Entity")
 						where service.Element("Name").Value.RegExMatches(_environmentWatchElement.ServiceNames) &&
-							!service.Element("Name").Value.RegExMatches(_environmentWatchElement.ServiceNamesNegative)
+							!service.Element("Name").Value.RegExMatches(_environmentWatchElement.ServiceNamesNotMatch)
 						select new
 						{
 							Name = service.Element("Name").Value,
