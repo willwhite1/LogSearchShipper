@@ -90,9 +90,11 @@ namespace LogSearchShipper.Core
 		{
 			XDocument environmentDataXml = LoadEDBXml();
 
-			var servers = from server in environmentDataXml.Descendants("Servers").Descendants("Server")
-				where server.Element("Name").Value.RegExContains(_environmentWatchElement.ServerNames)
-				      && server.Element("NetworkArea").Value.RegExContains(_environmentWatchElement.NetworkAreas)
+			var serversFiltered = environmentDataXml.Descendants("Servers").Descendants("Server").Where(
+				server => server.Element("Name").Value.RegExContains(_environmentWatchElement.ServerNames)
+				      && server.Element("NetworkArea").Value.RegExContains(_environmentWatchElement.NetworkAreas)).ToArray();
+
+			var servers = from server in serversFiltered
 				select new
 				{
 					Name = server.Element("Name").Value,
