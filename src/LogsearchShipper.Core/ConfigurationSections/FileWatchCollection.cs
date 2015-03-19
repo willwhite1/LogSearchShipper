@@ -37,6 +37,13 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["customNxLogConfig"] = value; }
 		}
 
+		[ConfigurationProperty("closeWhenIdle", IsRequired = false, DefaultValue = true)]
+		public bool CloseWhenIdle
+		{
+			get { return (bool)this["closeWhenIdle"]; }
+			set { this["closeWhenIdle"] = value; }
+		}
+
 		[ConfigurationProperty("", IsDefaultCollection = true)]
 		public FieldCollection Fields
 		{
