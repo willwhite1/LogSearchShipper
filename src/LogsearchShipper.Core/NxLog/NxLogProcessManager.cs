@@ -601,7 +601,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	File	""{1}""
 	ReadFromLast {2}
 	SavePos	TRUE
-	CloseWhenIdle TRUE
+	CloseWhenIdle {7}
 	PollInterval {5}
 	DirCheckInterval {6}
 	Exec	$path = ""{3}""; $type = ""{4}""; ",
@@ -611,7 +611,8 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 					inputFile.Files,
 					inputFile.Type,
 					FilePollIntervalSeconds,
-					FilePollIntervalSeconds * 2);
+					FilePollIntervalSeconds * 2,
+					inputFile.CloseWhenIdle.ToString().ToUpper());
 
 				foreach (FieldElement field in inputFile.Fields)
 				{
