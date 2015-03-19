@@ -75,6 +75,7 @@ namespace LogSearchShipper.Core.Tests
 				var edbFileWatchParser = new EDBFileWatchParser(config.EDBFileWatchers[0]);
 				var watchElements = edbFileWatchParser.ToFileWatchCollection();
 				Assert.AreEqual(1, watchElements.Count);
+				Assert.IsTrue(!watchElements.First().Files.Contains("ENV1"));
 				Assert.IsTrue(watchElements.First().Files.Contains("-ENV2-"));
 			}
 		}
