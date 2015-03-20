@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LogJsonFormattingTests.cs" />
-    <Compile Include="NxLogProcessManagerTests2.cs" />
+    <Compile Include="NxLog\NxLogProcessManagerTests2.cs" />
     <Compile Include="NxLog\NxLogProcessManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SetupFixture.cs" />
