@@ -57,6 +57,11 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			}
 			set { _fieldCollection = value; }
 		}
+
+		public override string ToString()
+		{
+			return string.Format("{0}", Files);
+		}
 	}
 
 	public class CustomNxlogConfig : ConfigurationElement
