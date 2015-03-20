@@ -69,8 +69,10 @@ namespace LogSearchShipper.Core
 
 	public static class SearchExtensionMethods
 	{
-		public static bool RegExContains(this string str, string regEx)
+		public static bool RegExMatches(this string str, string regEx)
 		{
+			if (string.IsNullOrEmpty(regEx))
+				return false;
 			return Regex.Match(str, regEx, RegexOptions.IgnoreCase).Success;
 		}
 	}
@@ -90,15 +92,21 @@ namespace LogSearchShipper.Core
 		{
 			XDocument environmentDataXml = LoadEDBXml();
 
-			var servers = from server in environmentDataXml.Descendants("Servers").Descendants("Server")
-				where server.Element("Name").Value.RegExContains(_environmentWatchElement.ServerNames)
-				      && server.Element("NetworkArea").Value.RegExContains(_environmentWatchElement.NetworkAreas)
+			var serversFiltered = environmentDataXml.Descendants("Servers").Descendants("Server").Where(
+				server => server.Element("Name").Value.RegExMatches(_environmentWatchElement.ServerNames) &&
+					!server.Element("Name").Value.RegExMatches(_environmentWatchElement.ServerNamesNotMatch) &&
+					server.Element("NetworkArea").Value.RegExMatches(_environmentWatchElement.NetworkAreas) &&
+					!server.Element("NetworkArea").Value.RegExMatches(_environmentWatchElement.NetworkAreasNotMatch)
+				).ToArray();
+
+			var servers = (from server in serversFiltered
 				select new
 				{
 					Name = server.Element("Name").Value,
 					NetworkArea = server.Element("NetworkArea").Value,
 					Services = from service in server.Descendants("Services").Descendants("Entity")
-						where service.Element("Name").Value.RegExContains(_environmentWatchElement.ServiceNames)
+						where service.Element("Name").Value.RegExMatches(_environmentWatchElement.ServiceNames) &&
+							!service.Element("Name").Value.RegExMatches(_environmentWatchElement.ServiceNamesNotMatch)
 						select new
 						{
 							Name = service.Element("Name").Value,
@@ -109,7 +117,7 @@ namespace LogSearchShipper.Core
 							LogFile2 = (string) service.Elements("LogPath2").FirstOrDefault(),
 							LogType2 = (string) service.Elements("LogPath2Type").FirstOrDefault()
 						}
-				};
+				}).ToArray();
 
 			var watches = new List<FileWatchElement>();
 			foreach (var server in servers)
