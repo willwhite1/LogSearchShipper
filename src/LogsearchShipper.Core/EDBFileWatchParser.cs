@@ -147,15 +147,17 @@ namespace LogSearchShipper.Core
 			ICollection<FileWatchElement> watches, FieldCollection fields,
 			string serverNetworkArea, string serverName, string serviceName)
 		{
+			//Don't ship logs without a type or with an empty type
 			if (!string.IsNullOrEmpty(logType) && !string.IsNullOrWhiteSpace(logType))
-				//Don't ship logs without a type or with an empty type
 			{
-				watches.Add(new FileWatchElement
+				var newWatch = new FileWatchElement
 				{
 					Files = logFile,
 					Type = logType,
 					Fields = fields
-				});
+				};
+				watches.Add(newWatch);
+
 				_log.DebugFormat(
 					"Added file watch from EDB: {0} ({1}) => Matched NetworkArea:{2} ~= {3}, ServerName:{4} ~= {5}, ServiceName:{6} ~= {7}",
 					logFile, logType,
