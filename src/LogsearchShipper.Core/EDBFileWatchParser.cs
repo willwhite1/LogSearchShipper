@@ -253,7 +253,7 @@ namespace LogSearchShipper.Core
 		{
 			var overrides = _environmentWatchElement.OverrideConfigs;
 
-			foreach (OverrideConfig overrideConfig in overrides)
+			foreach (var overrideConfig in overrides)
 			{
 				var regex = new Regex(overrideConfig.ForServiceNames);
 				if (regex.Match(serviceName).Success)
