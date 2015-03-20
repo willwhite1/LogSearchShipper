@@ -7,7 +7,7 @@ using LogSearchShipper.Core.ConfigurationSections;
 using LogSearchShipper.Core.NxLog;
 using NUnit.Framework;
 
-namespace LogSearchShipper.Core.Tests
+namespace LogSearchShipper.Core.Tests.NxLog
 {
 	public class NxLogProcessManagerTests2
 	{
