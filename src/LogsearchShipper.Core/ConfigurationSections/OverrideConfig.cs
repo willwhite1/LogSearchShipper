@@ -31,7 +31,7 @@ namespace LogSearchShipper.Core.ConfigurationSections
 	}
 
 	[ConfigurationCollection(typeof(OverrideConfig), AddItemName = "overrideConfig")]
-	public class OverrideConfigCollection : ConfigurationElementCollection
+	public class OverrideConfigCollection : ConfigurationElementCollection, IEnumerable<OverrideConfig>
 	{
 		protected override ConfigurationElement CreateNewElement()
 		{
@@ -41,6 +41,14 @@ namespace LogSearchShipper.Core.ConfigurationSections
 		protected override object GetElementKey(ConfigurationElement element)
 		{
 			return ((OverrideConfig)element).ForServiceNames;
+		}
+
+		public new IEnumerator<OverrideConfig> GetEnumerator()
+		{
+			for (int i = 0; i < Count; i++)
+			{
+				yield return BaseGet(i) as OverrideConfig;
+			}
 		}
 	}
 }
