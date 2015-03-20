@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
+using System.Linq;
 using LogSearchShipper.Core.ConfigurationSections;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -60,6 +62,22 @@ namespace LogSearchShipper.Core.Tests
 			StringAssert.AreEqualIgnoringCase(
 				@"[{""Name"":""ENV1"",""ServerGroups"":[{""Name"":""APP"",""Servers"":[{""Name"":""ENV1-APP01"",""Description"":""The app server"",""Tags"":null,""Domain"":""example.org"",""Environment"":""ENV1"",""NetworkArea"":""APP"",""Services"":[{""Entity"":{""@xsi:type"":""WindowsService"",""Name"":""PriceHistoryServiceHost"",""ServiceName"":""Price History Service Host"",""Tags"":""service_tag1,service_tag2"",""BinaryPath"":""\""D:\\Apps\\PriceHistoryServiceHost\\PriceHistoryServiceHost.exe\"""",""BundlePath"":null,""LogPath"":""\\\\PKH-PPE-APP10\\logs\\Apps\\PriceHistoryService\\log.log"",""LogPathType"":""log4net"",""LogPath1"":""\\\\PKH-PPE-APP10\\logs\\Apps\\PriceHistoryService\\PriceHistoryStats.log"",""LogPath1Type"":""log4net_stats"",""LogPath2"":""\\\\PKH-PPE-APP10\\"",""LogPath2Type"":null,""SystemArea"":""CORE"",""State"":""stopped""}},{""Entity"":{""@xsi:type"":""WebService"",""Name"":""ENV1-APP01 webservices"",""Website"":""ENV1-APP01 webservices"",""ApplicationUri"":""/"",""BinaryPath"":""D:\\Websites\\ROOT01"",""LogPath"":""\\\\ENV1-APP01\\Logs\\u*.log"",""LogPathType"":""IIS7"",""LogPath1"":""\\\\ENV1-APP01\\"",""LogPath1Type"":null,""LogPath2"":""\\\\ENV1-APP01\\"",""LogPath2Type"":null,""SystemArea"":""CORE"",""State"":""running""}}]},{""Name"":""ENV1-NO-SERVICES"",""Description"":""A server with no services"",""Tags"":null,""Domain"":""example.org"",""Environment"":""ENV1"",""NetworkArea"":""APP"",""Services"":[]},{""Name"":""PKH-ENV2-SHARED01"",""Description"":""A server that also appears in the ENV2 environment"",""Tags"":""server_tag1,server_tag2"",""Domain"":""cityindex.co.uk"",""Environment"":""ENV2"",""NetworkArea"":""APP"",""Services"":[{""Entity"":{""@xsi:type"":""WindowsService"",""Name"":""nolioagent2"",""ServiceName"":""Nolio Agent 2.0"",""BinaryPath"":""D:\\Nolio\\NolioAgent\\bin\\nolio_w.exe -s D:\\Nolio\\NolioAgent\\conf\\wrapper.conf"",""BundlePath"":null,""LogPath"":""\\\\PKH-ENV2-SHARED01\\Logs\\Nolio\\all.log"",""LogPathType"":""log4j"",""LogPath1"":null,""LogPath1Type"":null,""LogPath2"":null,""LogPath2Type"":null,""SystemArea"":""CORE"",""State"":""running""}}]}]},{""Name"":""DB"",""Servers"":[{""Name"":""ENV1-DB01"",""Description"":null,""Tags"":null,""Domain"":""example.org"",""Environment"":""ENV1"",""NetworkArea"":""DB"",""Services"":[{""Entity"":{""@xsi:type"":""WindowsService"",""Name"":""nolioagent2"",""ServiceName"":""Nolio Agent 2.0"",""BinaryPath"":""D:\\Nolio\\NolioAgent\\bin\\nolio_w.exe -s D:\\Nolio\\NolioAgent\\conf\\wrapper.conf"",""BundlePath"":null,""LogPath"":""\\\\ENV1-DB01\\Logs\\Nolio\\all.log"",""LogPathType"":""log4j"",""LogPath1"":""\\\\ENV1-DB01\\"",""LogPath1Type"":null,""LogPath2"":""\\\\ENV1-DB01\\"",""LogPath2Type"":null,""SystemArea"":""CORE"",""State"":""running""}}]}]}]}]",
 				GenerateJsonForWatch0());
+		}
+
+		[Test]
+		public void TestEdbNotMatchElements()
+		{
+			var fileMap = new ConfigurationFileMap(Path.GetFullPath(@"Configs\EdbNotMatch.config"));
+			var configuration = ConfigurationManager.OpenMappedMachineConfiguration(fileMap);
+			var config = configuration.GetSection("LogSearchShipperGroup/LogSearchShipper") as LogSearchShipperSection;
+
+			{
+				var edbFileWatchParser = new EDBFileWatchParser(config.EDBFileWatchers[0]);
+				var watchElements = edbFileWatchParser.ToFileWatchCollection();
+				Assert.AreEqual(1, watchElements.Count);
+				Assert.IsTrue(!watchElements.First().Files.Contains("ENV1"));
+				Assert.IsTrue(watchElements.First().Files.Contains("-ENV2-"));
+			}
 		}
 	}
 }
