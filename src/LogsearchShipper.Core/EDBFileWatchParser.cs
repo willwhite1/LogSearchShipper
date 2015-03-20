@@ -156,6 +156,20 @@ namespace LogSearchShipper.Core
 					Type = logType,
 					Fields = fields
 				};
+
+				var overrideConfig = FindOverride(serviceName);
+				if (overrideConfig != null)
+				{
+					newWatch.CloseWhenIdle = overrideConfig.CloseWhenIdle;
+					if (overrideConfig.CustomNxlogConfig != null)
+					{
+						newWatch.CustomNxlogConfig = new CustomNxlogConfig
+							{
+								Value = overrideConfig.CustomNxlogConfig.Value
+							};
+					}
+				}
+
 				watches.Add(newWatch);
 
 				_log.DebugFormat(
@@ -233,6 +247,20 @@ namespace LogSearchShipper.Core
 			};
 
 			return environmentHierarchy.ToArray();
+		}
+
+		OverrideConfig FindOverride(string serviceName)
+		{
+			var overrides = _environmentWatchElement.OverrideConfigs;
+
+			foreach (OverrideConfig overrideConfig in overrides)
+			{
+				var regex = new Regex(overrideConfig.ForServiceNames);
+				if (regex.Match(serviceName).Success)
+					return overrideConfig;
+			}
+
+			return null;
 		}
 	}
 }
