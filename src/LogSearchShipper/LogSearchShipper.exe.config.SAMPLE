@@ -32,6 +32,18 @@ Change the settings to fit your environment
 			>
 					<field key="environment" value="ENV1" />
 				</watch>
+				<watch dataFile="SampleData\EDB\ENV1\Latest.xml" logEnvironmentDiagramDataEveryMinutes="10"
+					networkAreas=".*" serverNames=".*" serviceNames=".*">
+					<field key="environment" value="QAT" />
+					<!-- Override watching settings for matched services -->
+					<overrideConfigs>
+						<overrideConfig forServiceNames="Price" closeWhenIdle="false">
+							<customNxLogConfig>
+								Exec   if not ($raw_event =~ /DEBUG/ ) drop();
+							</customNxLogConfig>
+						</overrideConfig>
+					</overrideConfigs>
+				</watch>
 			</edbFileWatchers>
 			<!-- Specify files you want to ship that are not in EDB like this -->
 			<fileWatchers>
