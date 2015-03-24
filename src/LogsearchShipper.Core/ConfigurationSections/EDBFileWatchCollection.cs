@@ -98,6 +98,12 @@ namespace LogSearchShipper.Core.ConfigurationSections
 				return fieldCollection;
 			}
 		}
+
+		[ConfigurationProperty("overrideConfigs", IsDefaultCollection = false)]
+		public OverrideConfigCollection OverrideConfigs
+		{
+			get { return (OverrideConfigCollection)base["overrideConfigs"]; }
+		}
 	}
 
 	[ConfigurationCollection(typeof (EnvironmentWatchElement), AddItemName = "watch")]

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+
 using LogSearchShipper.Core.ConfigurationSections;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -77,6 +78,37 @@ namespace LogSearchShipper.Core.Tests
 				Assert.AreEqual(1, watchElements.Count);
 				Assert.IsTrue(!watchElements.First().Files.Contains("ENV1"));
 				Assert.IsTrue(watchElements.First().Files.Contains("-ENV2-"));
+			}
+		}
+
+		[Test]
+		public void TestConfigOverrides()
+		{
+			var fileMap = new ConfigurationFileMap(Path.GetFullPath(@"Configs\EdbOverridesConfig.config"));
+			var configuration = ConfigurationManager.OpenMappedMachineConfiguration(fileMap);
+			var config = configuration.GetSection("LogSearchShipperGroup/LogSearchShipper") as LogSearchShipperSection;
+
+			{
+				var edbItem = config.EDBFileWatchers[0];
+				var overrideConfig = edbItem.OverrideConfigs.First();
+				var edbFileWatchParser = new EDBFileWatchParser(edbItem);
+				var fileWatchItems = edbFileWatchParser.ToFileWatchCollection();
+				Assert.AreEqual(5, fileWatchItems.Count);
+
+				var matchedItems = fileWatchItems.Where(item => item.Files.Contains("Price")).ToArray();
+				Assert.AreEqual(2, matchedItems.Count());
+				Assert.IsTrue(matchedItems.All(item => item.CloseWhenIdle == false));
+				Assert.IsTrue(matchedItems.All(item => item.CustomNxlogConfig.Value == overrideConfig.CustomNxlogConfig.Value));
+
+				var notMatchedItems = fileWatchItems.ToList();
+				foreach (var item in matchedItems)
+				{
+					notMatchedItems.Remove(item);
+				}
+
+				Assert.IsTrue(notMatchedItems.Count > 0);
+				Assert.IsTrue(notMatchedItems.All(item => item.CloseWhenIdle == true));
+				Assert.IsTrue(notMatchedItems.All(item => string.IsNullOrEmpty(item.CustomNxlogConfig.Value)));
 			}
 		}
 	}
