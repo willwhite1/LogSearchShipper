@@ -21,7 +21,7 @@ namespace MtLogTailer
 				var newLastWriteTime = (new FileInfo(_filePath)).LastWriteTimeUtc;
 				if (newLastWriteTime != _lastWriteTime)
 				{
-					using (var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read))
+					using (var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
 					{
 						var newOffset = FindEndOffset(stream);
 
