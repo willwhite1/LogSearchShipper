@@ -29,14 +29,17 @@ namespace MtLogTailer
 						var pos = _offset;
 						using (var bufStream = new BufferedStream(stream))
 						{
-							while (pos < newOffset)
+							using (var reader = new StreamReader(bufStream, Encoding.GetEncoding(1252)))
 							{
-								var tmp = bufStream.ReadByte();
-								if (tmp == -1)
-									throw new ApplicationException();
-								var ch = (char)tmp;
-								Console.Write(ch);
-								pos++;
+								while (pos < newOffset)
+								{
+									var tmp = reader.Read();
+									if (tmp == -1)
+										throw new ApplicationException();
+									var ch = (char)tmp;
+									Console.Write(ch);
+									pos++;
+								}
 							}
 						}
 
