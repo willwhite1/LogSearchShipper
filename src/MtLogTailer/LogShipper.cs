@@ -9,11 +9,11 @@ namespace MtLogTailer
 {
 	class LogShipper
 	{
-		public LogShipper(string filePath, int encoding)
-		{
-			_filePath = filePath;
-			_encoding = encoding;
-		}
+	 public LogShipper(string filePath, int encoding)
+	 {
+		_filePath = filePath;
+		_encoding = encoding;
+	 }
 
 		public void Process()
 		{
@@ -26,23 +26,8 @@ namespace MtLogTailer
 					{
 						var newOffset = FindEndOffset(stream);
 
-						stream.Seek(_offset, SeekOrigin.Begin);
-						var pos = _offset;
-						using (var bufStream = new BufferedStream(stream))
-						{
-							using (var reader = new StreamReader(bufStream, Encoding.GetEncoding(_encoding)))
-							{
-								while (pos < newOffset)
-								{
-									var tmp = reader.Read();
-									if (tmp == -1)
-										throw new ApplicationException();
-									var ch = (char)tmp;
-									Console.Write(ch);
-									pos++;
-								}
-							}
-						}
+						if (_lastWriteTime != DateTime.MinValue)
+							ShipLogData(stream, newOffset);
 
 						_offset = newOffset;
 						_lastWriteTime = newLastWriteTime;
@@ -50,6 +35,27 @@ namespace MtLogTailer
 				}
 
 				Thread.Sleep(TimeSpan.FromSeconds(1));
+			}
+		}
+
+		private void ShipLogData(FileStream stream, long newOffset)
+		{
+			stream.Seek(_offset, SeekOrigin.Begin);
+			var pos = _offset;
+			using (var bufStream = new BufferedStream(stream))
+			{
+				using (var reader = new StreamReader(bufStream, Encoding.GetEncoding(_encoding)))
+				{
+					while (pos < newOffset)
+					{
+						var tmp = reader.Read();
+						if (tmp == -1)
+							throw new ApplicationException();
+						var ch = (char) tmp;
+						Console.Write(ch);
+						pos++;
+					}
+				}
 			}
 		}
 
@@ -85,10 +91,10 @@ namespace MtLogTailer
 		}
 
 		readonly string _filePath;
-		private readonly int _encoding;
 		long _offset;
 		DateTime _lastWriteTime;
 
 		private volatile bool _terminate;
+		private int _encoding;
 	}
 }
