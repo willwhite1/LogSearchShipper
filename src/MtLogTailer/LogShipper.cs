@@ -9,9 +9,10 @@ namespace MtLogTailer
 {
 	class LogShipper
 	{
-		public LogShipper(string filePath)
+		public LogShipper(string filePath, int encoding)
 		{
 			_filePath = filePath;
+			_encoding = encoding;
 		}
 
 		public void Process()
@@ -29,7 +30,7 @@ namespace MtLogTailer
 						var pos = _offset;
 						using (var bufStream = new BufferedStream(stream))
 						{
-							using (var reader = new StreamReader(bufStream, Encoding.GetEncoding(1252)))
+							using (var reader = new StreamReader(bufStream, Encoding.GetEncoding(_encoding)))
 							{
 								while (pos < newOffset)
 								{
@@ -84,6 +85,7 @@ namespace MtLogTailer
 		}
 
 		readonly string _filePath;
+		private readonly int _encoding;
 		long _offset;
 		DateTime _lastWriteTime;
 
