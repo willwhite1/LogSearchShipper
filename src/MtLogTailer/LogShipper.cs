@@ -25,7 +25,8 @@ namespace MtLogTailer
 					{
 						var newOffset = FindEndOffset(stream);
 
-						ShipLogData(stream, newOffset);
+						if (_lastWriteTime != DateTime.MinValue)
+							ShipLogData(stream, newOffset);
 
 						_offset = newOffset;
 						_lastWriteTime = newLastWriteTime;
