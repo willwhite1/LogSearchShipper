@@ -147,76 +147,7 @@ namespace IntegrationTests
 			return ids.ToArray();
 		}
 
-		private string GetLog(out string[] ids, int linesCount = LinesPerFile)
-		{
-			var tmp = new List<string>();
-			var buf = new StringBuilder();
-			var i = 0;
-			while (i < linesCount)
-			{
-				var id = Guid.NewGuid().ToString();
-				var message = string.Format(
-					"{{\"timestamp\":\"{0}\",\"message\":\"{1}\",\"group_id\":\"{2}\",\"source\":\"LogSearchShipper.Test\"," +
-					"\"logger\":\"Test\",\"level\":\"INFO\"}}",
-					DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), id, CurrentGroupId);
-				buf.AppendLine(message);
-				tmp.Add(id);
-				i++;
-			}
-			ids = tmp.ToArray();
-			return buf.ToString();
-		}
-
-		void Validate(ICollection<Record> records, IEnumerable<string> ids)
-		{
-			var recordIdsCount = new Dictionary<string, int>();
-			foreach (var record in records)
-			{
-				var id = record.Fields["message"];
-
-				int count;
-				if (!recordIdsCount.TryGetValue(id, out count))
-					recordIdsCount.Add(id, 1);
-				else
-					recordIdsCount[id] = ++count;
-			}
-
-			int duplicatesCount = 0, missingCount = 0;
-
-			foreach (var id in ids)
-			{
-				int count;
-				if (!recordIdsCount.TryGetValue(id, out count))
-					missingCount++;
-				else if (count > 1)
-					duplicatesCount++;
-			}
-
-			var message = string.Format("total - {0}, missing - {1}, duplicates - {2}", records.Count, missingCount, duplicatesCount);
-			Trace.WriteLine(message);
-
-			if (missingCount != 0)
-				throw new ApplicationException("Validation failed - some records are missing");
-
-			if (duplicatesCount != 0)
-				Trace.WriteLine("--- Validation warning - there are some duplicate records");
-		}
-
-		void GetAndValidateRecords(string[] ids, int waitMinutes = WaitResultPeriodMinutes)
-		{
-			var queryArgs = new Dictionary<string, string>
-			{
-				{ "source", TestName },
-				{ "group_id", CurrentGroupId },
-			};
-
-			GetAndValidateRecords(queryArgs, new [] { "message" }, ids.Count(),
-				records => Validate(records, ids), waitMinutes);
-		}
-
-		private const int LinesPerFile = 100;
 		private const int LogFilesCount = 10;
-		private const int WaitResultPeriodMinutes = 10;
 
 		public override string TestName
 		{
