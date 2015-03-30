@@ -9,11 +9,11 @@ namespace MtLogTailer
 {
 	class LogShipper
 	{
-	 public LogShipper(string filePath, int encoding)
-	 {
-		_filePath = filePath;
-		_encoding = encoding;
-	 }
+		public LogShipper(string filePath, int encoding)
+		{
+			_filePath = filePath;
+			_encoding = encoding;
+		}
 
 		public void Process()
 		{
@@ -51,7 +51,7 @@ namespace MtLogTailer
 						var tmp = reader.Read();
 						if (tmp == -1)
 							throw new ApplicationException();
-						var ch = (char) tmp;
+						var ch = (char)tmp;
 						Console.Write(ch);
 						pos++;
 					}

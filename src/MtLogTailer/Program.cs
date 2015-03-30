@@ -16,7 +16,7 @@ namespace MtLogTailer
 				var filePath = args[0];
 
 				var encoding = 936;  //Default to gb2312-> ANSI/OEM Simplified Chinese (PRC, Singapore); Chinese Simplified (GB2312)
-			  if (args.Length >= 2)
+				if (args.Length >= 2)
 					encoding = Convert.ToInt32(args[1]);
 
 				var shipper = new LogShipper(filePath, encoding);
