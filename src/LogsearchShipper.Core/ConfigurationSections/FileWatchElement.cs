@@ -46,6 +46,13 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["closeWhenIdle"] = value; }
 		}
 
+		[ConfigurationProperty("sourceTailer", IsRequired = false, DefaultValue = TailerType.Normal)]
+		public TailerType SourceTailer
+		{
+			get { return (TailerType)this["sourceTailer"]; }
+			set { this["sourceTailer"] = value; }
+		}
+
 		[ConfigurationProperty("", IsDefaultCollection = true)]
 		public FieldCollection Fields
 		{
@@ -81,4 +88,6 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			Value = (string)reader.ReadElementContentAs(typeof(string), null);
 		}
 	}
+
+	public enum TailerType { Normal, MT }
 }
