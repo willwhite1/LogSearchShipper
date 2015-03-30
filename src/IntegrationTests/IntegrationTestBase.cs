@@ -28,9 +28,14 @@ namespace IntegrationTests
 			Utils.Cleanup(_basePath);
 			Directory.CreateDirectory(LogsPath);
 
+			foreach (var file in Directory.GetFiles(Environment.CurrentDirectory, "*.exe"))
+			{
+				var newFile = Path.Combine(_basePath, Path.GetFileName(file));
+				File.Copy(file, newFile);
+			}
+
 			var exeFile = "LogsearchShipper.exe";
 			var exeFileCopy = Path.Combine(_basePath, exeFile);
-			File.Copy(exeFile, exeFileCopy);
 
 			var configPath = Path.Combine(_basePath, "LogsearchShipper.exe.config");
 			var config = new XmlDocument();

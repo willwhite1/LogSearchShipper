@@ -63,6 +63,7 @@
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="IntegrationTestBase.cs" />
     <Compile Include="LogsearchShipperProcessManagerTests.cs" />
+    <Compile Include="MtTailerTests.cs" />
     <Compile Include="MultilineTests.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="SimpleTests.cs" />
@@ -75,6 +76,10 @@
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="LogsearchShipper.exe.config.MtTailerTest">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="LogsearchShipper.exe.config.EdbLoggingTest">
       <SubType>Designer</SubType>
