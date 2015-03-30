@@ -604,7 +604,9 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			for (int i = 0; i < InputFiles.Count; i++)
 			{
 				var inputFile = InputFiles[i];
-				filesSection += GenerateNormalFileWatchConfig(inputFile, i);
+				filesSection += (inputFile.SourceTailer == TailerType.MT)
+					? GenerateMtFileWatchConfig(inputFile, i)
+					: GenerateNormalFileWatchConfig(inputFile, i);
 			}
 
 			return filesSection;
@@ -653,6 +655,23 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			res += GetSessionId();
 			res += @"</Input>" + Environment.NewLine;
 
+			return res;
+		}
+
+		string GenerateMtFileWatchConfig(FileWatchElement inputFile, int i)
+		{
+			var inputFileEscaped = inputFile.Files.Replace(@"\", @"\\");
+			var mainModulePath = new Uri(Process.GetCurrentProcess().MainModule.FileName).LocalPath;
+			var exePath = Path.Combine(Path.GetDirectoryName(mainModulePath), "MtLogTailer.exe");
+			var exePathEscaped = exePath.Replace(@"\", @"\\");
+
+			var res = string.Format(@"
+<Input in_file{0}>
+	Module im_exec
+	Command ""{1}""
+	Arg ""{2}""
+</Input>
+", i, exePathEscaped, inputFileEscaped);
 			return res;
 		}
 
