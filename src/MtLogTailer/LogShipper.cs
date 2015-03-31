@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 
 namespace MtLogTailer
 {
@@ -17,24 +16,19 @@ namespace MtLogTailer
 
 		public void Process()
 		{
-			while (!_terminate)
+			var newLastWriteTime = (new FileInfo(_filePath)).LastWriteTimeUtc;
+			if (newLastWriteTime != _lastWriteTime)
 			{
-				var newLastWriteTime = (new FileInfo(_filePath)).LastWriteTimeUtc;
-				if (newLastWriteTime != _lastWriteTime)
+				using (var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
 				{
-					using (var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
-					{
-						var newOffset = FindEndOffset(stream);
+					var newOffset = FindEndOffset(stream);
 
-						if (_lastWriteTime != DateTime.MinValue)
-							ShipLogData(stream, newOffset);
+					if (_lastWriteTime != DateTime.MinValue)
+						ShipLogData(stream, newOffset);
 
-						_offset = newOffset;
-						_lastWriteTime = newLastWriteTime;
-					}
+					_offset = newOffset;
+					_lastWriteTime = newLastWriteTime;
 				}
-
-				Thread.Sleep(TimeSpan.FromSeconds(1));
 			}
 		}
 
@@ -57,11 +51,6 @@ namespace MtLogTailer
 					}
 				}
 			}
-		}
-
-		public void Stop()
-		{
-			_terminate = true;
 		}
 
 		static long FindEndOffset(Stream stream)
@@ -94,7 +83,6 @@ namespace MtLogTailer
 		long _offset;
 		DateTime _lastWriteTime;
 
-		private volatile bool _terminate;
-		private int _encoding;
+		private readonly int _encoding;
 	}
 }

@@ -13,22 +13,22 @@ namespace MtLogTailer
 			{
 				if (args.Length != 1)
 					throw new ApplicationException("Invalid args.  Should use MtLogTailer.exe <filePath> <encoding: optional>");
-				var filePath = args[0];
+				var path = args[0];
 
 				var encoding = 936;  //Default to gb2312-> ANSI/OEM Simplified Chinese (PRC, Singapore); Chinese Simplified (GB2312)
 				if (args.Length >= 2)
 					encoding = Convert.ToInt32(args[1]);
 
-				var shipper = new LogShipper(filePath, encoding);
+				var watcher = new PathWatcher(path, encoding);
 
 				Console.CancelKeyPress +=
 					(sender, eventArgs) =>
 					{
-						shipper.Stop();
+						watcher.Stop();
 						eventArgs.Cancel = true;
 					};
 
-				shipper.Process();
+				watcher.Process();
 			}
 			catch (ApplicationException exc)
 			{
