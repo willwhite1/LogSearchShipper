@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -36,11 +38,25 @@ namespace MtLogTailer
 			{ }
 			catch (ApplicationException exc)
 			{
-				Console.WriteLine("{0} {1}", FormatTime(), Escape(exc.Message));
+				Log("{0} {1}", FormatTime(), Escape(exc.Message));
 			}
 			catch (Exception exc)
 			{
-				Console.WriteLine("{0} {1}", FormatTime(), Escape(exc.ToString()));
+				Log("{0} {1}", FormatTime(), Escape(exc.ToString()));
+			}
+		}
+
+		static void Log(string format, params object[] args)
+		{
+			try
+			{
+				var message = string.Format(format, args);
+				Console.WriteLine(message);
+				File.AppendAllText("MtLogTailer.log", message);
+			}
+			catch (Exception exc)
+			{
+				Trace.WriteLine(exc);
 			}
 		}
 
