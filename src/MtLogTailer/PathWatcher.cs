@@ -27,7 +27,7 @@ namespace MtLogTailer
 				var dirPath = Directory.GetParent(_path).FullName;
 				var fileName = Path.GetFileName(_path);
 
-				foreach (var file in Directory.GetFiles(dirPath, fileName))
+				foreach (var file in Directory.GetFiles(dirPath, fileName, SearchOption.AllDirectories))
 				{
 					LogShipper shipper;
 					if (!_shippers.TryGetValue(file, out shipper))
