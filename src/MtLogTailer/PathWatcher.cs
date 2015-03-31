@@ -22,11 +22,12 @@ namespace MtLogTailer
 				_mainThread = Thread.CurrentThread;
 			}
 
-			while (true)
-			{
-				var dirPath = Directory.GetParent(_path).FullName;
-				var fileName = Path.GetFileName(_path);
+			var dirPath = Directory.GetParent(_path).FullName;
+			var fileName = Path.GetFileName(_path);
+			var isFirstRead = true;
 
+			while (!Program.Terminate)
+			{
 				foreach (var file in Directory.GetFiles(dirPath, fileName, SearchOption.AllDirectories))
 				{
 					LogShipper shipper;
@@ -34,11 +35,14 @@ namespace MtLogTailer
 					{
 						shipper = new LogShipper(file, _encoding);
 						_shippers.Add(file, shipper);
+						if (isFirstRead)
+							shipper.UpdateLastWriteTime();
 					}
 
 					shipper.Process();
 				}
 
+				isFirstRead = false;
 				Thread.Sleep(TimeSpan.FromSeconds(1));
 			}
 		}
