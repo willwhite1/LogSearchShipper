@@ -16,7 +16,6 @@
     <LogSearchShipper data_folder="data" ingestor_host="ingestor.meta.logsearch.io" ingestor_port="443" sessionId="">
       <fileWatchers>
         <watch files="logs\*.*" type="json" sourceTailer="MT">
-          <field key="environment" value="LogSearchShipper.Test" />
         </watch>
       </fileWatchers>
     </LogSearchShipper>
