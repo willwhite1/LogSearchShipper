@@ -32,12 +32,22 @@ namespace MtLogTailer
 			}
 			catch (ApplicationException exc)
 			{
-				Console.WriteLine(exc.Message);
+				Console.WriteLine("{0} {1}", FormatTime(), Escape(exc.Message));
 			}
 			catch (Exception exc)
 			{
-				Console.WriteLine(exc);
+				Console.WriteLine("{0} {1}", FormatTime(), Escape(exc.ToString()));
 			}
+		}
+
+		static string Escape(string val)
+		{
+			return val.Replace(Environment.NewLine, "\\r\\n");
+		}
+
+		static string FormatTime()
+		{
+			return DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ");
 		}
 	}
 }
