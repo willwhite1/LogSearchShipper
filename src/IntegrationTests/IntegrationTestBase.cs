@@ -127,9 +127,9 @@ namespace IntegrationTests
 			{
 				var id = Guid.NewGuid().ToString();
 				var message = string.Format(
-					"{{\"timestamp\":\"{0}\",\"message\":\"{1}\",\"group_id\":\"{2}\",\"source\":\"LogSearchShipper.Test\"," +
+					"{{\"timestamp\":\"{0}\",\"message\":\"{1}\",\"group_id\":\"{2}\",\"source\":\"{3}\"," +
 					"\"logger\":\"Test\",\"level\":\"INFO\"}}",
-					DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), id, CurrentGroupId);
+					DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), id, CurrentGroupId, TestName);
 				buf.AppendLine(message);
 				tmp.Add(id);
 				i++;
