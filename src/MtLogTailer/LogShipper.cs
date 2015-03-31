@@ -17,15 +17,14 @@ namespace MtLogTailer
 
 		public void Process()
 		{
-			var newLastWriteTime = (new FileInfo(_filePath)).LastWriteTimeUtc;
-			if (newLastWriteTime != _lastWriteTime)
+			var newLastWriteTime = GetLastWriteTime();
+			if (newLastWriteTime > _lastWriteTime)
 			{
 				using (var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
 				{
 					var newOffset = FindEndOffset(stream);
 
-					if (_lastWriteTime != DateTime.MinValue)
-						ShipLogData(stream, newOffset);
+					ShipLogData(stream, newOffset);
 
 					_offset = newOffset;
 					_lastWriteTime = newLastWriteTime;
@@ -81,6 +80,17 @@ namespace MtLogTailer
 
 				offset -= blockLength;
 			}
+		}
+
+		private DateTime GetLastWriteTime()
+		{
+			var newLastWriteTime = (new FileInfo(_filePath)).LastWriteTimeUtc;
+			return newLastWriteTime;
+		}
+
+		public void UpdateLastWriteTime()
+		{
+			_lastWriteTime = GetLastWriteTime();
 		}
 
 		readonly string _filePath;
