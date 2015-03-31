@@ -17,6 +17,11 @@ namespace MtLogTailer
 
 		public void Process()
 		{
+			lock (_sync)
+			{
+				_mainThread = Thread.CurrentThread;
+			}
+
 			while (true)
 			{
 				var dirPath = Directory.GetParent(_path).FullName;
@@ -24,9 +29,6 @@ namespace MtLogTailer
 
 				foreach (var file in Directory.GetFiles(dirPath, fileName))
 				{
-					if (_terminate)
-						return;
-
 					LogShipper shipper;
 					if (!_shippers.TryGetValue(file, out shipper))
 					{
@@ -43,12 +45,16 @@ namespace MtLogTailer
 
 		public void Stop()
 		{
-			_terminate = true;
+			lock (_sync)
+			{
+				_mainThread.Interrupt();
+			}
 		}
 
 		private readonly Dictionary<string, LogShipper> _shippers = new Dictionary<string, LogShipper>();
 
-		private volatile bool _terminate;
+		private readonly object _sync = new object();
+		private Thread _mainThread;
 
 		private readonly string _path;
 		private readonly int _encoding;
