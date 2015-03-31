@@ -22,6 +22,7 @@ namespace IntegrationTests
 		}
 
 		[Test]
+		[Ignore("WIP")]
 		public void TestMtLogImitation()
 		{
 			Init();
