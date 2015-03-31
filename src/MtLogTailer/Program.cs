@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace MtLogTailer
 {
@@ -24,12 +25,15 @@ namespace MtLogTailer
 				Console.CancelKeyPress +=
 					(sender, eventArgs) =>
 					{
+						Terminate = true;
 						watcher.Stop();
 						eventArgs.Cancel = true;
 					};
 
 				watcher.Process();
 			}
+			catch (ThreadInterruptedException)
+			{ }
 			catch (ApplicationException exc)
 			{
 				Console.WriteLine("{0} {1}", FormatTime(), Escape(exc.Message));
@@ -49,5 +53,7 @@ namespace MtLogTailer
 		{
 			return DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ");
 		}
+
+		public static volatile bool Terminate;
 	}
 }

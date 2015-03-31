@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace MtLogTailer
 {
@@ -42,6 +43,9 @@ namespace MtLogTailer
 				{
 					while (pos < newOffset)
 					{
+						if (Program.Terminate)
+							throw new ThreadInterruptedException();
+
 						var tmp = reader.Read();
 						if (tmp == -1)
 							throw new ApplicationException();
