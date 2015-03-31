@@ -118,18 +118,6 @@ namespace IntegrationTests
 			Trace.WriteLine("Validation is successful");
 		}
 
-		protected void GetAndValidateRecords(string[] requiredFields, int expectedCount,
-			Action<List<Record>> validate, int waitMinutes = 10)
-		{
-			var queryArgs = new Dictionary<string, string>
-			{
-				{ "@source.environment", TestName },
-				{ "@source.currentGroupId", CurrentGroupId },
-			};
-			GetAndValidateRecords(queryArgs, requiredFields, expectedCount, validate, waitMinutes);
-		}
-
-
 		protected string GetLog(out string[] ids, int linesCount = LinesPerFile)
 		{
 			var tmp = new List<string>();
