@@ -36,7 +36,7 @@ namespace MtLogTailer
 						shipper = new LogShipper(file, _encoding);
 						_shippers.Add(file, shipper);
 						if (isFirstRead)
-							shipper.UpdateLastWriteTime();
+							shipper.Update();
 					}
 
 					shipper.Process();
