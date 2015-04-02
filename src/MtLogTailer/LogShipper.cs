@@ -32,15 +32,17 @@ namespace MtLogTailer
 			}
 		}
 
-		private void ShipLogData(FileStream stream, long newOffset)
+		private void ShipLogData(FileStream stream, long maxOffset)
 		{
+			Validate(stream, maxOffset);
+
 			stream.Seek(_offset, SeekOrigin.Begin);
 			var pos = _offset;
 			using (var bufStream = new BufferedStream(stream))
 			{
 				using (var reader = new StreamReader(bufStream, Encoding.GetEncoding(_encoding)))
 				{
-					while (pos < newOffset)
+					while (pos < maxOffset)
 					{
 						if (Program.Terminate)
 							throw new ThreadInterruptedException();
@@ -91,6 +93,17 @@ namespace MtLogTailer
 		public void UpdateLastWriteTime()
 		{
 			_lastWriteTime = GetLastWriteTime();
+		}
+
+		private static void Validate(Stream stream, long maxOffset)
+		{
+			stream.Seek(maxOffset - 1, SeekOrigin.Begin);
+			if (stream.ReadByte() == 0)
+				throw new ApplicationException();
+
+			stream.Seek(maxOffset, SeekOrigin.Begin);
+			if (stream.ReadByte() != 0)
+				throw new ApplicationException();
 		}
 
 		readonly string _filePath;
