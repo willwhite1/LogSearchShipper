@@ -52,7 +52,7 @@ namespace MtLogTailer
 						pos = ReadLine(reader, buf, pos, maxOffset);
 
 						//Console.WriteLine("{0}\t{1}", _filePath, buf);
-						Console.WriteLine(buf.ToString());
+						Console.Write(buf.ToString());
 						buf.Clear();
 					}
 				}
@@ -66,7 +66,7 @@ namespace MtLogTailer
 				var tmp = reader.Read();
 				if (tmp == -1)
 					throw new ApplicationException();
-				var ch = (char) tmp;
+				var ch = (char)tmp;
 				buf.Append(ch);
 				pos++;
 
@@ -78,7 +78,8 @@ namespace MtLogTailer
 					{
 						if (ch == '\r' && chNext == '\n' || ch == '\n' && chNext == '\r')
 						{
-							buf.Append((char) chNext);
+							reader.Read();
+							buf.Append((char)chNext);
 						}
 					}
 
