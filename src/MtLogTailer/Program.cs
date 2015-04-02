@@ -22,6 +22,8 @@ namespace MtLogTailer
 				if (args.Length >= 2)
 					encoding = Convert.ToInt32(args[1]);
 
+				Console.OutputEncoding = Encoding.UTF8;
+
 				var watcher = new PathWatcher(path, encoding);
 
 				Console.CancelKeyPress +=
