@@ -20,7 +20,7 @@ namespace MtLogTailer
 			var newLastWriteTime = GetLastWriteTime();
 			if (newLastWriteTime > _lastWriteTime)
 			{
-				using (var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+				using (var stream = OpenStream())
 				{
 					var newOffset = FindEndOffset(stream);
 
@@ -32,7 +32,7 @@ namespace MtLogTailer
 			}
 		}
 
-		private void ShipLogData(FileStream stream, long maxOffset)
+		private void ShipLogData(Stream stream, long maxOffset)
 		{
 			Validate(stream, maxOffset);
 
@@ -135,6 +135,11 @@ namespace MtLogTailer
 			stream.Seek(maxOffset, SeekOrigin.Begin);
 			if (stream.ReadByte() != 0)
 				throw new ApplicationException();
+		}
+
+		Stream OpenStream()
+		{
+			return new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
 		}
 
 		readonly string _filePath;
