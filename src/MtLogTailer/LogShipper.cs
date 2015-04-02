@@ -42,20 +42,50 @@ namespace MtLogTailer
 			{
 				using (var reader = new StreamReader(bufStream, Encoding.GetEncoding(_encoding)))
 				{
+					var buf = new StringBuilder();
+
 					while (pos < maxOffset)
 					{
 						if (Program.Terminate)
 							throw new ThreadInterruptedException();
 
-						var tmp = reader.Read();
-						if (tmp == -1)
-							throw new ApplicationException();
-						var ch = (char)tmp;
-						Console.Write(ch);
-						pos++;
+						pos = ReadLine(reader, buf, pos, maxOffset);
+
+						//Console.WriteLine("{0}\t{1}", _filePath, buf);
+						Console.WriteLine(buf.ToString());
+						buf.Clear();
 					}
 				}
 			}
+		}
+
+		private static long ReadLine(TextReader reader, StringBuilder buf, long pos, long maxOffset)
+		{
+			while (pos < maxOffset)
+			{
+				var tmp = reader.Read();
+				if (tmp == -1)
+					throw new ApplicationException();
+				var ch = (char) tmp;
+				buf.Append(ch);
+				pos++;
+
+				// end of line can be "\r\n", "\n\r", "\n" or "\r" in files produced by different platforms
+				if (ch == '\r' || ch == '\n')
+				{
+					var chNext = reader.Peek();
+					if (chNext != -1)
+					{
+						if (ch == '\r' && chNext == '\n' || ch == '\n' && chNext == '\r')
+						{
+							buf.Append((char) chNext);
+						}
+					}
+
+					break;
+				}
+			}
+			return pos;
 		}
 
 		static long FindEndOffset(Stream stream)
