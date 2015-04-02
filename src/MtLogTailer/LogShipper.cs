@@ -121,9 +121,13 @@ namespace MtLogTailer
 			return newLastWriteTime;
 		}
 
-		public void UpdateLastWriteTime()
+		public void Update()
 		{
 			_lastWriteTime = GetLastWriteTime();
+			using (var stream = OpenStream())
+			{
+				_offset = FindEndOffset(stream);
+			}
 		}
 
 		private static void Validate(Stream stream, long maxOffset)
