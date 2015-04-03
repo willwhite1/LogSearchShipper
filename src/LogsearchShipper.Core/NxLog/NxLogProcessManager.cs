@@ -670,7 +670,9 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	Module im_exec
 	Command ""{1}""
 	Arg ""{2}""
-	Exec	$path = ""{3}""; $type = ""{4}"";
+	Exec $Message = $raw_event;
+	Exec $path = ""{3}""; $type = ""{4}"";
+	Exec if string($Message) =~ /^(([^\t]+)\t)/ {{ $fullPath = $2; $Message = substr($Message, size($1)); }}
 </Input>
 ", i, exePathEscaped, inputFileEscaped, inputFile.Files, inputFile.Type);
 			return res;
