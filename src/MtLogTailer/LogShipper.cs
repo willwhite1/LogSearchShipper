@@ -51,8 +51,7 @@ namespace MtLogTailer
 
 						pos = ReadLine(reader, buf, pos, maxOffset);
 
-						//Console.WriteLine("{0}\t{1}", _filePath, buf);
-						Console.Write(buf.ToString());
+						Console.Write("{0}\t{1}", _filePath, buf);
 						buf.Clear();
 					}
 				}
