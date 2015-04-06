@@ -673,6 +673,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	Exec $Message = string($raw_event);
 	Exec $path = ""{3}""; $type = ""{4}"";
 	Exec if $Message =~ /^(([^\t]+)\t)/ {{ $fullPath = $2; $Message = substr($Message, size($1)); }}
+	Exec if $Message $Message = substr($Message, 0, 1040000);
 </Input>
 ", i, exePathEscaped, inputFileEscaped, inputFile.Files, inputFile.Type);
 			return res;
