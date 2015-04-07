@@ -86,30 +86,19 @@ namespace MtLogTailer
 			}
 		}
 
-		static long FindEndOffset(Stream stream)
+		// returns position of the first zero after the meaningful data
+		long FindEndOffset(Stream stream)
 		{
-			var buf = new byte[1024 * 128];
 			var fileSize = stream.Length;
-			var offset = fileSize - buf.Length;
-			if (offset < 0)
-				offset = 0;
 
-			while (true)
+			for (var i = fileSize - 1; i >= _startOffset; i--)
 			{
-				stream.Seek(offset, SeekOrigin.Begin);
-				var blockLength = stream.Read(buf, 0, buf.Length);
-				if (blockLength == 0)
-					return 0;
-
-				var i = blockLength - 1;
-				for (; i > 0; i--)
-				{
-					if (buf[i] != '\0')
-						return offset + i + 1;
-				}
-
-				offset -= blockLength;
+				stream.Position = i;
+				if (stream.ReadByte() != 0)
+					return i + 1;
 			}
+
+			return _startOffset;
 		}
 
 		private DateTime GetLastWriteTime()
@@ -148,6 +137,7 @@ namespace MtLogTailer
 		}
 
 		readonly string _filePath;
+		long _startOffset;
 		long _offset;
 		DateTime _lastWriteTime;
 
