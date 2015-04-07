@@ -13,6 +13,8 @@ namespace MtLogTailer
 		{
 			_filePath = filePath;
 			_defaultEncoding = defaultEncoding;
+
+			Init();
 		}
 
 		public void Process()
@@ -39,7 +41,7 @@ namespace MtLogTailer
 			stream.Seek(_offset, SeekOrigin.Begin);
 			var pos = _offset;
 
-			using (var reader = new StreamReader(stream, Encoding.GetEncoding(_defaultEncoding)))
+			using (var reader = new StreamReader(stream, Encoding))
 			{
 				var buf = new StringBuilder();
 
@@ -116,6 +118,17 @@ namespace MtLogTailer
 			}
 		}
 
+		private void Init()
+		{
+			using (var stream = OpenStream())
+			{
+				_encoding = FileUtil.DetectEncoding(stream);
+				if (Equals(_encoding, Encoding.Default))
+					_encoding = null;
+				_startOffset = stream.Position;
+			}
+		}
+
 		private static void Validate(Stream stream, long maxOffset)
 		{
 			if (maxOffset > 0)
@@ -141,6 +154,12 @@ namespace MtLogTailer
 		long _offset;
 		DateTime _lastWriteTime;
 
+		public Encoding Encoding
+		{
+			get { return _encoding ?? Encoding.GetEncoding(_defaultEncoding); }
+		}
+
+		private Encoding _encoding;
 		private readonly int _defaultEncoding;
 	}
 }
