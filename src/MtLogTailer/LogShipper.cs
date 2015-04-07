@@ -64,7 +64,7 @@ namespace MtLogTailer
 			{
 				var tmp = reader.Read();
 				if (tmp == -1)
-					throw new ApplicationException();
+					throw new Exception();
 				var ch = (char)tmp;
 				buf.Append(ch);
 				pos++;
@@ -135,12 +135,12 @@ namespace MtLogTailer
 			{
 				stream.Position = maxOffset - 1;
 				if (stream.ReadByte() == 0)
-					throw new ApplicationException();
+					throw new Exception();
 			}
 
 			stream.Position = maxOffset;
 			if (stream.ReadByte() != 0)
-				throw new ApplicationException();
+				throw new Exception();
 		}
 
 		Stream OpenStream()
