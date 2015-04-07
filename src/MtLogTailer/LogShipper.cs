@@ -50,10 +50,10 @@ namespace MtLogTailer
 					if (Program.Terminate)
 						throw new ThreadInterruptedException();
 
+					buf.Clear();
 					ReadLine(reader, buf, ref pos, maxOffset);
 
 					Console.Write("{0}\t{1}", _filePath, buf);
-					buf.Clear();
 				}
 			}
 		}
@@ -139,7 +139,8 @@ namespace MtLogTailer
 			}
 
 			stream.Position = maxOffset;
-			if (stream.ReadByte() != 0)
+			var next = stream.ReadByte();
+			if (next != 0 && next != -1)
 				throw new Exception();
 		}
 
