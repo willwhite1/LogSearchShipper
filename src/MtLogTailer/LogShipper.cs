@@ -38,22 +38,20 @@ namespace MtLogTailer
 
 			stream.Seek(_offset, SeekOrigin.Begin);
 			var pos = _offset;
-			using (var bufStream = new BufferedStream(stream))
+
+			using (var reader = new StreamReader(stream, Encoding.GetEncoding(_defaultEncoding)))
 			{
-				using (var reader = new StreamReader(bufStream, Encoding.GetEncoding(_defaultEncoding)))
+				var buf = new StringBuilder();
+
+				while (pos < maxOffset)
 				{
-					var buf = new StringBuilder();
+					if (Program.Terminate)
+						throw new ThreadInterruptedException();
 
-					while (pos < maxOffset)
-					{
-						if (Program.Terminate)
-							throw new ThreadInterruptedException();
+					pos = ReadLine(reader, buf, pos, maxOffset);
 
-						pos = ReadLine(reader, buf, pos, maxOffset);
-
-						Console.Write("{0}\t{1}", _filePath, buf);
-						buf.Clear();
-					}
+					Console.Write("{0}\t{1}", _filePath, buf);
+					buf.Clear();
 				}
 			}
 		}
@@ -142,7 +140,8 @@ namespace MtLogTailer
 
 		Stream OpenStream()
 		{
-			return new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+			var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+			return new BufferedStream(stream, 1024 * 128);
 		}
 
 		readonly string _filePath;
