@@ -129,11 +129,14 @@ namespace MtLogTailer
 
 		private static void Validate(Stream stream, long maxOffset)
 		{
-			stream.Seek(maxOffset - 1, SeekOrigin.Begin);
-			if (stream.ReadByte() == 0)
-				throw new ApplicationException();
+			if (maxOffset > 0)
+			{
+				stream.Position = maxOffset - 1;
+				if (stream.ReadByte() == 0)
+					throw new ApplicationException();
+			}
 
-			stream.Seek(maxOffset, SeekOrigin.Begin);
+			stream.Position = maxOffset;
 			if (stream.ReadByte() != 0)
 				throw new ApplicationException();
 		}
