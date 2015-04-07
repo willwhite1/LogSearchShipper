@@ -48,7 +48,7 @@ namespace MtLogTailer
 					if (Program.Terminate)
 						throw new ThreadInterruptedException();
 
-					pos = ReadLine(reader, buf, pos, maxOffset);
+					ReadLine(reader, buf, ref pos, maxOffset);
 
 					Console.Write("{0}\t{1}", _filePath, buf);
 					buf.Clear();
@@ -56,7 +56,7 @@ namespace MtLogTailer
 			}
 		}
 
-		private static long ReadLine(TextReader reader, StringBuilder buf, long pos, long maxOffset)
+		private static void ReadLine(TextReader reader, StringBuilder buf, ref long pos, long maxOffset)
 		{
 			while (pos < maxOffset)
 			{
@@ -77,13 +77,13 @@ namespace MtLogTailer
 						{
 							reader.Read();
 							buf.Append((char)chNext);
+							pos++;
 						}
 					}
 
-					break;
+					return;
 				}
 			}
-			return pos;
 		}
 
 		static long FindEndOffset(Stream stream)
