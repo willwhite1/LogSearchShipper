@@ -124,7 +124,7 @@ namespace IntegrationTests
 			Trace.WriteLine("Validation is successful");
 		}
 
-		protected string GetLog(out string[] ids, int linesCount = LinesPerFile)
+		protected string GetLog(List<string> ids, int linesCount = LinesPerFile)
 		{
 			var tmp = new List<string>();
 			var buf = new StringBuilder();
@@ -140,8 +140,16 @@ namespace IntegrationTests
 				tmp.Add(id);
 				i++;
 			}
-			ids = tmp.ToArray();
+			ids.AddRange(tmp);
 			return buf.ToString();
+		}
+
+		protected string GetLog(out string[] ids, int linesCount = LinesPerFile)
+		{
+			var newIds = new List<string>();
+			var res = GetLog(newIds, linesCount);
+			ids = newIds.ToArray();
+			return res;
 		}
 
 		protected void Validate(ICollection<Record> records, IEnumerable<string> ids)
