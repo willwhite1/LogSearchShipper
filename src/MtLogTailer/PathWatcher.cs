@@ -9,10 +9,11 @@ namespace MtLogTailer
 {
 	class PathWatcher
 	{
-		public PathWatcher(string path, int encoding)
+		public PathWatcher(string path, int encoding, bool readFromLast)
 		{
 			_path = path;
 			_encoding = encoding;
+			_readFromLast = readFromLast;
 		}
 
 		public void Process()
@@ -35,7 +36,7 @@ namespace MtLogTailer
 					{
 						shipper = new LogShipper(file, _encoding);
 						_shippers.Add(file, shipper);
-						if (isFirstRead)
+						if (_readFromLast && isFirstRead)
 							shipper.Update();
 					}
 
@@ -62,5 +63,6 @@ namespace MtLogTailer
 
 		private readonly string _path;
 		private readonly int _encoding;
+		private readonly bool _readFromLast;
 	}
 }
