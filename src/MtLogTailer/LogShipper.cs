@@ -74,10 +74,7 @@ namespace MtLogTailer
 					if (chNext != -1)
 					{
 						if (ch == '\r' && chNext == '\n' || ch == '\n' && chNext == '\r')
-						{
-							reader.ReadChar();
-							buf.Append((char)chNext);
-						}
+							buf.Append(reader.ReadChar());
 					}
 
 					return;
