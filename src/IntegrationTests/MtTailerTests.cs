@@ -43,29 +43,21 @@ namespace IntegrationTests
 				}
 			}
 
-			Thread.Sleep(TimeSpan.FromSeconds(3));
-
-			using (var stream = new FileStream(filePath, FileMode.Open))
+			for (var i = 0; i < 5; i++)
 			{
-				var log = GetLog(ids);
-				using (var writer = new StreamWriter(stream, Encoding.UTF8))
+				Thread.Sleep(TimeSpan.FromSeconds(3));
+
+				using (var stream = new FileStream(filePath, FileMode.Open))
 				{
-					writer.Write(log);
-					writer.Flush();
-					position = stream.Position;
-				}
-			}
+					stream.Position = position;
 
-			Thread.Sleep(TimeSpan.FromSeconds(3));
-
-			using (var stream = new FileStream(filePath, FileMode.Open))
-			{
-				stream.Position = position;
-
-				var log = GetLog(ids);
-				using (var writer = new StreamWriter(stream))
-				{
-					writer.Write(log);
+					var log = GetLog(ids);
+					using (var writer = new StreamWriter(stream, Encoding.UTF8))
+					{
+						writer.Write(log);
+						writer.Flush();
+						position = stream.Position;
+					}
 				}
 			}
 
