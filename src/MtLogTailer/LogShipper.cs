@@ -34,52 +34,49 @@ namespace MtLogTailer
 			}
 		}
 
-		private void ShipLogData(Stream stream, long maxOffset)
+		private void ShipLogData(Stream stream, long endOffset)
 		{
-			Validate(stream, maxOffset);
+			Validate(stream, endOffset);
 
-			stream.Seek(_offset, SeekOrigin.Begin);
-			var pos = _offset;
+			stream.Position = _offset;
 
-			using (var reader = new StreamReader(stream, Encoding))
+			using (var reader = new BinaryReader(stream, Encoding))
 			{
 				var buf = new StringBuilder();
 
-				while (pos < maxOffset)
+				while (stream.Position < endOffset)
 				{
 					if (Program.Terminate)
 						throw new ThreadInterruptedException();
 
 					buf.Clear();
-					ReadLine(reader, buf, ref pos, maxOffset);
+					ReadLine(reader, buf, endOffset);
 
 					Console.Write("{0}\t{1}", _filePath, buf);
 				}
 			}
 		}
 
-		private static void ReadLine(TextReader reader, StringBuilder buf, ref long pos, long maxOffset)
+		private static void ReadLine(BinaryReader reader, StringBuilder buf, long endOffset)
 		{
-			while (pos < maxOffset)
+			while (reader.BaseStream.Position < endOffset)
 			{
 				var tmp = reader.Read();
 				if (tmp == -1)
 					throw new Exception();
 				var ch = (char)tmp;
 				buf.Append(ch);
-				pos++;
 
 				// end of line can be "\r\n", "\n\r", "\n" or "\r" in files produced by different platforms
 				if (ch == '\r' || ch == '\n')
 				{
-					var chNext = reader.Peek();
+					var chNext = reader.PeekChar();
 					if (chNext != -1)
 					{
 						if (ch == '\r' && chNext == '\n' || ch == '\n' && chNext == '\r')
 						{
-							reader.Read();
+							reader.ReadChar();
 							buf.Append((char)chNext);
-							pos++;
 						}
 					}
 
