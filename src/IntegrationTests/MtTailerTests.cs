@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 using NUnit.Framework;
 
@@ -30,7 +31,8 @@ namespace IntegrationTests
 			var filePath = Path.Combine(path, "TestFile.log");
 
 			Trace.WriteLine("Writing the file");
-			string[] ids;
+			var ids = new List<string>();
+			var position = 0L;
 
 			using (var stream = new FileStream(filePath, FileMode.Create))
 			{
@@ -39,17 +41,35 @@ namespace IntegrationTests
 				{
 					stream.WriteByte(0);
 				}
+			}
 
-				stream.Seek(0, SeekOrigin.Begin);
+			Thread.Sleep(TimeSpan.FromSeconds(3));
 
-				var log = GetLog(out ids);
+			using (var stream = new FileStream(filePath, FileMode.Open))
+			{
+				var log = GetLog(ids);
 				using (var writer = new StreamWriter(stream, Encoding.UTF8))
+				{
+					writer.Write(log);
+					writer.Flush();
+					position = stream.Position;
+				}
+			}
+
+			Thread.Sleep(TimeSpan.FromSeconds(3));
+
+			using (var stream = new FileStream(filePath, FileMode.Open))
+			{
+				stream.Position = position;
+
+				var log = GetLog(ids);
+				using (var writer = new StreamWriter(stream))
 				{
 					writer.Write(log);
 				}
 			}
 
-			GetAndValidateRecords(ids);
+			GetAndValidateRecords(ids.ToArray());
 		}
 	}
 }
