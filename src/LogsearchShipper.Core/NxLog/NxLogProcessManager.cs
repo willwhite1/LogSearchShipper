@@ -670,12 +670,13 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	Module im_exec
 	Command ""{1}""
 	Arg ""{2}""
+	Arg -readFromLast:{5}
 	Exec $Message = string($raw_event);
 	Exec $path = ""{3}""; $type = ""{4}"";
 	Exec if $Message =~ /^(([^\t]+)\t)/ {{ $fullPath = $2; $Message = substr($Message, size($1)); }}
 	Exec if $Message $Message = substr($Message, 0, 1040000);
 </Input>
-", i, exePathEscaped, inputFileEscaped, inputFile.Files, inputFile.Type);
+", i, exePathEscaped, inputFileEscaped, inputFile.Files, inputFile.Type, inputFile.ReadFromLast.ToString().ToLower());
 			return res;
 		}
 
