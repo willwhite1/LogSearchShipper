@@ -13,12 +13,12 @@ namespace MtLogTailer
 		{
 			_filePath = filePath;
 			_defaultEncoding = defaultEncoding;
-
-			Init();
 		}
 
 		public void Process()
 		{
+			EnsureInitDone();
+
 			var newLastWriteTime = GetLastWriteTime();
 			if (newLastWriteTime > _lastWriteTime)
 			{
@@ -112,16 +112,27 @@ namespace MtLogTailer
 			}
 		}
 
-		private void Init()
+		private void EnsureInitDone()
 		{
+			if (_initDone)
+				return;
+
 			using (var stream = OpenStream())
 			{
+				var endOffset = FindEndOffset(stream);
+				if (endOffset == 0)
+					return;
+
 				_encoding = FileUtil.DetectEncoding(stream);
 				if (Equals(_encoding, Encoding.Default))
 					_encoding = null;
 				_startOffset = stream.Position;
 			}
+
+			_initDone = true;
 		}
+
+		private bool _initDone;
 
 		private static void Validate(Stream stream, long maxOffset)
 		{
