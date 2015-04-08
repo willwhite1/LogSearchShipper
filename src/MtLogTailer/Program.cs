@@ -14,17 +14,26 @@ namespace MtLogTailer
 		{
 			try
 			{
-				if (args.Length != 1)
-					throw new ApplicationException("Invalid args.  Should use MtLogTailer.exe <filePath> <encoding: optional>");
-				var path = args[0];
+				var argsDic = CommandLineUtil.ParseArgs(args);
 
-				var encoding = 936;  //Default to gb2312-> ANSI/OEM Simplified Chinese (PRC, Singapore); Chinese Simplified (GB2312)
-				if (args.Length >= 2)
-					encoding = Convert.ToInt32(args[1]);
+				string path;
+				if (!argsDic.TryGetValue("", out path))
+					ThrowInvalidArgs();
+
+				//Default to gb2312-> ANSI/OEM Simplified Chinese (PRC, Singapore); Chinese Simplified (GB2312)
+				var encoding = 936;
+				string encodingText;
+				if (argsDic.TryGetValue("encoding", out encodingText))
+					encoding = Convert.ToInt32(encodingText);
+
+				var readFromLast = true;
+				string readFromLastText;
+				if (argsDic.TryGetValue("readFromLast", out readFromLastText))
+					readFromLast = bool.Parse(readFromLastText);
 
 				Console.OutputEncoding = Encoding.UTF8;
 
-				var watcher = new PathWatcher(path, encoding);
+				var watcher = new PathWatcher(path, encoding, readFromLast);
 
 				Console.CancelKeyPress +=
 					(sender, eventArgs) =>
@@ -46,6 +55,11 @@ namespace MtLogTailer
 			{
 				Log("{0} {1}", FormatTime(), Escape(exc.ToString()));
 			}
+		}
+
+		private static void ThrowInvalidArgs()
+		{
+			throw new ApplicationException("Invalid args. Should use MtLogTailer.exe <filePath> (-encoding:int)? (-readFromLast:bool)?");
 		}
 
 		static void Log(string format, params object[] args)
