@@ -152,7 +152,7 @@ namespace IntegrationTests
 			return res;
 		}
 
-		protected void Validate(ICollection<Record> records, IEnumerable<string> ids)
+		protected void Validate(ICollection<Record> records, ICollection<string> ids)
 		{
 			var recordIdsCount = new Dictionary<string, int>();
 			foreach (var record in records)
@@ -177,11 +177,21 @@ namespace IntegrationTests
 					duplicatesCount++;
 			}
 
-			var message = string.Format("total - {0}, missing - {1}, duplicates - {2}", records.Count, missingCount, duplicatesCount);
+			var checkExtras = new HashSet<string>(ids);
+			foreach (var record in records)
+			{
+				checkExtras.Remove(record.Fields["message"]);
+			}
+
+			var message = string.Format("total - {0}, missing - {1}, duplicates - {2}, extras - {3}",
+				records.Count, missingCount, duplicatesCount, checkExtras.Count);
 			Trace.WriteLine(message);
 
 			if (missingCount != 0)
 				throw new ApplicationException("Validation failed - some records are missing");
+
+			if (checkExtras.Count != 0)
+				throw new ApplicationException("Validation failed - there are some extra records");
 
 			if (duplicatesCount != 0)
 				Trace.WriteLine("--- Validation warning - there are some duplicate records");
