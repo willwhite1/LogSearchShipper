@@ -34,14 +34,7 @@ namespace IntegrationTests
 			var ids = new List<string>();
 			var position = 0L;
 
-			using (var stream = new FileStream(filePath, FileMode.Create))
-			{
-				// pre-allocate file and fill with zeros, the same as MT does
-				for (int i = 0; i < 100000; i++)
-				{
-					stream.WriteByte(0);
-				}
-			}
+			FillWithZeros(filePath);
 
 			for (var i = 0; i < 5; i++)
 			{
@@ -62,6 +55,18 @@ namespace IntegrationTests
 			}
 
 			GetAndValidateRecords(ids.ToArray());
+		}
+
+		private static void FillWithZeros(string filePath)
+		{
+			using (var stream = new FileStream(filePath, FileMode.Create))
+			{
+				// pre-allocate file and fill with zeros, the same as MT does
+				for (int i = 0; i < 100000; i++)
+				{
+					stream.WriteByte(0);
+				}
+			}
 		}
 	}
 }
