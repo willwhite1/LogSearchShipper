@@ -16,7 +16,7 @@ namespace IntegrationTests
 	{
 		void Init()
 		{
-			Init("LogsearchShipper.exe.config.Test");
+			InitAndStart("LogsearchShipper.exe.config.Test");
 		}
 
 		[Test]
