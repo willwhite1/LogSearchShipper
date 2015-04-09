@@ -50,10 +50,15 @@ namespace IntegrationTests
 			}
 			_exePath = exeFileCopy;
 
-			StartShipperService();
-
 			_initDone = true;
 
+			Utils.WriteDelimiter();
+		}
+
+		protected void InitAndStart(string configName)
+		{
+			Init(configName);
+			StartShipperService();
 			Utils.WriteDelimiter();
 		}
 

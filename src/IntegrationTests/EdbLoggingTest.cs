@@ -17,7 +17,7 @@ namespace IntegrationTests
 	{
 		void Init()
 		{
-			Init("LogsearchShipper.exe.config.EdbLoggingTest");
+			InitAndStart("LogsearchShipper.exe.config.EdbLoggingTest");
 		}
 
 		[Test]
