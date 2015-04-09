@@ -111,17 +111,21 @@ namespace IntegrationTests
 
 		private static void AppendToLog(string filePath, ref long position, string text)
 		{
-			using (var stream = new FileStream(filePath, FileMode.Open))
+			using (var writer = CreateWriter(filePath, Encoding.UTF8, position))
 			{
-				stream.Position = position;
-
-				using (var writer = new StreamWriter(stream, Encoding.UTF8))
-				{
-					writer.Write(text);
-					writer.Flush();
-					position = stream.Position;
-				}
+				writer.Write(text);
+				writer.Flush();
+				position = writer.BaseStream.Position;
 			}
+		}
+
+		static StreamWriter CreateWriter(string filePath, Encoding encoding, long position)
+		{
+			var stream = new FileStream(filePath, FileMode.Open) { Position = position };
+			var writer = (encoding != null)
+				? new StreamWriter(stream, encoding)
+				: new StreamWriter(stream); // UTF-8 without BOM
+			return writer;
 		}
 
 		private bool _readFromLast = true;
