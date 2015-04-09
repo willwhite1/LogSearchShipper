@@ -36,6 +36,23 @@ namespace IntegrationTests
 
 			FillWithZeros(filePath);
 
+			// these records must be discarded due to readFromLast=true
+			using (var stream = new FileStream(filePath, FileMode.Open))
+			{
+				stream.Position = position;
+
+				string[] tmpIds;
+				var log = GetLog(out tmpIds, 10);
+				using (var writer = new StreamWriter(stream, Encoding.UTF8))
+				{
+					writer.Write(log);
+					writer.Flush();
+					position = stream.Position;
+				}
+			}
+
+			StartShipperService();
+
 			for (var i = 0; i < 5; i++)
 			{
 				Thread.Sleep(TimeSpan.FromSeconds(3));
