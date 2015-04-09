@@ -78,8 +78,8 @@ namespace IntegrationTests
 
 			_shipperProcess = ProcessUtils.StartProcess(_exePath, "-instance:OverallTest");
 
-			Trace.WriteLine("    Waiting 30 seconds for shipper to startup...");
-			Thread.Sleep(TimeSpan.FromSeconds(30));
+			Trace.WriteLine("    Waiting for shipper to startup...");
+			Thread.Sleep(TimeSpan.FromSeconds(10));
 		}
 
 		protected void StopShipperService()
@@ -109,7 +109,8 @@ namespace IntegrationTests
 
 			while (true)
 			{
-				Thread.Sleep(TimeSpan.FromMinutes(1));
+				Thread.Sleep(TimeSpan.FromSeconds(20));
+
 				var records = EsUtil.GetRecords(queryArgs);
 				Trace.WriteLine(string.Format("    Checking ES records: {0} total found", records.Count));
 
