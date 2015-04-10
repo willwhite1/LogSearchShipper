@@ -27,6 +27,8 @@ namespace IntegrationTests
 		public void TestMtLogImitation_ReadFromLastTrue()
 		{
 			_readFromLast = true;
+			var encoding = Encoding.UTF8;
+
 			Init();
 
 			var path = GetTestPath("TestMtLogImitation");
@@ -43,7 +45,7 @@ namespace IntegrationTests
 			{
 				string[] tmpIds;
 				var log = GetLog(out tmpIds, 10);
-				AppendToLog(filePath, ref position, log);
+				AppendToLog(filePath, ref position, log, encoding);
 			}
 
 			StartShipperService();
@@ -53,7 +55,7 @@ namespace IntegrationTests
 				Thread.Sleep(TimeSpan.FromSeconds(3));
 
 				var log = GetLog(ids);
-				AppendToLog(filePath, ref position, log);
+				AppendToLog(filePath, ref position, log, encoding);
 			}
 
 			GetAndValidateRecords(ids.ToArray());
@@ -62,7 +64,18 @@ namespace IntegrationTests
 		}
 
 		[Test]
-		public void TestMtLogImitation_ReadFromLastFalse()
+		public void TestMtLogImitation_ReadFromLastFalse_Bom()
+		{
+			TestMtLogImitation_ReadFromLastFalse(Encoding.UTF8);
+		}
+
+		[Test]
+		public void TestMtLogImitation_ReadFromLastFalse_NoBom()
+		{
+			TestMtLogImitation_ReadFromLastFalse(null);
+		}
+
+		void TestMtLogImitation_ReadFromLastFalse(Encoding encoding)
 		{
 			_readFromLast = false;
 			Init();
@@ -79,7 +92,7 @@ namespace IntegrationTests
 
 			{
 				var log = GetLog(ids, 10);
-				AppendToLog(filePath, ref position, log);
+				AppendToLog(filePath, ref position, log, encoding);
 			}
 
 			StartShipperService();
@@ -89,7 +102,7 @@ namespace IntegrationTests
 				Thread.Sleep(TimeSpan.FromSeconds(3));
 
 				var log = GetLog(ids);
-				AppendToLog(filePath, ref position, log);
+				AppendToLog(filePath, ref position, log, encoding);
 			}
 
 			GetAndValidateRecords(ids.ToArray());
@@ -109,9 +122,9 @@ namespace IntegrationTests
 			}
 		}
 
-		private static void AppendToLog(string filePath, ref long position, string text)
+		private static void AppendToLog(string filePath, ref long position, string text, Encoding encoding)
 		{
-			using (var writer = CreateWriter(filePath, Encoding.UTF8, position))
+			using (var writer = CreateWriter(filePath, encoding, position))
 			{
 				writer.Write(text);
 				writer.Flush();
