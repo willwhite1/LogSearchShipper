@@ -16,6 +16,8 @@ namespace IntegrationTests
 	{
 		protected void Init(string configName)
 		{
+			StopShipperService();
+
 			_currentGroupId = Guid.NewGuid().ToString();
 
 			if (_initDone)
