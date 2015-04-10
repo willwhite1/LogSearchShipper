@@ -24,7 +24,7 @@ namespace IntegrationTests
 		}
 
 		[Test]
-		public void TestMtLogImitation_ReadFromLastTrue()
+		public void Test_ReadFromLastTrue()
 		{
 			_readFromLast = true;
 			var encoding = Encoding.UTF8;
@@ -64,18 +64,18 @@ namespace IntegrationTests
 		}
 
 		[Test]
-		public void TestMtLogImitation_ReadFromLastFalse_Bom()
+		public void Test_ReadFromLastFalse_Bom()
 		{
-			TestMtLogImitation_ReadFromLastFalse(Encoding.UTF8);
+			Test_ReadFromLastFalse(Encoding.UTF8);
 		}
 
 		[Test]
-		public void TestMtLogImitation_ReadFromLastFalse_NoBom()
+		public void Test_ReadFromLastFalse_NoBom()
 		{
-			TestMtLogImitation_ReadFromLastFalse(null);
+			Test_ReadFromLastFalse(null);
 		}
 
-		void TestMtLogImitation_ReadFromLastFalse(Encoding encoding)
+		void Test_ReadFromLastFalse(Encoding encoding)
 		{
 			_readFromLast = false;
 			Init();
