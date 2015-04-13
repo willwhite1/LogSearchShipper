@@ -141,6 +141,39 @@ namespace IntegrationTests
 			StopShipperService();
 		}
 
+		[Test]
+		public void TestConcurrentAccessRandom()
+		{
+			Init();
+
+			var path = GetTestPath("TestMtLogImitation");
+			var filePath = Path.Combine(path, "TestFile.log");
+
+			var ids = new List<string>();
+			var position = 0L;
+
+			Trace.WriteLine("Writing the file");
+
+			FillWithZeros(filePath);
+
+			StartShipperService();
+
+			var random = new Random();
+			for (var i = 0; i < 100; i++)
+			{
+				var line = GetLog(ids, 1);
+				var splitIndex = line.Length / 2;
+
+				AppendToLog(filePath, ref position, line.Substring(0, splitIndex), null);
+				Thread.Sleep(TimeSpan.FromSeconds(random.NextDouble() * 1.5));
+				AppendToLog(filePath, ref position, line.Substring(splitIndex), null);
+				Thread.Sleep(TimeSpan.FromSeconds(random.NextDouble() * 1));
+			}
+
+			GetAndValidateRecords(ids.ToArray());
+			StopShipperService();
+		}
+
 		private static void FillWithZeros(string filePath)
 		{
 			using (var stream = new FileStream(filePath, FileMode.Create))
