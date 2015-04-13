@@ -24,46 +24,44 @@ namespace MtLogTailer
 			{
 				using (var stream = OpenStream())
 				{
-					var newOffset = FindEndOffset(stream);
+					stream.Position = _offset;
 
-					ShipLogData(stream, newOffset);
+					ShipLogData(stream);
 
-					_offset = newOffset;
+					_offset = stream.Position;
 					_lastWriteTime = newLastWriteTime;
 				}
 			}
 		}
 
-		private void ShipLogData(Stream stream, long endOffset)
+		private void ShipLogData(Stream stream)
 		{
-			Validate(stream, endOffset);
+			var reader = new BinaryReader(stream, Encoding);
+			var buf = new StringBuilder();
 
-			stream.Position = _offset;
-
-			using (var reader = new BinaryReader(stream, Encoding))
+			while (true)
 			{
-				var buf = new StringBuilder();
+				if (Program.Terminate)
+					throw new ThreadInterruptedException();
 
-				while (stream.Position < endOffset)
-				{
-					if (Program.Terminate)
-						throw new ThreadInterruptedException();
+				buf.Clear();
+				if (!ReadLine(reader, buf))
+					break;
 
-					buf.Clear();
-					ReadLine(reader, buf, endOffset);
-
-					Console.Write("{0}\t{1}", _filePath, buf);
-				}
+				Console.Write("{0}\t{1}", _filePath, buf);
 			}
 		}
 
-		private static void ReadLine(BinaryReader reader, StringBuilder buf, long endOffset)
+		private static bool ReadLine(BinaryReader reader, StringBuilder buf)
 		{
-			while (reader.BaseStream.Position < endOffset)
+			var stream = reader.BaseStream;
+			var startPosition = stream.Position;
+
+			while (true)
 			{
 				var tmp = reader.Read();
 				if (tmp == -1)
-					throw new Exception();
+					break;
 				var ch = (char)tmp;
 				buf.Append(ch);
 
@@ -77,9 +75,13 @@ namespace MtLogTailer
 							buf.Append(reader.ReadChar());
 					}
 
-					return;
+					return true;
 				}
 			}
+
+			buf.Clear();
+			stream.Position = startPosition;
+			return false;
 		}
 
 		// returns position of the first zero after the meaningful data
@@ -133,21 +135,6 @@ namespace MtLogTailer
 		}
 
 		private bool _initDone;
-
-		private static void Validate(Stream stream, long maxOffset)
-		{
-			if (maxOffset > 0)
-			{
-				stream.Position = maxOffset - 1;
-				if (stream.ReadByte() == 0)
-					throw new Exception();
-			}
-
-			stream.Position = maxOffset;
-			var next = stream.ReadByte();
-			if (next != 0 && next != -1)
-				throw new Exception();
-		}
 
 		Stream OpenStream()
 		{
