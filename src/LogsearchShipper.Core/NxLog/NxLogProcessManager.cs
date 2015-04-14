@@ -628,7 +628,8 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	CloseWhenIdle {7}
 	PollInterval {5}
 	DirCheckInterval {6}
-	Exec	$path = ""{3}""; $type = ""{4}""; ",
+	Exec	$path = ""{3}""; $type = ""{4}"";
+",
 				i,
 				inputFileEscaped,
 				inputFile.ReadFromLast.ToString().ToUpper(),
@@ -638,12 +639,10 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 				FilePollIntervalSeconds * 2,
 				inputFile.CloseWhenIdle.ToString().ToUpper());
 
-			foreach (FieldElement field in inputFile.Fields)
-			{
-				res += string.Format(@"${0} = ""{1}""; ", field.Key, field.Value);
-			}
+			res += AppendCustomFields(inputFile);
+
 			// Limit maximum message size to just less than 1MB; or NXLog dies with: ERROR string limit (1048576 bytes) reached
-			res += @"if $Message $Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
+			res += @"	Exec if $Message $Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
 
 			if (inputFile.CustomNxlogConfig != null)
 			{
@@ -656,6 +655,18 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			res += @"</Input>" + Environment.NewLine;
 
 			return res;
+		}
+
+		private static string AppendCustomFields(FileWatchElement inputFile)
+		{
+			if (inputFile.Fields.Count == 0)
+				return "";
+			var buf = new StringBuilder();
+			foreach (FieldElement field in inputFile.Fields)
+			{
+				buf.AppendFormat(@"${0} = ""{1}""; ", field.Key, field.Value);
+			}
+			return "	Exec " + buf + Environment.NewLine;
 		}
 
 		string GenerateMtFileWatchConfig(FileWatchElement inputFile, int i)
@@ -675,8 +686,12 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	Exec $path = ""{3}""; $type = ""{4}"";
 	Exec if $Message =~ /^(([^\t]+)\t)/ {{ $fullPath = $2; $Message = substr($Message, size($1)); }}
 	Exec if $Message $Message = substr($Message, 0, 1040000);
-</Input>
 ", i, exePathEscaped, inputFileEscaped, inputFile.Files, inputFile.Type, inputFile.ReadFromLast.ToString().ToLower());
+
+			res += AppendCustomFields(inputFile);
+			res += GetSessionId();
+			res += @"</Input>" + Environment.NewLine;
+
 			return res;
 		}
 
