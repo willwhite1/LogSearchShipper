@@ -142,7 +142,7 @@ namespace IntegrationTests
 		}
 
 		[Test]
-		public void TestConcurrentAccessRandom()
+		public void TestConcurrentAccessRandomized()
 		{
 			Init();
 
