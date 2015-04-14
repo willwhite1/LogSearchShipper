@@ -174,6 +174,38 @@ namespace IntegrationTests
 			StopShipperService();
 		}
 
+
+		[Test]
+		public void TestIncompleteLineWhenStarting()
+		{
+			_readFromLast = true;
+			Init();
+
+			var path = GetTestPath("TestMtLogImitation");
+			var filePath = Path.Combine(path, "TestFile.log");
+
+			var ids = new List<string>();
+			var position = 0L;
+
+			Trace.WriteLine("Writing the file");
+
+			FillWithZeros(filePath);
+
+			var line = GetLog(ids, 1);
+			var splitIndex = line.Length / 2;
+			AppendToLog(filePath, ref position, line.Substring(0, splitIndex), null);
+
+			StartShipperService();
+
+			AppendToLog(filePath, ref position, line.Substring(splitIndex), null);
+
+			line = GetLog(ids, 1);
+			AppendToLog(filePath, ref position, line, null);
+
+			GetAndValidateRecords(ids.ToArray());
+			StopShipperService();
+		}
+
 		private static void FillWithZeros(string filePath)
 		{
 			using (var stream = new FileStream(filePath, FileMode.Create))
