@@ -191,7 +191,7 @@ namespace IntegrationTests
 
 			FillWithZeros(filePath);
 
-			var line = GetLog(ids, 1);
+			var line = GetLog(null, 1);
 			var splitIndex = line.Length / 2;
 			AppendToLog(filePath, ref position, line.Substring(0, splitIndex), null);
 
