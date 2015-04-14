@@ -148,7 +148,8 @@ namespace IntegrationTests
 				tmp.Add(id);
 				i++;
 			}
-			ids.AddRange(tmp);
+			if (ids != null)
+				ids.AddRange(tmp);
 			return buf.ToString();
 		}
 
