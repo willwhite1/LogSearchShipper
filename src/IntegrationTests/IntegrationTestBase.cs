@@ -235,6 +235,17 @@ namespace IntegrationTests
 				records => Validate(records, ids), waitMinutes);
 		}
 
+		protected void GetAndValidateRecords2(string[] ids, int waitMinutes = WaitResultPeriodMinutes)
+		{
+			var queryArgs = new Dictionary<string, string>
+			{
+				{ "@source.groupId", CurrentGroupId },
+			};
+
+			GetAndValidateRecords(queryArgs, new[] { "message", "@message" }, ids.Count(),
+				records => Validate(records, ids), waitMinutes);
+		}
+
 		string LogsPath { get { return Path.Combine(_basePath, "logs"); } }
 
 		private string _basePath;

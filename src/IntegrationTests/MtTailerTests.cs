@@ -202,7 +202,7 @@ namespace IntegrationTests
 			line = GetLog(ids, 1);
 			AppendToLog(filePath, ref position, line, null);
 
-			GetAndValidateRecords(ids.ToArray());
+			GetAndValidateRecords2(ids.ToArray());
 			StopShipperService();
 		}
 
@@ -241,6 +241,8 @@ namespace IntegrationTests
 
 		public override void AdjustConfig(XmlDocument config)
 		{
+			base.AdjustConfig(config);
+
 			var nodes = config.SelectNodes("/configuration/LogSearchShipperGroup/LogSearchShipper/fileWatchers/watch");
 			foreach (XmlElement node in nodes)
 			{
