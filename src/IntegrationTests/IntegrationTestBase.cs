@@ -20,9 +20,6 @@ namespace IntegrationTests
 
 			_currentGroupId = Guid.NewGuid().ToString();
 
-			if (_initDone)
-				return;
-
 			_basePath = Path.Combine(Environment.CurrentDirectory, TestName);
 			if (!Directory.Exists(_basePath))
 				Directory.CreateDirectory(_basePath);
@@ -51,8 +48,6 @@ namespace IntegrationTests
 				File.Copy(file, newFile);
 			}
 			_exePath = exeFileCopy;
-
-			_initDone = true;
 
 			Utils.WriteDelimiter();
 		}
@@ -227,18 +222,6 @@ namespace IntegrationTests
 		{
 			var queryArgs = new Dictionary<string, string>
 			{
-				{ "source", TestName },
-				{ "group_id", CurrentGroupId },
-			};
-
-			GetAndValidateRecords(queryArgs, new[] { "message" }, ids.Count(),
-				records => Validate(records, ids), waitMinutes);
-		}
-
-		protected void GetAndValidateRecords2(string[] ids, int waitMinutes = WaitResultPeriodMinutes)
-		{
-			var queryArgs = new Dictionary<string, string>
-			{
 				{ "@source.groupId", CurrentGroupId },
 			};
 
@@ -252,8 +235,6 @@ namespace IntegrationTests
 		private string _exePath;
 
 		private Process _shipperProcess;
-
-		private bool _initDone;
 
 		protected string CurrentGroupId
 		{
