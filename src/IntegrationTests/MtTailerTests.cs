@@ -202,7 +202,7 @@ namespace IntegrationTests
 			line = GetLog(ids, 1);
 			AppendToLog(filePath, ref position, line, null);
 
-			GetAndValidateRecords2(ids.ToArray());
+			GetAndValidateRecords(ids.ToArray());
 			StopShipperService();
 		}
 

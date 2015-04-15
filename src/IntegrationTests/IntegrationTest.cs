@@ -156,6 +156,8 @@ namespace IntegrationTests
 
 		public override void AdjustConfig(XmlDocument config)
 		{
+			base.AdjustConfig(config);
+
 			var nodes = config.SelectNodes("/configuration/LogSearchShipperGroup/LogSearchShipper");
 			foreach (XmlElement node in nodes)
 			{
