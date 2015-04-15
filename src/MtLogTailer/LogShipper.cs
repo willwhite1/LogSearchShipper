@@ -39,6 +39,21 @@ namespace MtLogTailer
 			var reader = new BinaryReader(stream, Encoding);
 			var buf = new StringBuilder();
 
+			if (_isFirstLine)
+			{
+				// read the rest of an incomplete line, if any
+				if (stream.Length > _startOffset)
+				{
+					stream.Position = stream.Position - 1;
+					// if the previous line ends with a linefeed char, this will read that linefeed char only
+					// otherwise, it will read until the next line
+					if (!ReadLine(reader, buf))
+						return;
+					buf.Clear();
+				}
+				_isFirstLine = false;
+			}
+
 			while (true)
 			{
 				if (Program.Terminate)
@@ -146,6 +161,7 @@ namespace MtLogTailer
 		long _startOffset;
 		long _offset;
 		DateTime _lastWriteTime;
+		private bool _isFirstLine = true;
 
 		public Encoding Encoding
 		{
