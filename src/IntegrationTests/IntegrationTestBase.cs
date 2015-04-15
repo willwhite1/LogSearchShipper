@@ -66,6 +66,14 @@ namespace IntegrationTests
 
 		public virtual void AdjustConfig(XmlDocument config)
 		{
+			var nodes = config.SelectNodes("/configuration/LogSearchShipperGroup/LogSearchShipper/fileWatchers/watch");
+			foreach (XmlElement node in nodes)
+			{
+				var groupSpec = config.CreateElement("field");
+				groupSpec.SetAttribute("key", "groupId");
+				groupSpec.SetAttribute("value", CurrentGroupId);
+				node.AppendChild(groupSpec);
+			}
 		}
 
 		[TestFixtureTearDown]
@@ -101,7 +109,7 @@ namespace IntegrationTests
 			return res;
 		}
 
-		protected void GetAndValidateRecords(Dictionary<string, string> queryArgs, string[] requiredFields, int expectedCount,
+		protected void GetAndValidateRecords(Dictionary<string, string> queryArgs, string[] fields, int expectedCount,
 			Action<List<Record>> validate, int waitMinutes = 10)
 		{
 			Trace.WriteLine("Getting records from ES...");
@@ -120,7 +128,7 @@ namespace IntegrationTests
 					throw new ApplicationException("Stop - no new data received from ES");
 				prevRecordsCount = records.Count;
 
-				var filtered = records.Where(record => requiredFields.Any(requiredField => record.Fields.ContainsKey(requiredField))).ToList();
+				var filtered = records.Where(record => fields.Any(requiredField => record.Fields.ContainsKey(requiredField))).ToList();
 
 				if (filtered.Count >= expectedCount || DateTime.UtcNow - startTime > TimeSpan.FromMinutes(waitMinutes))
 				{
@@ -164,15 +172,30 @@ namespace IntegrationTests
 		protected void Validate(ICollection<Record> records, ICollection<string> ids)
 		{
 			var recordIdsCount = new Dictionary<string, int>();
+			var receivedIds = new List<string>();
+
 			foreach (var record in records)
 			{
-				var id = record.Fields["message"];
+				string id;
+				if (!record.Fields.TryGetValue("message", out id))
+					id = record.Fields["@message"];
+				receivedIds.Add(id);
+			}
 
+			var checkExtras = new HashSet<string>(receivedIds);
+
+			foreach (var id in receivedIds)
+			{
 				int count;
 				if (!recordIdsCount.TryGetValue(id, out count))
 					recordIdsCount.Add(id, 1);
 				else
 					recordIdsCount[id] = ++count;
+			}
+
+			foreach (var id in ids)
+			{
+				checkExtras.Remove(id);
 			}
 
 			int duplicatesCount = 0, missingCount = 0;
@@ -184,12 +207,6 @@ namespace IntegrationTests
 					missingCount++;
 				else if (count > 1)
 					duplicatesCount++;
-			}
-
-			var checkExtras = new HashSet<string>(ids);
-			foreach (var record in records)
-			{
-				checkExtras.Remove(record.Fields["message"]);
 			}
 
 			var message = string.Format("total - {0}, missing - {1}, duplicates - {2}, extras - {3}",
