@@ -136,11 +136,9 @@ namespace MtLogTailer
 
 			using (var stream = OpenStream())
 			{
-				var endOffset = FindEndOffset(stream);
-				if (endOffset == 0)
-					return;
-
 				_encoding = FileUtil.DetectEncoding(stream);
+				if (_encoding == null)
+					return;
 				if (Equals(_encoding, Encoding.Default))
 					_encoding = null;
 				_startOffset = stream.Position;

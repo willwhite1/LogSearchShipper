@@ -15,7 +15,9 @@ namespace MtLogTailer
 			var startPosition = stream.Position;
 
 			var bom = new byte[4];
-			stream.Read(bom, 0, 4);
+			var bytesRead = stream.Read(bom, 0, 4);
+			if (bytesRead < bom.Length)
+				return null;
 
 			if (bom[0] == 0x2b && bom[1] == 0x2f && bom[2] == 0x76)
 			{
