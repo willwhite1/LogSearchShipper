@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -39,10 +40,13 @@ namespace MtLogTailer
 			var reader = new BinaryReader(stream, Encoding);
 			var buf = new StringBuilder();
 
+			// read the rest of an incomplete line at the start, if any
 			if (_isFirstLine)
 			{
-				// read the rest of an incomplete line, if any
-				if (stream.Length > _startOffset && stream.Position > 0)
+				if (stream.Length <= _startOffset)
+					return;
+
+				if (stream.Position > _startOffset)
 				{
 					stream.Position = stream.Position - 1;
 					// if the previous line ends with a linefeed char, this will read that linefeed char only
@@ -51,6 +55,7 @@ namespace MtLogTailer
 						return;
 					buf.Clear();
 				}
+
 				_isFirstLine = false;
 			}
 
