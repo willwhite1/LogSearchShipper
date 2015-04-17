@@ -49,11 +49,11 @@ namespace MtLogTailer
 			{ }
 			catch (ApplicationException exc)
 			{
-				Log("{0} {1}", FormatTime(), Escape(exc.Message));
+				LogError(exc.Message);
 			}
 			catch (Exception exc)
 			{
-				Log("{0} {1}", FormatTime(), Escape(exc.ToString()));
+				LogError(exc.ToString());
 			}
 		}
 
@@ -84,6 +84,11 @@ namespace MtLogTailer
 		static string FormatTime()
 		{
 			return DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ");
+		}
+
+		public static void LogError(string message)
+		{
+			Log("{0} {1}", FormatTime(), Escape(message));
 		}
 
 		public static volatile bool Terminate;
