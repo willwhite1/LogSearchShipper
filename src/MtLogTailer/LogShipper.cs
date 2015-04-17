@@ -108,12 +108,28 @@ namespace MtLogTailer
 		long FindEndOffset(Stream stream)
 		{
 			var fileSize = stream.Length;
+			var prevBlockStart = fileSize;
+			var blockStart = prevBlockStart - _buffer.Length;
 
-			for (var i = fileSize - 1; i >= _startOffset; i--)
+			while (true)
 			{
-				stream.Position = i;
-				if (stream.ReadByte() != 0)
-					return i + 1;
+				if (blockStart < _startOffset)
+					blockStart = _startOffset;
+
+				stream.Seek(blockStart, SeekOrigin.Begin);
+				var blockSize = (int)Math.Min(prevBlockStart - blockStart, _buffer.Length);
+				var bytesRead = stream.Read(_buffer, 0, blockSize);
+				if (bytesRead == 0)
+					break;
+
+				for (var i = bytesRead - 1; i > 0; i--)
+				{
+					if (_buffer[i] != '\0')
+						return blockStart + i + 1;
+				}
+
+				prevBlockStart = blockStart;
+				blockStart -= bytesRead;
 			}
 
 			return _startOffset;
@@ -175,5 +191,6 @@ namespace MtLogTailer
 		private readonly int _defaultEncoding;
 
 		private const int BufSize = 1024 * 1024;
+		readonly byte[] _buffer = new byte[BufSize];
 	}
 }
