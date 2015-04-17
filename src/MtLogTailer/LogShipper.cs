@@ -156,8 +156,8 @@ namespace MtLogTailer
 
 		Stream OpenStream()
 		{
-			var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-			return new BufferedStream(stream, 1024 * 128);
+			var stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, BufSize);
+			return stream;
 		}
 
 		readonly string _filePath;
@@ -173,5 +173,7 @@ namespace MtLogTailer
 
 		private Encoding _encoding;
 		private readonly int _defaultEncoding;
+
+		private const int BufSize = 1024 * 1024;
 	}
 }
