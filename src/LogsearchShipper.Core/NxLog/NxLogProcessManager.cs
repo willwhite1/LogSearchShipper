@@ -447,7 +447,7 @@ SpoolDir	{6}
 ", allInputs);
 			}
 
-			if (OutputFile != null)
+			if (!string.IsNullOrEmpty(OutputFile))
 			{
 				routeSection += string.Format(@"
 <Route route_to_file>
