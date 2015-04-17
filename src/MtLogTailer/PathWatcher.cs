@@ -29,25 +29,32 @@ namespace MtLogTailer
 
 			while (!Program.Terminate)
 			{
-				foreach (var file in Directory.GetFiles(dirPath, fileName, SearchOption.AllDirectories))
+				try
 				{
-					try
+					foreach (var file in Directory.GetFiles(dirPath, fileName, SearchOption.AllDirectories))
 					{
-						LogShipper shipper;
-						if (!_shippers.TryGetValue(file, out shipper))
+						try
 						{
-							shipper = new LogShipper(file, _encoding);
-							_shippers.Add(file, shipper);
-							if (_readFromLast && isFirstRead)
-								shipper.Update();
-						}
+							LogShipper shipper;
+							if (!_shippers.TryGetValue(file, out shipper))
+							{
+								shipper = new LogShipper(file, _encoding);
+								_shippers.Add(file, shipper);
+								if (_readFromLast && isFirstRead)
+									shipper.Update();
+							}
 
-						shipper.Process();
+							shipper.Process();
+						}
+						catch (Exception exc)
+						{
+							Program.LogError(exc.ToString());
+						}
 					}
-					catch (Exception exc)
-					{
-						Program.LogError(exc.ToString());
-					}
+				}
+				catch (Exception exc)
+				{
+					Program.LogError(exc.ToString());
 				}
 
 				isFirstRead = false;
