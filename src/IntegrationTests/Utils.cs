@@ -54,15 +54,9 @@ namespace IntegrationTests
 
 		public static void Cleanup(string path)
 		{
-			foreach (var file in Directory.GetFiles(path, "*.*"))
+			foreach (var file in Directory.GetFiles(path, "*.*", SearchOption.AllDirectories))
 			{
 				File.Delete(file);
-			}
-
-			foreach (var directory in Directory.GetDirectories(path))
-			{
-				Cleanup(directory);
-				Directory.Delete(directory);
 			}
 		}
 

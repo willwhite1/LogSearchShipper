@@ -45,6 +45,7 @@ namespace LogSearchShipper.Core
 					SessionId = LogSearchShipperConfig.SessionId,
 					ProcessorUsageReportingIntervalSeconds = LogSearchShipperConfig.ProcessorUsageReportingIntervalSeconds,
 					FilePollIntervalSeconds = LogSearchShipperConfig.FilePollIntervalSeconds,
+					OutputFile = LogSearchShipperConfig.OutputFile,
 				};
 
 			SetupInputFiles();

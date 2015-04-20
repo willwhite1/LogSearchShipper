@@ -447,7 +447,7 @@ SpoolDir	{6}
 ", allInputs);
 			}
 
-			if (OutputFile != null)
+			if (!string.IsNullOrEmpty(OutputFile))
 			{
 				routeSection += string.Format(@"
 <Route route_to_file>
@@ -603,11 +603,22 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 
 			for (int i = 0; i < InputFiles.Count; i++)
 			{
-				FileWatchElement inputFile = InputFiles[i];
-				var inputFileEscaped = inputFile.Files.Replace(@"\", @"\\");
+				var inputFile = InputFiles[i];
+				filesSection += (inputFile.SourceTailer == TailerType.MT)
+					? GenerateMtFileWatchConfig(inputFile, i)
+					: GenerateNormalFileWatchConfig(inputFile, i);
+			}
 
-				_log.InfoFormat("Receiving data from file: {0}", inputFile.Files);
-				filesSection += string.Format(@"
+			return filesSection;
+		}
+
+		string GenerateNormalFileWatchConfig(FileWatchElement inputFile, int i)
+		{
+			var res = "";
+			var inputFileEscaped = inputFile.Files.Replace(@"\", @"\\");
+
+			_log.InfoFormat("Receiving data from file: {0}", inputFile.Files);
+			res += string.Format(@"
 <Input in_file{0}>
 	Module	im_file
 	InputType	multiline
@@ -617,37 +628,71 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	CloseWhenIdle {7}
 	PollInterval {5}
 	DirCheckInterval {6}
-	Exec	$path = ""{3}""; $type = ""{4}""; ",
-					i,
-					inputFileEscaped,
-					inputFile.ReadFromLast.ToString().ToUpper(),
-					inputFile.Files,
-					inputFile.Type,
-					FilePollIntervalSeconds,
-					FilePollIntervalSeconds * 2,
-					inputFile.CloseWhenIdle.ToString().ToUpper());
+	Exec	$path = ""{3}""; $type = ""{4}"";
+",
+				i,
+				inputFileEscaped,
+				inputFile.ReadFromLast.ToString().ToUpper(),
+				inputFile.Files,
+				inputFile.Type,
+				FilePollIntervalSeconds,
+				FilePollIntervalSeconds * 2,
+				inputFile.CloseWhenIdle.ToString().ToUpper());
 
-				foreach (FieldElement field in inputFile.Fields)
-				{
-					filesSection += string.Format(@"${0} = ""{1}""; ", field.Key, field.Value);
-				}
-				// Limit maximum message size to just less than 1MB; or NXLog dies with: ERROR string limit (1048576 bytes) reached
-				filesSection += @"if $Message $Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
+			res += AppendCustomFields(inputFile);
 
-				if (inputFile.CustomNxlogConfig != null)
-				{
-					var customNxlog = inputFile.CustomNxlogConfig.Value;
-					if (!string.IsNullOrWhiteSpace(customNxlog))
-						filesSection += "\t" + customNxlog + Environment.NewLine;
-				}
+			// Limit maximum message size to just less than 1MB; or NXLog dies with: ERROR string limit (1048576 bytes) reached
+			res += @"	Exec if $Message $Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
 
-				filesSection += GetSessionId();
-
-				filesSection += @"</Input>" + Environment.NewLine;
-
+			if (inputFile.CustomNxlogConfig != null)
+			{
+				var customNxlog = inputFile.CustomNxlogConfig.Value;
+				if (!string.IsNullOrWhiteSpace(customNxlog))
+					res += "\t" + customNxlog + Environment.NewLine;
 			}
 
-			return filesSection;
+			res += GetSessionId();
+			res += @"</Input>" + Environment.NewLine;
+
+			return res;
+		}
+
+		private static string AppendCustomFields(FileWatchElement inputFile)
+		{
+			if (inputFile.Fields.Count == 0)
+				return "";
+			var buf = new StringBuilder();
+			foreach (FieldElement field in inputFile.Fields)
+			{
+				buf.AppendFormat(@"${0} = ""{1}""; ", field.Key, field.Value);
+			}
+			return "	Exec " + buf + Environment.NewLine;
+		}
+
+		string GenerateMtFileWatchConfig(FileWatchElement inputFile, int i)
+		{
+			var inputFileEscaped = inputFile.Files.Replace(@"\", @"\\");
+			var mainModulePath = new Uri(Process.GetCurrentProcess().MainModule.FileName).LocalPath;
+			var exePath = Path.Combine(Path.GetDirectoryName(mainModulePath), "MtLogTailer.exe");
+			var exePathEscaped = exePath.Replace(@"\", @"\\");
+
+			var res = string.Format(@"
+<Input in_file{0}>
+	Module im_exec
+	Command ""{1}""
+	Arg ""{2}""
+	Arg -readFromLast:{5}
+	Exec $Message = string($raw_event);
+	Exec $path = ""{3}""; $type = ""{4}"";
+	Exec if $Message =~ /^(([^\t]+)\t)/ {{ $fullPath = $2; $Message = substr($Message, size($1)); }}
+	Exec if $Message $Message = substr($Message, 0, 1040000);
+", i, exePathEscaped, inputFileEscaped, inputFile.Files, inputFile.Type, inputFile.ReadFromLast.ToString().ToLower());
+
+			res += AppendCustomFields(inputFile);
+			res += GetSessionId();
+			res += @"</Input>" + Environment.NewLine;
+
+			return res;
 		}
 
 		private string GenerateInternalLoggingConfig()

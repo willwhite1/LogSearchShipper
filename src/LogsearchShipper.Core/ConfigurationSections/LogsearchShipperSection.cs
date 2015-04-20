@@ -72,5 +72,12 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			get { return (double)this["file_poll_interval_seconds"]; }
 			set { this["file_poll_interval_seconds"] = value; }
 		}
+
+		[ConfigurationProperty("output_file", IsRequired = false)]
+		public string OutputFile
+		{
+			get { return (string)this["output_file"]; }
+			set { this["output_file"] = value; }
+		}
 	}
 }
