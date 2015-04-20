@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LogJsonFormattingTests.cs" />
+    <Compile Include="MtLogTailerTests.cs" />
     <Compile Include="NxLog\NxLogProcessManagerTests2.cs" />
     <Compile Include="NxLog\NxLogProcessManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -82,6 +83,10 @@
     <ProjectReference Include="..\LogsearchShipper.Core\LogSearchShipper.Core.csproj">
       <Project>{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}</Project>
       <Name>LogSearchShipper.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MtLogTailer\MtLogTailer.csproj">
+      <Project>{45d5db6a-2269-4541-832b-36c871046ce1}</Project>
+      <Name>MtLogTailer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
