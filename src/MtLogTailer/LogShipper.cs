@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace MtLogTailer
 {
-	class LogShipper
+	public class LogShipper
 	{
 		public LogShipper(string filePath, int defaultEncoding)
 		{
@@ -107,32 +107,39 @@ namespace MtLogTailer
 		// returns position of the first zero after the meaningful data
 		long FindEndOffset(Stream stream)
 		{
+			var res = FindOffset(stream, _buffer, _startOffset, (val, offset) => val != '\0');
+			return res + 1;
+		}
+
+		public static long FindOffset(Stream stream, byte[] buffer, long minOffset, Func<byte, long, bool> condition)
+		{
 			var fileSize = stream.Length;
 			var prevBlockStart = fileSize;
-			var blockStart = prevBlockStart - _buffer.Length;
+			var blockStart = prevBlockStart - buffer.Length;
 
 			while (true)
 			{
-				if (blockStart < _startOffset)
-					blockStart = _startOffset;
+				if (blockStart < minOffset)
+					blockStart = minOffset;
 
 				stream.Seek(blockStart, SeekOrigin.Begin);
-				var blockSize = (int)Math.Min(prevBlockStart - blockStart, _buffer.Length);
-				var bytesRead = stream.Read(_buffer, 0, blockSize);
+				var blockSize = (int)Math.Min(prevBlockStart - blockStart, buffer.Length);
+				var bytesRead = stream.Read(buffer, 0, blockSize);
 				if (bytesRead == 0)
 					break;
 
 				for (var i = bytesRead - 1; i > 0; i--)
 				{
-					if (_buffer[i] != '\0')
-						return blockStart + i + 1;
+					var globalOffset = blockStart + i;
+					if (condition(buffer[i], globalOffset))
+						return globalOffset;
 				}
 
 				prevBlockStart = blockStart;
 				blockStart -= bytesRead;
 			}
 
-			return _startOffset;
+			return minOffset;
 		}
 
 		private DateTime GetLastWriteTime()
