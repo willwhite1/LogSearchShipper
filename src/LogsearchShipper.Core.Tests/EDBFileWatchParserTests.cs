@@ -99,6 +99,7 @@ namespace LogSearchShipper.Core.Tests
 				Assert.AreEqual(2, matchedItems.Count());
 				Assert.IsTrue(matchedItems.All(item => item.CloseWhenIdle == false));
 				Assert.IsTrue(matchedItems.All(item => item.CustomNxlogConfig.Value == overrideConfig.CustomNxlogConfig.Value));
+				Assert.IsTrue(matchedItems.All(item => item.SourceTailer == TailerType.MT));
 
 				var notMatchedItems = fileWatchItems.ToList();
 				foreach (var item in matchedItems)
@@ -109,6 +110,7 @@ namespace LogSearchShipper.Core.Tests
 				Assert.IsTrue(notMatchedItems.Count > 0);
 				Assert.IsTrue(notMatchedItems.All(item => item.CloseWhenIdle == true));
 				Assert.IsTrue(notMatchedItems.All(item => string.IsNullOrEmpty(item.CustomNxlogConfig.Value)));
+				Assert.IsTrue(notMatchedItems.All(item => item.SourceTailer == TailerType.Normal));
 			}
 		}
 	}
