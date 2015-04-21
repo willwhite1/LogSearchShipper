@@ -35,6 +35,16 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			get { return (TailerType)this["sourceTailer"]; }
 			set { this["sourceTailer"] = value; }
 		}
+
+		[ConfigurationProperty("", IsDefaultCollection = true)]
+		public FieldCollection Fields
+		{
+			get
+			{
+				var fieldCollection = (FieldCollection)base[""];
+				return fieldCollection;
+			}
+		}
 	}
 
 	[ConfigurationCollection(typeof(OverrideConfig), AddItemName = "overrideConfig")]
