@@ -28,6 +28,13 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			get { return (bool)this["closeWhenIdle"]; }
 			set { this["closeWhenIdle"] = value; }
 		}
+
+		[ConfigurationProperty("sourceTailer", IsRequired = false, DefaultValue = TailerType.Normal)]
+		public TailerType SourceTailer
+		{
+			get { return (TailerType)this["sourceTailer"]; }
+			set { this["sourceTailer"] = value; }
+		}
 	}
 
 	[ConfigurationCollection(typeof(OverrideConfig), AddItemName = "overrideConfig")]

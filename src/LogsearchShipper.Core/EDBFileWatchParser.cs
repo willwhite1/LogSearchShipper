@@ -168,6 +168,7 @@ namespace LogSearchShipper.Core
 								Value = overrideConfig.CustomNxlogConfig.Value
 							};
 					}
+					newWatch.SourceTailer = overrideConfig.SourceTailer;
 				}
 
 				watches.Add(newWatch);
