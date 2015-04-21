@@ -80,7 +80,7 @@ namespace LogSearchShipper.Core.ConfigurationSections
 		public string Value
 		{
 			get { return _value; }
-			set { _value = value.Trim(); }
+			set { _value = (value != null) ? value.Trim() : null; }
 		}
 
 		protected override void DeserializeElement(XmlReader reader, bool serializeCollectionKey)
