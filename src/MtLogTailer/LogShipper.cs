@@ -10,15 +10,22 @@ namespace MtLogTailer
 {
 	public class LogShipper
 	{
-		public LogShipper(string filePath, int defaultEncoding)
+		public LogShipper(string filePath, int defaultEncoding, bool readFromLast)
 		{
 			_filePath = filePath;
 			_defaultEncoding = defaultEncoding;
+			_readFromLast = readFromLast;
 		}
 
 		public void Process()
 		{
 			EnsureInitDone();
+
+			if (_readFromLast && _isFirstRead)
+			{
+				UpdateCurOffset();
+				_isFirstRead = false;
+			}
 
 			var newLastWriteTime = GetLastWriteTime();
 			if (newLastWriteTime > _lastWriteTime)
@@ -148,7 +155,7 @@ namespace MtLogTailer
 			return newLastWriteTime;
 		}
 
-		public void Update()
+		void UpdateCurOffset()
 		{
 			_lastWriteTime = GetLastWriteTime();
 			using (var stream = OpenStream())
@@ -199,5 +206,8 @@ namespace MtLogTailer
 
 		private const int BufSize = 1024 * 1024;
 		readonly byte[] _buffer = new byte[BufSize];
+
+		private readonly bool _readFromLast;
+		bool _isFirstRead = true;
 	}
 }
