@@ -79,16 +79,34 @@ namespace MtLogTailer
 			}
 		}
 
-		private static bool ReadLine(BinaryReader reader, StringBuilder buf)
+		private bool ReadLine(BinaryReader reader, StringBuilder buf)
 		{
 			var stream = reader.BaseStream;
 			var startPosition = stream.Position;
 
 			while (true)
 			{
-				var tmp = reader.Read();
+				int tmp;
+				try
+				{
+					tmp = reader.Read();
+				}
+				catch (ArgumentException exc)
+				{
+					// check if this is a UTF-8 "The output char buffer is too small" exception
+					// (happening occasionally when only a part of UTF-8 char was flushed to the file)
+					if (exc.ParamName == "chars" && Equals(_encoding, Encoding.UTF8))
+						break;
+					else
+					{
+						var message = string.Format("Error when reading a char. Encoding {0}, started at {1}, ended at {2}.",
+							_encoding.WebName, startPosition, stream.Position);
+						throw new ApplicationException(message, exc);
+					}
+				}
 				if (tmp == -1)
 					break;
+
 				var ch = (char)tmp;
 				buf.Append(ch);
 
