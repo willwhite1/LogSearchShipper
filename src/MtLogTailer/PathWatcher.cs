@@ -36,11 +36,11 @@ namespace MtLogTailer
 			}
 		}
 
-		private void ProcessFiles(string dirPath, string fileName, bool isFirstRead)
+		private void ProcessFiles(string dirPath, string fileMask, bool isFirstRead)
 		{
 			try
 			{
-				foreach (var file in Directory.GetFiles(dirPath, fileName, SearchOption.AllDirectories))
+				foreach (var file in Directory.GetFiles(dirPath, fileMask, SearchOption.AllDirectories))
 				{
 					try
 					{
