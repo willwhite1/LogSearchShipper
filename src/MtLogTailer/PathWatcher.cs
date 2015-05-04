@@ -25,19 +25,17 @@ namespace MtLogTailer
 
 			var dirPath = Directory.GetParent(_path).FullName;
 			var fileName = Path.GetFileName(_path);
-			var isFirstRead = true;
 
 			while (!Program.Terminate)
 			{
 				if (Directory.Exists(dirPath))
 					ProcessFiles(dirPath, fileName);
 
-				isFirstRead = false;
 				Thread.Sleep(TimeSpan.FromSeconds(1));
 			}
 		}
 
-		private void ProcessFiles(string dirPath, string fileMask, bool isFirstRead)
+		private void ProcessFiles(string dirPath, string fileMask)
 		{
 			try
 			{
@@ -48,10 +46,8 @@ namespace MtLogTailer
 						LogShipper shipper;
 						if (!_shippers.TryGetValue(file, out shipper))
 						{
-							shipper = new LogShipper(file, _encoding);
+							shipper = new LogShipper(file, _encoding, _readFromLast);
 							_shippers.Add(file, shipper);
-							if (_readFromLast && isFirstRead)
-								shipper.Update();
 						}
 
 						shipper.Process();
