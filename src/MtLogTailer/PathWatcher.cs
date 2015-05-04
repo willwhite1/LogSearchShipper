@@ -29,7 +29,8 @@ namespace MtLogTailer
 
 			while (!Program.Terminate)
 			{
-				ProcessFiles(dirPath, fileName, isFirstRead);
+				if (Directory.Exists(dirPath))
+					ProcessFiles(dirPath, fileName);
 
 				isFirstRead = false;
 				Thread.Sleep(TimeSpan.FromSeconds(1));
