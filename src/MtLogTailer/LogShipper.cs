@@ -177,6 +177,7 @@ namespace MtLogTailer
 				if (Equals(_encoding, Encoding.Default))
 					_encoding = null;
 				_startOffset = stream.Position;
+				_offset = _startOffset;
 			}
 
 			_initDone = true;
