@@ -10,15 +10,22 @@ namespace MtLogTailer
 {
 	public class LogShipper
 	{
-		public LogShipper(string filePath, int defaultEncoding)
+		public LogShipper(string filePath, int defaultEncoding, bool readFromLast)
 		{
 			_filePath = filePath;
 			_defaultEncoding = defaultEncoding;
+			_readFromLast = readFromLast;
 		}
 
 		public void Process()
 		{
 			EnsureInitDone();
+
+			if (_readFromLast && _isFirstRead)
+			{
+				UpdateCurOffset();
+				_isFirstRead = false;
+			}
 
 			var newLastWriteTime = GetLastWriteTime();
 			if (newLastWriteTime > _lastWriteTime)
@@ -72,16 +79,34 @@ namespace MtLogTailer
 			}
 		}
 
-		private static bool ReadLine(BinaryReader reader, StringBuilder buf)
+		private bool ReadLine(BinaryReader reader, StringBuilder buf)
 		{
 			var stream = reader.BaseStream;
 			var startPosition = stream.Position;
 
 			while (true)
 			{
-				var tmp = reader.Read();
+				int tmp;
+				try
+				{
+					tmp = reader.Read();
+				}
+				catch (ArgumentException exc)
+				{
+					// check if this is a UTF-8 "The output char buffer is too small" exception
+					// (happening occasionally when only a part of UTF-8 char was flushed to the file)
+					if (exc.ParamName == "chars" && Equals(_encoding, Encoding.UTF8))
+						break;
+					else
+					{
+						var message = string.Format("Error when reading a char. Encoding {0}, started at {1}, ended at {2}.",
+							_encoding.WebName, startPosition, stream.Position);
+						throw new ApplicationException(message, exc);
+					}
+				}
 				if (tmp == -1)
 					break;
+
 				var ch = (char)tmp;
 				buf.Append(ch);
 
@@ -148,7 +173,7 @@ namespace MtLogTailer
 			return newLastWriteTime;
 		}
 
-		public void Update()
+		void UpdateCurOffset()
 		{
 			_lastWriteTime = GetLastWriteTime();
 			using (var stream = OpenStream())
@@ -170,6 +195,7 @@ namespace MtLogTailer
 				if (Equals(_encoding, Encoding.Default))
 					_encoding = null;
 				_startOffset = stream.Position;
+				_offset = _startOffset;
 			}
 
 			_initDone = true;
@@ -199,5 +225,8 @@ namespace MtLogTailer
 
 		private const int BufSize = 1024 * 1024;
 		readonly byte[] _buffer = new byte[BufSize];
+
+		private readonly bool _readFromLast;
+		bool _isFirstRead = true;
 	}
 }
