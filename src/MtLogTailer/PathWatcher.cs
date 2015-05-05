@@ -25,40 +25,42 @@ namespace MtLogTailer
 
 			var dirPath = Directory.GetParent(_path).FullName;
 			var fileName = Path.GetFileName(_path);
-			var isFirstRead = true;
 
 			while (!Program.Terminate)
 			{
-				try
-				{
-					foreach (var file in Directory.GetFiles(dirPath, fileName, SearchOption.AllDirectories))
-					{
-						try
-						{
-							LogShipper shipper;
-							if (!_shippers.TryGetValue(file, out shipper))
-							{
-								shipper = new LogShipper(file, _encoding);
-								_shippers.Add(file, shipper);
-								if (_readFromLast && isFirstRead)
-									shipper.Update();
-							}
+				if (Directory.Exists(dirPath))
+					ProcessFiles(dirPath, fileName);
 
-							shipper.Process();
-						}
-						catch (Exception exc)
+				Thread.Sleep(TimeSpan.FromSeconds(1));
+			}
+		}
+
+		private void ProcessFiles(string dirPath, string fileMask)
+		{
+			try
+			{
+				foreach (var file in Directory.GetFiles(dirPath, fileMask, SearchOption.AllDirectories))
+				{
+					try
+					{
+						LogShipper shipper;
+						if (!_shippers.TryGetValue(file, out shipper))
 						{
-							Program.LogError(exc.ToString());
+							shipper = new LogShipper(file, _encoding, _readFromLast);
+							_shippers.Add(file, shipper);
 						}
+
+						shipper.Process();
+					}
+					catch (Exception exc)
+					{
+						Program.LogError(exc.ToString());
 					}
 				}
-				catch (Exception exc)
-				{
-					Program.LogError(exc.ToString());
-				}
-
-				isFirstRead = false;
-				Thread.Sleep(TimeSpan.FromSeconds(1));
+			}
+			catch (Exception exc)
+			{
+				Program.LogError(exc.ToString());
 			}
 		}
 
