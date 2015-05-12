@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+
+using log4net;
+using log4net.Config;
 
 namespace MtLogTailer
 {
@@ -12,6 +14,8 @@ namespace MtLogTailer
 	{
 		static void Main(string[] args)
 		{
+			XmlConfigurator.Configure();
+
 			try
 			{
 				var argsDic = CommandLineUtil.ParseArgs(args);
@@ -62,17 +66,16 @@ namespace MtLogTailer
 			throw new ApplicationException("Invalid args. Should use MtLogTailer.exe <filePath> (-encoding:int)? (-readFromLast:bool)?");
 		}
 
-		static void Log(string format, params object[] args)
+		static void LogErrorFormat(string format, params object[] args)
 		{
 			try
 			{
 				var message = string.Format(format, args);
-				Console.WriteLine(message);
-				File.AppendAllText("MtLogTailer.log", message);
+				Logger.Error(message);
 			}
 			catch (Exception exc)
 			{
-				Trace.WriteLine(exc);
+				Console.WriteLine(Escape(exc.ToString()));
 			}
 		}
 
@@ -81,16 +84,12 @@ namespace MtLogTailer
 			return val.Replace(Environment.NewLine, "\\r\\n");
 		}
 
-		static string FormatTime()
-		{
-			return DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ");
-		}
-
 		public static void LogError(string message)
 		{
-			Log("{0} {1}", FormatTime(), Escape(message));
+			LogErrorFormat(Escape(message));
 		}
 
 		public static volatile bool Terminate;
+		private static readonly ILog Logger = LogManager.GetLogger(typeof(Program));
 	}
 }
