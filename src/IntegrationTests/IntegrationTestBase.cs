@@ -33,6 +33,12 @@ namespace IntegrationTests
 				File.Copy(file, newFile);
 			}
 
+			foreach (var file in Directory.GetFiles(Environment.CurrentDirectory, "*.config"))
+			{
+				var newFile = Path.Combine(_basePath, Path.GetFileName(file));
+				File.Copy(file, newFile);
+			}
+
 			var exeFile = "LogsearchShipper.exe";
 			var exeFileCopy = Path.Combine(_basePath, exeFile);
 
