@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 
@@ -72,7 +73,7 @@ namespace MtLogTailer
 		{
 			try
 			{
-				var message = string.Format(format, args);
+				var message = _version + " " + string.Format(format, args);
 				Logger.Error(message);
 			}
 			catch (Exception exc)
@@ -116,9 +117,14 @@ namespace MtLogTailer
 			appender2.ActivateOptions();
 
 			BasicConfigurator.Configure(appender1, appender2);
+
+			var assembly = Assembly.GetExecutingAssembly();
+			var version = FileVersionInfo.GetVersionInfo(assembly.Location);
+			_version = string.Format("{0} {1}", version.OriginalFilename, version.FileVersion);
 		}
 
 		public static volatile bool Terminate;
 		private static readonly ILog Logger = LogManager.GetLogger(typeof(Program));
+		private static string _version;
 	}
 }
