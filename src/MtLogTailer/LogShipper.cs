@@ -99,8 +99,9 @@ namespace MtLogTailer
 						break;
 					else
 					{
-						var message = string.Format("Error when reading a char. Encoding {0}, started at {1}, ended at {2}.",
-							_encoding.WebName, startPosition, stream.Position);
+						var message = string.Format(
+							"Error when reading a char. File {0}, encoding {1}, started at {2}, ended at {3}.",
+							_filePath, _encoding.WebName, startPosition, stream.Position);
 						throw new ApplicationException(message, exc);
 					}
 				}
