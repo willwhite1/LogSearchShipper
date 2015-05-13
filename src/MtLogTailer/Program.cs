@@ -6,7 +6,9 @@ using System.Text;
 using System.Threading;
 
 using log4net;
+using log4net.Appender;
 using log4net.Config;
+using log4net.Layout;
 
 namespace MtLogTailer
 {
@@ -14,7 +16,7 @@ namespace MtLogTailer
 	{
 		static void Main(string[] args)
 		{
-			XmlConfigurator.Configure();
+			ConfigureLogging();
 
 			try
 			{
@@ -87,6 +89,33 @@ namespace MtLogTailer
 		public static void LogError(string message)
 		{
 			LogErrorFormat(Escape(message));
+		}
+
+		private static void ConfigureLogging()
+		{
+			var pattern = "%utcdate{ISO8601}Z %message%newline";
+
+			var layout = new PatternLayout(pattern);
+			layout.ActivateOptions();
+
+			var appender1 = new ConsoleAppender
+			{
+				Layout = layout,
+			};
+			appender1.ActivateOptions();
+
+			var appender2 = new RollingFileAppender
+			{
+				Layout = layout,
+				File = "MtLogTailer.log",
+				AppendToFile = true,
+				RollingStyle = RollingFileAppender.RollingMode.Size,
+				MaximumFileSize = "1MB",
+				MaxSizeRollBackups = 2,
+			};
+			appender2.ActivateOptions();
+
+			BasicConfigurator.Configure(appender1, appender2);
 		}
 
 		public static volatile bool Terminate;
