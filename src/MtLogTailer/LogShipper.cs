@@ -93,17 +93,17 @@ namespace MtLogTailer
 				}
 				catch (ArgumentException exc)
 				{
+					var message = string.Format(
+						"Error when reading a char. File {0}, encoding {1}, started at {2}, ended at {3}.",
+						_filePath, _encoding.WebName, startPosition, stream.Position);
+					Program.LogError(message);
+
 					// check if this is a UTF-8 "The output char buffer is too small" exception
 					// (happening occasionally when only a part of UTF-8 char was flushed to the file)
 					if (exc.ParamName == "chars" && Equals(_encoding, Encoding.UTF8))
 						break;
 					else
-					{
-						var message = string.Format(
-							"Error when reading a char. File {0}, encoding {1}, started at {2}, ended at {3}.",
-							_filePath, _encoding.WebName, startPosition, stream.Position);
-						throw new ApplicationException(message, exc);
-					}
+						throw;
 				}
 				if (tmp == -1)
 					break;
