@@ -99,14 +99,7 @@ namespace MtLogTailer
 						break;
 					else
 					{
-						var curPosition = stream.Position;
-						stream.Position = startPosition;
-						var bytes = reader.ReadBytes(16);
-						var message = string.Format(
-							"Error when reading a char. File '{0}', encoding '{1}', started at {2}, ended at {3}, " +
-							"total length {4}, bytes {5}.",
-							_filePath, _encoding.WebName, startPosition, curPosition, stream.Length,
-							Convert.ToBase64String(bytes));
+						var message = FormatEncodingMessage(stream, reader, startPosition);
 						throw new ApplicationException(message);
 					}
 				}
@@ -133,6 +126,19 @@ namespace MtLogTailer
 			buf.Clear();
 			stream.Position = startPosition;
 			return false;
+		}
+
+		private string FormatEncodingMessage(Stream stream, BinaryReader reader, long startPosition)
+		{
+			var curPosition = stream.Position;
+			stream.Position = startPosition;
+			var bytes = reader.ReadBytes(16);
+			var message = string.Format(
+				"Error when reading a char. File '{0}', encoding '{1}', started at {2}, ended at {3}, " +
+				"total length {4}, bytes {5}.",
+				_filePath, _encoding.WebName, startPosition, curPosition, stream.Length,
+				Convert.ToBase64String(bytes));
+			return message;
 		}
 
 		// returns position of the first zero after the meaningful data
