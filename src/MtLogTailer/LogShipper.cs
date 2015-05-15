@@ -93,9 +93,14 @@ namespace MtLogTailer
 				}
 				catch (ArgumentException exc)
 				{
+					var curPosition = stream.Position;
+					stream.Position = startPosition;
+					var bytes = reader.ReadBytes(16);
 					var message = string.Format(
-						"Error when reading a char. File {0}, encoding {1}, started at {2}, ended at {3}.",
-						_filePath, _encoding.WebName, startPosition, stream.Position);
+						"Error when reading a char. File '{0}', encoding '{1}', started at {2}, ended at {3}, " +
+						"total length {4}, bytes {5}.",
+						_filePath, _encoding.WebName, startPosition, curPosition, stream.Length,
+						Convert.ToBase64String(bytes));
 					Program.LogError(message);
 
 					// check if this is a UTF-8 "The output char buffer is too small" exception
