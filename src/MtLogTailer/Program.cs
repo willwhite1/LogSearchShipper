@@ -85,6 +85,7 @@ namespace MtLogTailer
 		public static void LogError(string message)
 		{
 			LogErrorFormat(Escape(message));
+			Environment.Exit(-1);
 		}
 
 		static string FormatTime()
