@@ -26,7 +26,7 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["logEnvironmentDiagramDataEveryMinutes"] = value; }
 		}
 
-		[ConfigurationProperty("networkAreas", IsRequired = false)]
+		[ConfigurationProperty("networkAreas", IsRequired = false, DefaultValue = ".*")]
 		public String NetworkAreas
 		{
 			get
@@ -47,7 +47,7 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["networkAreasNotMatch"] = value; }
 		}
 
-		[ConfigurationProperty("serverNames", IsRequired = false)]
+		[ConfigurationProperty("serverNames", IsRequired = false, DefaultValue = ".*")]
 		public String ServerNames
 		{
 			get
@@ -68,7 +68,7 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["serverNamesNotMatch"] = value; }
 		}
 
-		[ConfigurationProperty("serviceNames", IsRequired = false)]
+		[ConfigurationProperty("serviceNames", IsRequired = false, DefaultValue = ".*")]
 		public String ServiceNames
 		{
 			get
