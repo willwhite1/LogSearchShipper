@@ -541,6 +541,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 <Output out_file>
 	Module	om_file
 	File	""{0}""
+	Exec if $type != 'json' {{ $Message = $raw_event; to_json(); $type = 'json'; }}
 </Output>",
 				OutputFile.Replace(@"\", @"\\"));
 		}
