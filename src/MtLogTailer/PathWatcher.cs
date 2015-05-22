@@ -28,7 +28,9 @@ namespace MtLogTailer
 
 			while (!Program.Terminate)
 			{
-				if (Directory.Exists(dirPath))
+				if (File.Exists(_path))
+					ProcessFile(_path);
+				else if (Directory.Exists(dirPath))
 					ProcessFiles(dirPath, fileName);
 
 				Thread.Sleep(TimeSpan.FromSeconds(1));
@@ -41,22 +43,27 @@ namespace MtLogTailer
 			{
 				foreach (var file in Directory.GetFiles(dirPath, fileMask, SearchOption.AllDirectories))
 				{
-					try
-					{
-						LogShipper shipper;
-						if (!_shippers.TryGetValue(file, out shipper))
-						{
-							shipper = new LogShipper(file, _encoding, _readFromLast);
-							_shippers.Add(file, shipper);
-						}
-
-						shipper.Process();
-					}
-					catch (Exception exc)
-					{
-						Program.LogError(exc.ToString());
-					}
+					ProcessFile(file);
 				}
+			}
+			catch (Exception exc)
+			{
+				Program.LogError(exc.ToString());
+			}
+		}
+
+		private void ProcessFile(string file)
+		{
+			try
+			{
+				LogShipper shipper;
+				if (!_shippers.TryGetValue(file, out shipper))
+				{
+					shipper = new LogShipper(file, _encoding, _readFromLast);
+					_shippers.Add(file, shipper);
+				}
+
+				shipper.Process();
 			}
 			catch (Exception exc)
 			{
