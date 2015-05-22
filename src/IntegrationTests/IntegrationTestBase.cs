@@ -33,6 +33,12 @@ namespace IntegrationTests
 				File.Copy(file, newFile);
 			}
 
+			foreach (var file in Directory.GetFiles(Environment.CurrentDirectory, "*.config"))
+			{
+				var newFile = Path.Combine(_basePath, Path.GetFileName(file));
+				File.Copy(file, newFile);
+			}
+
 			var exeFile = "LogsearchShipper.exe";
 			var exeFileCopy = Path.Combine(_basePath, exeFile);
 
@@ -142,7 +148,7 @@ namespace IntegrationTests
 			var i = 0;
 			while (i < linesCount)
 			{
-				var id = i + "_" + Guid.NewGuid();
+				var id = (ids != null ? ids.Count.ToString() : "") + "_" + Guid.NewGuid();
 				var message = string.Format(
 					"{{\"timestamp\":\"{0}\",\"message\":\"{1}\",\"group_id\":\"{2}\",\"source\":\"{3}\"," +
 					"\"logger\":\"Test\",\"level\":\"INFO\"}}",

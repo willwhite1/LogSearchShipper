@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 
@@ -14,6 +14,8 @@ namespace MtLogTailer
 		{
 			try
 			{
+				InitLogging();
+
 				var argsDic = CommandLineUtil.ParseArgs(args);
 
 				string path;
@@ -62,17 +64,16 @@ namespace MtLogTailer
 			throw new ApplicationException("Invalid args. Should use MtLogTailer.exe <filePath> (-encoding:int)? (-readFromLast:bool)?");
 		}
 
-		static void Log(string format, params object[] args)
+		static void LogErrorFormat(string format, params object[] args)
 		{
 			try
 			{
-				var message = string.Format(format, args);
+				var message = string.Format("{0} {1} {2}", FormatTime(), _version, string.Format(format, args));
 				Console.WriteLine(message);
-				File.AppendAllText("MtLogTailer.log", message);
 			}
 			catch (Exception exc)
 			{
-				Trace.WriteLine(exc);
+				Console.WriteLine(Escape(exc.ToString()));
 			}
 		}
 
@@ -81,16 +82,25 @@ namespace MtLogTailer
 			return val.Replace(Environment.NewLine, "\\r\\n");
 		}
 
+		public static void LogError(string message)
+		{
+			LogErrorFormat(Escape(message));
+			Environment.Exit(-1);
+		}
+
 		static string FormatTime()
 		{
 			return DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ");
 		}
 
-		public static void LogError(string message)
+		static void InitLogging()
 		{
-			Log("{0} {1}", FormatTime(), Escape(message));
+			var assembly = Assembly.GetExecutingAssembly();
+			var version = FileVersionInfo.GetVersionInfo(assembly.Location);
+			_version = string.Format("{0} {1}", version.OriginalFilename, version.FileVersion);
 		}
 
 		public static volatile bool Terminate;
+		private static string _version;
 	}
 }

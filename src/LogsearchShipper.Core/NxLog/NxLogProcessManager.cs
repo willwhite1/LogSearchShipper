@@ -682,6 +682,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	Command ""{1}""
 	Arg ""{2}""
 	Arg -readFromLast:{5}
+	Restart True
 	Exec $Message = string($raw_event);
 	Exec $path = ""{3}""; $type = ""{4}"";
 	Exec if $Message =~ /^(([^\t]+)\t)/ {{ $fullPath = $2; $Message = substr($Message, size($1)); }}
