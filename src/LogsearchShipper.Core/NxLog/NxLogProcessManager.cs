@@ -664,6 +664,13 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			var buf = new StringBuilder();
 			foreach (FieldElement field in inputFile.Fields)
 			{
+				if (!field.Key.All(Char.IsLetter))
+				{
+					var message = string.Format("fileWatch: '{0}' contains invalid field name '{1}' (must contain letters only)",
+						inputFile.Files, field.Key);
+					throw new ApplicationException(message);
+				}
+
 				buf.AppendFormat(@"${0} = ""{1}""; ", field.Key, field.Value);
 			}
 			return "	Exec " + buf + Environment.NewLine;
