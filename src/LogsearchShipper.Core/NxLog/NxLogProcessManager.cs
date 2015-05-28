@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Management;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -735,8 +736,32 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 		string PrepareFilePaths(string val)
 		{
 			var res = val;
+
+			var localHostUncPath = @"\\" + Environment.MachineName + @"\";
+			if (res.StartsWith(localHostUncPath, StringComparison.OrdinalIgnoreCase))
+			{
+				var sharePath = res.Substring(localHostUncPath.Length);
+				var shareName = sharePath.Split(new [] { @"\" }, StringSplitOptions.None).First();
+				var pathInsideShare = sharePath.Substring(shareName.Length);
+
+				var shares = ListFileShares();
+				var shareInfo = shares.First(cur => cur.Key.Equals(shareName, StringComparison.OrdinalIgnoreCase));
+
+				res = shareInfo.Value + pathInsideShare;
+			}
+
 			res = res.Replace(@"\", @"\\");
 			return res;
+		}
+
+		Dictionary<string, string> ListFileShares()
+		{
+			var scope = new ManagementScope(@"\\localhost\root\CIMV2");
+			scope.Connect();
+			var worker = new ManagementObjectSearcher(scope, new ObjectQuery("select * from win32_share"));
+			var shares = worker.Get().Cast<ManagementObject>().ToDictionary(
+				share => share["Name"].ToString(), share => share["Path"].ToString());
+			return shares;
 		}
 
 		private string _curSessionId;
