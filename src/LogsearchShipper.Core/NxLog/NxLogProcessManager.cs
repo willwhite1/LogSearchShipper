@@ -615,7 +615,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 		string GenerateNormalFileWatchConfig(FileWatchElement inputFile, int i)
 		{
 			var res = "";
-			var inputFileEscaped = inputFile.Files.Replace(@"\", @"\\");
+			var inputFileEscaped = PrepareFilePaths(inputFile.Files);
 
 			_log.InfoFormat("Receiving data from file: {0}", inputFile.Files);
 			res += string.Format(@"
@@ -671,7 +671,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 
 		string GenerateMtFileWatchConfig(FileWatchElement inputFile, int i)
 		{
-			var inputFileEscaped = inputFile.Files.Replace(@"\", @"\\");
+			var inputFileEscaped = PrepareFilePaths(inputFile.Files);
 			var mainModulePath = new Uri(Process.GetCurrentProcess().MainModule.FileName).LocalPath;
 			var exePath = Path.Combine(Path.GetDirectoryName(mainModulePath), "MtLogTailer.exe");
 			var exePathEscaped = exePath.Replace(@"\", @"\\");
@@ -729,6 +729,13 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			if (string.IsNullOrEmpty(_curSessionId))
 				return "";
 			var res = string.Format("   Exec $sessionId = '{0}';" + Environment.NewLine, _curSessionId);
+			return res;
+		}
+
+		string PrepareFilePaths(string val)
+		{
+			var res = val;
+			res = res.Replace(@"\", @"\\");
 			return res;
 		}
 
