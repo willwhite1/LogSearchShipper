@@ -80,6 +80,8 @@ namespace LogSearchShipper.Core.NxLog
 		public SyslogEndpoint OutputSyslog { get; set; }
 		public string OutputFile { get; set; }
 
+		public bool ResolveUncPaths { get; set; }
+
 		public string ConfigFile { get; private set; }
 
 		public string SessionId { get; set; }
@@ -737,17 +739,20 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 		{
 			var res = val;
 
-			var localHostUncPath = @"\\" + Environment.MachineName + @"\";
-			if (res.StartsWith(localHostUncPath, StringComparison.OrdinalIgnoreCase))
+			if (ResolveUncPaths)
 			{
-				var sharePath = res.Substring(localHostUncPath.Length);
-				var shareName = sharePath.Split(new [] { @"\" }, StringSplitOptions.None).First();
-				var pathInsideShare = sharePath.Substring(shareName.Length);
+				var localHostUncPath = @"\\" + Environment.MachineName + @"\";
+				if (res.StartsWith(localHostUncPath, StringComparison.OrdinalIgnoreCase))
+				{
+					var sharePath = res.Substring(localHostUncPath.Length);
+					var shareName = sharePath.Split(new[] {@"\"}, StringSplitOptions.None).First();
+					var pathInsideShare = sharePath.Substring(shareName.Length);
 
-				var shares = ListFileShares();
-				var shareInfo = shares.First(cur => cur.Key.Equals(shareName, StringComparison.OrdinalIgnoreCase));
+					var shares = ListFileShares();
+					var shareInfo = shares.First(cur => cur.Key.Equals(shareName, StringComparison.OrdinalIgnoreCase));
 
-				res = shareInfo.Value + pathInsideShare;
+					res = shareInfo.Value + pathInsideShare;
+				}
 			}
 
 			res = res.Replace(@"\", @"\\");
