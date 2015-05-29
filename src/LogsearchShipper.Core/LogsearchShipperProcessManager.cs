@@ -46,6 +46,7 @@ namespace LogSearchShipper.Core
 					ProcessorUsageReportingIntervalSeconds = LogSearchShipperConfig.ProcessorUsageReportingIntervalSeconds,
 					FilePollIntervalSeconds = LogSearchShipperConfig.FilePollIntervalSeconds,
 					OutputFile = LogSearchShipperConfig.OutputFile,
+					ResolveUncPaths = LogSearchShipperConfig.ResolveUncPaths,
 				};
 
 			SetupInputFiles();
