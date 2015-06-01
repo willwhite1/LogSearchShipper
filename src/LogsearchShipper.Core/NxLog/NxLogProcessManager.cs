@@ -745,13 +745,16 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 				if (res.StartsWith(localHostUncPath, StringComparison.OrdinalIgnoreCase))
 				{
 					var sharePath = res.Substring(localHostUncPath.Length);
-					var shareName = sharePath.Split(new[] {@"\"}, StringSplitOptions.None).First();
+					var shareName = sharePath.Split(new[] { @"\" }, StringSplitOptions.None).First();
 					var pathInsideShare = sharePath.Substring(shareName.Length);
 
 					var shares = ListFileShares();
-					var shareInfo = shares.First(cur => cur.Key.Equals(shareName, StringComparison.OrdinalIgnoreCase));
-
-					res = shareInfo.Value + pathInsideShare;
+					var matchingShares = shares.Where(cur => cur.Key.Equals(shareName, StringComparison.OrdinalIgnoreCase)).ToList();
+					if (matchingShares.Count == 1)
+					{
+						var shareInfo = matchingShares.First();
+						res = shareInfo.Value + pathInsideShare;
+					}
 				}
 			}
 
