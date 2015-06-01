@@ -753,7 +753,9 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 					if (matchingShares.Count == 1)
 					{
 						var shareInfo = matchingShares.First();
-						res = shareInfo.Value + pathInsideShare;
+						var localPath = shareInfo.Value + pathInsideShare;
+						if (HasReadAccess(Path.GetDirectoryName(localPath)))
+							res = shareInfo.Value + pathInsideShare;
 					}
 				}
 			}
@@ -770,6 +772,29 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			var shares = worker.Get().Cast<ManagementObject>().ToDictionary(
 				share => share["Name"].ToString(), share => share["Path"].ToString());
 			return shares;
+		}
+
+		bool HasReadAccess(string folderPath)
+		{
+			if (!Directory.Exists(folderPath))
+				return false;
+
+			try
+			{
+				var files = Directory.GetFiles(folderPath);
+				if (files.Any())
+				{
+					using (var stream = File.OpenRead(files.First()))
+					{
+					}
+				}
+
+				return true;
+			}
+			catch (UnauthorizedAccessException)
+			{
+				return false;
+			}
 		}
 
 		private string _curSessionId;
