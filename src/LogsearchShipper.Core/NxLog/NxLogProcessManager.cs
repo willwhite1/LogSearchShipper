@@ -340,10 +340,16 @@ SpoolDir	{6}
 		Module	xm_syslog
 </Extension>
 
-<Extension multiline>
+<Extension multiline_default>
 		Module	xm_multiline
 		#HeaderLine == Anything not starting with whitespace
 		HeaderLine	/^([^ ]+).*/
+</Extension>
+
+<Extension multiline_ci_log4net>
+		Module	xm_multiline
+		#HeaderLine == Any line starting with text (WARN, ERROR) and YYYY-
+		HeaderLine	/^[A-Z]+[ \t]+\d{{4}}-.*/
 </Extension>
 
 {7}
@@ -622,7 +628,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			res += string.Format(@"
 <Input in_file{0}>
 	Module	im_file
-	InputType	multiline
+	InputType	{8}
 	File	""{1}""
 	ReadFromLast {2}
 	SavePos	TRUE
@@ -638,7 +644,8 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 				inputFile.Type,
 				FilePollIntervalSeconds,
 				FilePollIntervalSeconds * 2,
-				inputFile.CloseWhenIdle.ToString().ToUpper());
+				inputFile.CloseWhenIdle.ToString().ToUpper(),
+				(inputFile.MultilineRule == MultilineRuleType.Default) ? "multiline_default" : "multiline_ci_log4net");
 
 			res += AppendCustomFields(inputFile);
 
