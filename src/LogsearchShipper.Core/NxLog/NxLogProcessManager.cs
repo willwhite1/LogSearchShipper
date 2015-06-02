@@ -645,7 +645,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 				FilePollIntervalSeconds,
 				FilePollIntervalSeconds * 2,
 				inputFile.CloseWhenIdle.ToString().ToUpper(),
-				(inputFile.MultilineRule == MultilineRuleType.Default) ? "multiline_default" : "multiline_ci_log4net");
+				inputFile.MultilineRule);
 
 			res += AppendCustomFields(inputFile);
 

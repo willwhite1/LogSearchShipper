@@ -53,7 +53,7 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["sourceTailer"] = value; }
 		}
 
-		[ConfigurationProperty("multilineRule", IsRequired = false, DefaultValue = MultilineRuleType.Default)]
+		[ConfigurationProperty("multilineRule", IsRequired = false, DefaultValue = MultilineRuleType.multiline_default)]
 		public MultilineRuleType MultilineRule
 		{
 			get { return (MultilineRuleType)this["multilineRule"]; }
@@ -98,5 +98,5 @@ namespace LogSearchShipper.Core.ConfigurationSections
 
 	public enum TailerType { Normal, MT }
 
-	public enum MultilineRuleType { Default, CiLog4net }
+	public enum MultilineRuleType { multiline_default, multiline_ci_log4net }
 }
