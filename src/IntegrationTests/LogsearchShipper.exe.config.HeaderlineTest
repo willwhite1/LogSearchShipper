@@ -15,7 +15,7 @@
   <LogSearchShipperGroup>
     <LogSearchShipper data_folder="data" ingestor_host="ingestor.meta.logsearch.io" ingestor_port="443" output_file="test.out">
       <fileWatchers>
-        <watch files="..\Logs\Log4netTest.txt" type="plain" readFromLast="false" multilineRule="CiLog4net">
+        <watch files="..\Logs\Log4netTest.txt" type="plain" readFromLast="false" multilineRule="multiline_ci_log4net">
           <field key="environment" value="LogSearchShipper.HeaderlineTest" />
         </watch>
       </fileWatchers>
