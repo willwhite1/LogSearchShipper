@@ -169,6 +169,7 @@ namespace LogSearchShipper.Core
 							};
 					}
 					newWatch.SourceTailer = overrideConfig.SourceTailer;
+					newWatch.MultilineRule = overrideConfig.MultilineRule;
 
 					foreach (FieldElement overrideField in overrideConfig.Fields)
 					{
