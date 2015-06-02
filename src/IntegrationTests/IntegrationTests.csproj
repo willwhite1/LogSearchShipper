@@ -60,6 +60,7 @@
     <Compile Include="AppSettings.cs" />
     <Compile Include="EdbLoggingTest.cs" />
     <Compile Include="EsUtil.cs" />
+    <Compile Include="HeaderlineTests.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="IntegrationTestBase.cs" />
     <Compile Include="LogsearchShipperProcessManagerTests.cs" />
@@ -76,6 +77,10 @@
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="LogsearchShipper.exe.config.HeaderlineTest">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="LogsearchShipper.exe.config.MtTailerTest">
       <SubType>Designer</SubType>
@@ -112,6 +117,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Expected\EdbLoggingTest.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Expected\Log4netTest.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Logs\Log4netTest.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

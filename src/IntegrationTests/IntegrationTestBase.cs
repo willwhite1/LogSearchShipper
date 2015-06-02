@@ -111,7 +111,7 @@ namespace IntegrationTests
 		}
 
 		protected void GetAndValidateRecords(Dictionary<string, string> queryArgs, string[] fields, int expectedCount,
-			Action<List<Record>> validate, int waitMinutes = 10)
+			Action<List<Record>> validate, int waitMinutes = WaitResultPeriodMinutes)
 		{
 			Trace.WriteLine("Getting records from ES...");
 
