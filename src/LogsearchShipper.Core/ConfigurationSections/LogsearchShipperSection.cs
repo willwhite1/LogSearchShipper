@@ -79,5 +79,12 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			get { return (string)this["output_file"]; }
 			set { this["output_file"] = value; }
 		}
+
+		[ConfigurationProperty("resolve_unc_paths", IsRequired = false, DefaultValue = false)]
+		public bool ResolveUncPaths
+		{
+			get { return (bool)this["resolve_unc_paths"]; }
+			set { this["resolve_unc_paths"] = value; }
+		}
 	}
 }
