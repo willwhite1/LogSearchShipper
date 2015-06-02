@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Management;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -78,6 +79,8 @@ namespace LogSearchShipper.Core.NxLog
 
 		public SyslogEndpoint OutputSyslog { get; set; }
 		public string OutputFile { get; set; }
+
+		public bool ResolveUncPaths { get; set; }
 
 		public string ConfigFile { get; private set; }
 
@@ -615,7 +618,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 		string GenerateNormalFileWatchConfig(FileWatchElement inputFile, int i)
 		{
 			var res = "";
-			var inputFileEscaped = inputFile.Files.Replace(@"\", @"\\");
+			var inputFileEscaped = PrepareFilePaths(inputFile.Files);
 
 			_log.InfoFormat("Receiving data from file: {0}", inputFile.Files);
 			res += string.Format(@"
@@ -678,7 +681,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 
 		string GenerateMtFileWatchConfig(FileWatchElement inputFile, int i)
 		{
-			var inputFileEscaped = inputFile.Files.Replace(@"\", @"\\");
+			var inputFileEscaped = PrepareFilePaths(inputFile.Files);
 			var mainModulePath = new Uri(Process.GetCurrentProcess().MainModule.FileName).LocalPath;
 			var exePath = Path.Combine(Path.GetDirectoryName(mainModulePath), "MtLogTailer.exe");
 			var exePathEscaped = exePath.Replace(@"\", @"\\");
@@ -737,6 +740,68 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 				return "";
 			var res = string.Format("   Exec $sessionId = '{0}';" + Environment.NewLine, _curSessionId);
 			return res;
+		}
+
+		string PrepareFilePaths(string val)
+		{
+			var res = val;
+
+			if (ResolveUncPaths)
+			{
+				var localHostUncPath = @"\\" + Environment.MachineName + @"\";
+				if (res.StartsWith(localHostUncPath, StringComparison.OrdinalIgnoreCase))
+				{
+					var sharePath = res.Substring(localHostUncPath.Length);
+					var shareName = sharePath.Split(new[] { @"\" }, StringSplitOptions.None).First();
+					var pathInsideShare = sharePath.Substring(shareName.Length);
+
+					var shares = ListFileShares();
+					var matchingShares = shares.Where(cur => cur.Key.Equals(shareName, StringComparison.OrdinalIgnoreCase)).ToList();
+					if (matchingShares.Count == 1)
+					{
+						var shareInfo = matchingShares.First();
+						var localPath = shareInfo.Value + pathInsideShare;
+						if (HasReadAccess(Path.GetDirectoryName(localPath)))
+							res = shareInfo.Value + pathInsideShare;
+					}
+				}
+			}
+
+			res = res.Replace(@"\", @"\\");
+			return res;
+		}
+
+		Dictionary<string, string> ListFileShares()
+		{
+			var scope = new ManagementScope(@"\\localhost\root\CIMV2");
+			scope.Connect();
+			var worker = new ManagementObjectSearcher(scope, new ObjectQuery("select * from win32_share"));
+			var shares = worker.Get().Cast<ManagementObject>().ToDictionary(
+				share => share["Name"].ToString(), share => share["Path"].ToString());
+			return shares;
+		}
+
+		bool HasReadAccess(string folderPath)
+		{
+			if (!Directory.Exists(folderPath))
+				return false;
+
+			try
+			{
+				var files = Directory.GetFiles(folderPath);
+				if (files.Any())
+				{
+					using (var stream = File.OpenRead(files.First()))
+					{
+					}
+				}
+
+				return true;
+			}
+			catch (UnauthorizedAccessException)
+			{
+				return false;
+			}
 		}
 
 		private string _curSessionId;
