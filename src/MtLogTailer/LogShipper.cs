@@ -12,6 +12,8 @@ namespace MtLogTailer
 	{
 		public LogShipper(string filePath, int defaultEncoding, bool readFromLast)
 		{
+			Program.Log(LogLevel.Info, "LogShipper(). Path: {0}", filePath);
+
 			_filePath = filePath;
 			_defaultEncoding = defaultEncoding;
 			_readFromLast = readFromLast;
@@ -30,6 +32,8 @@ namespace MtLogTailer
 			var newLastWriteTime = GetLastWriteTime();
 			if (newLastWriteTime > _lastWriteTime)
 			{
+				Program.Log(LogLevel.Info, "File '{0}' has changed. Processing...", _filePath);
+
 				using (var stream = OpenStream())
 				{
 					stream.Position = _offset;
@@ -96,7 +100,10 @@ namespace MtLogTailer
 					// check if this is a UTF-8 "The output char buffer is too small" exception
 					// (happening occasionally when only a part of UTF-8 char was flushed to the file)
 					if (exc.ParamName == "chars" && Equals(_encoding, Encoding.UTF8))
+					{
+						Program.Log(LogLevel.Warn, "File '{0}': incomplete UTF8 char in the log ending is detected. Re-try later.", _filePath);
 						break;
+					}
 					else
 					{
 						var message = FormatEncodingMessage(stream, reader, startPosition);
@@ -192,6 +199,8 @@ namespace MtLogTailer
 			{
 				_offset = FindEndOffset(stream);
 			}
+
+			Program.Log(LogLevel.Info, "LogShipper.UpdateCurOffset() done. File '{0}', offset: {1}", _filePath, _offset);
 		}
 
 		private void EnsureInitDone()
@@ -209,6 +218,8 @@ namespace MtLogTailer
 				_startOffset = stream.Position;
 				_offset = _startOffset;
 			}
+
+			Program.Log(LogLevel.Info, "LogShipper.Init() done. File '{0}', encoding: {1}, start offset: {2}", _filePath, Encoding.WebName, _startOffset);
 
 			_initDone = true;
 		}
