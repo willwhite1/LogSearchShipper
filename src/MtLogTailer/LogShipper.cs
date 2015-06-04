@@ -48,7 +48,7 @@ namespace MtLogTailer
 
 		private void ShipLogData(Stream stream)
 		{
-			var reader = new BinaryReader(stream, Encoding);
+			var reader = new BinaryReader(stream, _encoding);
 			var buf = new StringBuilder();
 
 			// read the rest of an incomplete line at the start, if any
@@ -210,16 +210,15 @@ namespace MtLogTailer
 
 			using (var stream = OpenStream())
 			{
-				_encoding = FileUtil.DetectEncoding(stream);
+				_encoding = FileUtil.DetectEncoding(stream, Encoding.GetEncoding(_defaultEncoding));
 				if (_encoding == null)
 					return;
-				if (Equals(_encoding, Encoding.Default))
-					_encoding = null;
+
 				_startOffset = stream.Position;
 				_offset = _startOffset;
 			}
 
-			Program.Log(LogLevel.Info, "LogShipper.Init() done. File '{0}', encoding: {1}, start offset: {2}", _filePath, Encoding.WebName, _startOffset);
+			Program.Log(LogLevel.Info, "LogShipper.Init() done. File '{0}', encoding: {1}, start offset: {2}", _filePath, _encoding.WebName, _startOffset);
 
 			_initDone = true;
 		}
@@ -237,11 +236,6 @@ namespace MtLogTailer
 		long _offset;
 		DateTime _lastWriteTime;
 		private bool _isFirstLine = true;
-
-		public Encoding Encoding
-		{
-			get { return _encoding ?? Encoding.GetEncoding(_defaultEncoding); }
-		}
 
 		private Encoding _encoding;
 		private readonly int _defaultEncoding;
