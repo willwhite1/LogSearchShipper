@@ -797,9 +797,10 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			try
 			{
 				var files = Directory.GetFiles(folderPath);
+
 				if (files.Any())
 				{
-					using (var stream = File.OpenRead(files.First()))
+					using (var stream = new FileStream(files.First(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
 					{
 					}
 				}
@@ -809,6 +810,11 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			catch (UnauthorizedAccessException)
 			{
 				return false;
+			}
+			catch (Exception exc)
+			{
+				_log.Warn(exc);
+				return true;
 			}
 		}
 
