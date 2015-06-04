@@ -769,7 +769,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 					{
 						var shareInfo = matchingShares.First();
 						var localPath = shareInfo.Value + pathInsideShare;
-						if (HasReadAccess(Path.GetDirectoryName(localPath)))
+						if (HasReadAccess(localPath))
 							res = shareInfo.Value + pathInsideShare;
 					}
 				}
@@ -789,18 +789,20 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			return shares;
 		}
 
-		bool HasReadAccess(string folderPath)
+		bool HasReadAccess(string fileSpec)
 		{
+			var folderPath = Path.GetDirectoryName(fileSpec);
 			if (!Directory.Exists(folderPath))
 				return false;
 
 			try
 			{
-				var files = Directory.GetFiles(folderPath);
+				var filePattern = Path.GetFileName(fileSpec);
+				var files = Directory.GetFiles(folderPath, filePattern);
 
-				if (files.Any())
+				foreach (var file in files)
 				{
-					using (var stream = new FileStream(files.First(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+					using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
 					{
 					}
 				}
@@ -814,7 +816,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			catch (Exception exc)
 			{
 				_log.Warn(exc);
-				return true;
+				return false;
 			}
 		}
 
