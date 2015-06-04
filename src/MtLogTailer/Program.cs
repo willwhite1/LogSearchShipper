@@ -14,6 +14,7 @@ namespace MtLogTailer
 		{
 			try
 			{
+				Log(LogLevel.Info, "Starting MT4 tailer process");
 				InitLogging();
 
 				var argsDic = CommandLineUtil.ParseArgs(args);
@@ -35,6 +36,7 @@ namespace MtLogTailer
 
 				Console.OutputEncoding = Encoding.UTF8;
 
+				Log(LogLevel.Info, "path: {0}, readFromLast: {1}, default encoding: {2}", path, readFromLast, encoding);
 				var watcher = new PathWatcher(path, encoding, readFromLast);
 
 				Console.CancelKeyPress +=
