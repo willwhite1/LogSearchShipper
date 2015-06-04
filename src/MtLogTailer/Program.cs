@@ -64,11 +64,11 @@ namespace MtLogTailer
 			throw new ApplicationException("Invalid args. Should use MtLogTailer.exe <filePath> (-encoding:int)? (-readFromLast:bool)?");
 		}
 
-		static void LogErrorFormat(string format, params object[] args)
+		public static void Log(LogLevel level, string format, params object[] args)
 		{
 			try
 			{
-				var message = string.Format("{0} {1} {2}", FormatTime(), _version, string.Format(format, args));
+				var message = string.Format("{0}\t{1}\t{2}\t{3}", level.ToString().ToUpperInvariant(), FormatTime(), _version, string.Format(format, args));
 				Console.WriteLine(message);
 			}
 			catch (Exception exc)
@@ -84,7 +84,7 @@ namespace MtLogTailer
 
 		public static void LogError(string message)
 		{
-			LogErrorFormat(Escape(message));
+			Log(LogLevel.Fatal, Escape(message));
 			Environment.Exit(-1);
 		}
 
@@ -103,4 +103,6 @@ namespace MtLogTailer
 		public static volatile bool Terminate;
 		private static string _version;
 	}
+
+	public enum LogLevel { Debug, Info, Warn, Error, Fatal }
 }
