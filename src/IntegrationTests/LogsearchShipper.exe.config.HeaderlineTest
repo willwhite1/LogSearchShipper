@@ -13,7 +13,7 @@
   </configSections>
 
   <LogSearchShipperGroup>
-    <LogSearchShipper data_folder="data" ingestor_host="ingestor.meta.logsearch.io" ingestor_port="443" output_file="test.out">
+    <LogSearchShipper data_folder="data" ingestor_host="ingestor.meta.logsearch.io" ingestor_port="443" output_file="TestOut.log">
       <fileWatchers>
         <watch files="..\Logs\Log4netTest.txt" type="plain" readFromLast="false" multilineRule="multiline_ci_log4net">
           <field key="environment" value="LogSearchShipper.HeaderlineTest" />
