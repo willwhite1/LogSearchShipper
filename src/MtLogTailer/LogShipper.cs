@@ -12,6 +12,8 @@ namespace MtLogTailer
 	{
 		public LogShipper(string filePath, int defaultEncoding, bool readFromLast)
 		{
+			Program.Log(LogLevel.Info, "LogShipper(). Path: {0}", filePath);
+
 			_filePath = filePath;
 			_defaultEncoding = defaultEncoding;
 			_readFromLast = readFromLast;
@@ -32,6 +34,9 @@ namespace MtLogTailer
 			{
 				using (var stream = OpenStream())
 				{
+					Program.Log(LogLevel.Info, "File '{0}' has changed. Current offset: {1}, previous last write time {2}, file length {3}. Processing...",
+						_filePath, _offset, _lastWriteTime.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"), stream.Length);
+
 					stream.Position = _offset;
 
 					ShipLogData(stream);
@@ -44,7 +49,7 @@ namespace MtLogTailer
 
 		private void ShipLogData(Stream stream)
 		{
-			var reader = new BinaryReader(stream, Encoding);
+			var reader = new BinaryReader(stream, _encoding);
 			var buf = new StringBuilder();
 
 			// read the rest of an incomplete line at the start, if any
@@ -96,7 +101,10 @@ namespace MtLogTailer
 					// check if this is a UTF-8 "The output char buffer is too small" exception
 					// (happening occasionally when only a part of UTF-8 char was flushed to the file)
 					if (exc.ParamName == "chars" && Equals(_encoding, Encoding.UTF8))
+					{
+						Program.Log(LogLevel.Warn, "File '{0}': incomplete UTF8 char in the log ending is detected. Re-try later.", _filePath);
 						break;
+					}
 					else
 					{
 						var message = FormatEncodingMessage(stream, reader, startPosition);
@@ -136,7 +144,7 @@ namespace MtLogTailer
 			var message = string.Format(
 				"Error when reading a char. File '{0}', encoding '{1}', started at {2}, ended at {3}, " +
 				"total length {4}, bytes {5}.",
-				_filePath, _encoding.WebName, startPosition, curPosition, stream.Length,
+				_filePath, _encoding.EncodingName, startPosition, curPosition, stream.Length,
 				Convert.ToBase64String(bytes));
 			return message;
 		}
@@ -192,6 +200,8 @@ namespace MtLogTailer
 			{
 				_offset = FindEndOffset(stream);
 			}
+
+			Program.Log(LogLevel.Info, "LogShipper.UpdateCurOffset() done. File '{0}', offset: {1}", _filePath, _offset);
 		}
 
 		private void EnsureInitDone()
@@ -201,14 +211,15 @@ namespace MtLogTailer
 
 			using (var stream = OpenStream())
 			{
-				_encoding = FileUtil.DetectEncoding(stream);
+				_encoding = FileUtil.DetectEncoding(stream, Encoding.GetEncoding(_defaultEncoding));
 				if (_encoding == null)
 					return;
-				if (Equals(_encoding, Encoding.Default))
-					_encoding = null;
+
 				_startOffset = stream.Position;
 				_offset = _startOffset;
 			}
+
+			Program.Log(LogLevel.Info, "LogShipper.Init() done. File '{0}', encoding: {1}, start offset: {2}", _filePath, _encoding.WebName, _startOffset);
 
 			_initDone = true;
 		}
@@ -226,11 +237,6 @@ namespace MtLogTailer
 		long _offset;
 		DateTime _lastWriteTime;
 		private bool _isFirstLine = true;
-
-		public Encoding Encoding
-		{
-			get { return _encoding ?? Encoding.GetEncoding(_defaultEncoding); }
-		}
 
 		private Encoding _encoding;
 		private readonly int _defaultEncoding;
