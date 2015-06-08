@@ -13,7 +13,7 @@
   </configSections>
 
   <LogSearchShipperGroup>
-    <LogSearchShipper data_folder="data" ingestor_host="ingestor.meta.logsearch.io" ingestor_port="443" sessionId="" output_file="test.out">
+    <LogSearchShipper data_folder="data" ingestor_host="ingestor.meta.logsearch.io" ingestor_port="443" sessionId="" output_file="TestOut.log">
       <fileWatchers>
         <watch files="logs\*.*" type="json" sourceTailer="MT">
         </watch>
