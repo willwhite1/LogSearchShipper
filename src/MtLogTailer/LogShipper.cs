@@ -32,10 +32,11 @@ namespace MtLogTailer
 			var newLastWriteTime = GetLastWriteTime();
 			if (newLastWriteTime > _lastWriteTime)
 			{
-				Program.Log(LogLevel.Info, "File '{0}' has changed. Processing...", _filePath);
-
 				using (var stream = OpenStream())
 				{
+					Program.Log(LogLevel.Info, "File '{0}' has changed. Current offset: {1}, previous last write time {2}, file length {3}. Processing...",
+						_filePath, _offset, _lastWriteTime.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"), stream.Length);
+
 					stream.Position = _offset;
 
 					ShipLogData(stream);
@@ -143,7 +144,7 @@ namespace MtLogTailer
 			var message = string.Format(
 				"Error when reading a char. File '{0}', encoding '{1}', started at {2}, ended at {3}, " +
 				"total length {4}, bytes {5}.",
-				_filePath, _encoding.WebName, startPosition, curPosition, stream.Length,
+				_filePath, _encoding.EncodingName, startPosition, curPosition, stream.Length,
 				Convert.ToBase64String(bytes));
 			return message;
 		}
