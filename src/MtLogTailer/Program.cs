@@ -70,7 +70,8 @@ namespace MtLogTailer
 		{
 			try
 			{
-				var message = string.Format("{0}\t{1}\t{2}\t{3}", level.ToString().ToUpperInvariant(), FormatTime(), _version, string.Format(format, args));
+				var message = string.Format("-\t{0}\t{1}\t{2}\t{3}", level.ToString().ToUpperInvariant(), FormatTime(), _version,
+					string.Format(format, args));
 				Console.WriteLine(message);
 			}
 			catch (Exception exc)
