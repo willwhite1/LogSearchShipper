@@ -219,7 +219,8 @@ namespace MtLogTailer
 				_offset = _startOffset;
 			}
 
-			Program.Log(LogLevel.Info, "LogShipper.Init() done. File '{0}', encoding: {1}, start offset: {2}", _filePath, _encoding.WebName, _startOffset);
+			Program.Log(LogLevel.Info, "LogShipper.Init() done. File '{0}', encoding: {1}, start offset: {2}", _filePath,
+				_encoding.EncodingName, _startOffset);
 
 			_initDone = true;
 		}
