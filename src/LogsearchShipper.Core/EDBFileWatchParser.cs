@@ -124,9 +124,11 @@ namespace LogSearchShipper.Core
 			{
 				foreach (var service in server.Services)
 				{
-					var fields = new FieldCollection();
-					fields.Add(new FieldElement { Key = "host", Value = server.Name });
-					fields.Add(new FieldElement { Key = "service", Value = service.Name });
+					var fields = new FieldCollection
+					{
+						new FieldElement { Key = "host", Value = server.Name },
+						new FieldElement { Key = "service", Value = service.Name },
+					};
 					foreach (FieldElement field in _environmentWatchElement.Fields)
 					{
 						fields.Add(field);
