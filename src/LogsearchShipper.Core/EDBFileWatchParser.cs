@@ -38,7 +38,7 @@ namespace LogSearchShipper.Core
 			Name = source.Element("Name").Value;
 			State = source.Element("State").Value;
 
-			for (int i = 0;; i++)
+			for (int i = 0; ; i++)
 			{
 				var sourceName = "LogPath" + (i == 0 ? "" : i.ToString());
 				var sourceElem = source.Element(sourceName);
@@ -100,24 +100,24 @@ namespace LogSearchShipper.Core
 				).ToArray();
 
 			var servers = (from server in serversFiltered
-				select new
-				{
-					Name = server.Element("Name").Value,
-					NetworkArea = server.Element("NetworkArea").Value,
-					Services = from service in server.Descendants("Services").Descendants("Entity")
-						where service.Element("Name").Value.RegExMatches(_environmentWatchElement.ServiceNames) &&
-							!service.Element("Name").Value.RegExMatches(_environmentWatchElement.ServiceNamesNotMatch)
-						select new
-						{
-							Name = service.Element("Name").Value,
-							LogFile = (string) service.Elements("LogPath").FirstOrDefault(),
-							LogType = (string) service.Elements("LogPathType").FirstOrDefault(),
-							LogFile1 = (string) service.Elements("LogPath1").FirstOrDefault(),
-							LogType1 = (string) service.Elements("LogPath1Type").FirstOrDefault(),
-							LogFile2 = (string) service.Elements("LogPath2").FirstOrDefault(),
-							LogType2 = (string) service.Elements("LogPath2Type").FirstOrDefault()
-						}
-				}).ToArray();
+							select new
+							{
+								Name = server.Element("Name").Value,
+								NetworkArea = server.Element("NetworkArea").Value,
+								Services = from service in server.Descendants("Services").Descendants("Entity")
+										where service.Element("Name").Value.RegExMatches(_environmentWatchElement.ServiceNames) &&
+											!service.Element("Name").Value.RegExMatches(_environmentWatchElement.ServiceNamesNotMatch)
+										select new
+										{
+											Name = service.Element("Name").Value,
+											LogFile = (string)service.Elements("LogPath").FirstOrDefault(),
+											LogType = (string)service.Elements("LogPathType").FirstOrDefault(),
+											LogFile1 = (string)service.Elements("LogPath1").FirstOrDefault(),
+											LogType1 = (string)service.Elements("LogPath1Type").FirstOrDefault(),
+											LogFile2 = (string)service.Elements("LogPath2").FirstOrDefault(),
+											LogType2 = (string)service.Elements("LogPath2Type").FirstOrDefault()
+										}
+							}).ToArray();
 
 			var watches = new List<FileWatchElement>();
 			foreach (var server in servers)
@@ -125,8 +125,8 @@ namespace LogSearchShipper.Core
 				foreach (var service in server.Services)
 				{
 					var fields = new FieldCollection();
-					fields.Add(new FieldElement {Key = "host", Value = server.Name});
-					fields.Add(new FieldElement {Key = "service", Value = service.Name});
+					fields.Add(new FieldElement { Key = "host", Value = server.Name });
+					fields.Add(new FieldElement { Key = "service", Value = service.Name });
 					foreach (FieldElement field in _environmentWatchElement.Fields)
 					{
 						fields.Add(field);
@@ -219,24 +219,24 @@ namespace LogSearchShipper.Core
 			 */
 
 			var networkAreas = (from server in environmentDataXml.Descendants("Servers").Descendants("Server")
-				select new
-				{
-					Name = server.Element("NetworkArea").Value
-				}
+								select new
+								{
+									Name = server.Element("NetworkArea").Value
+								}
 				).Distinct().ToArray();
 
 			var servers = (from server in environmentDataXml.Descendants("Servers").Descendants("Server")
-				select new EdbServer
-				{
-					Name = server.Element("Name").Value,
-					Description = (string) server.Elements("Description").FirstOrDefault(),
-					Tags = (string) server.Elements("Tags").FirstOrDefault(),
-					Domain = server.Element("Domain").Value,
-					Environment = server.Element("Environment").Value,
-					NetworkArea = server.Element("NetworkArea").Value,
-					Services = (from service in server.Descendants("Services").Descendants("Entity")
-								select service).ToList()
-				}).Distinct().ToArray();
+							select new EdbServer
+							{
+								Name = server.Element("Name").Value,
+								Description = (string)server.Elements("Description").FirstOrDefault(),
+								Tags = (string)server.Elements("Tags").FirstOrDefault(),
+								Domain = server.Element("Domain").Value,
+								Environment = server.Element("Environment").Value,
+								NetworkArea = server.Element("NetworkArea").Value,
+								Services = (from service in server.Descendants("Services").Descendants("Entity")
+												select service).ToList()
+							}).Distinct().ToArray();
 
 			var environmentHierarchy = new List<EDBEnvironment>
 			{
