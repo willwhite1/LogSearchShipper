@@ -145,9 +145,8 @@ namespace LogSearchShipper.Core
 			return watches;
 		}
 
-		private void AddFileWatchElementForLogFile(string logFile, string logType,
-			ICollection<FileWatchElement> watches, FieldCollection fields,
-			string serverNetworkArea, string serverName, string serviceName)
+		private void AddFileWatchElementForLogFile(string logFile, string logType, ICollection<FileWatchElement> watches,
+			FieldCollection fields, string serverNetworkArea, string serverName, string serviceName)
 		{
 			//Don't ship logs without a type or with an empty type
 			if (!string.IsNullOrEmpty(logType) && !string.IsNullOrWhiteSpace(logType))
@@ -214,7 +213,7 @@ namespace LogSearchShipper.Core
 
 		public IEnumerable<EDBEnvironment> GenerateLogsearchEnvironmentDiagram()
 		{
-			XDocument environmentDataXml = LoadEDBXml();
+			var environmentDataXml = LoadEDBXml();
 
 			/* NB Note how we force LINQ evaluation for each query by calling ToArray().  
 			 * Without this data seems to get duplicated.
