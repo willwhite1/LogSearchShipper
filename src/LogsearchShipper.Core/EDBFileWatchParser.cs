@@ -125,7 +125,35 @@ namespace LogSearchShipper.Core
 						new FieldElement { Key = "host", Value = serverName },
 						new FieldElement { Key = "service", Value = serviceName },
 						new FieldElement { Key = "serviceType", Value = serviceNode.Attributes(xsiNamespace + "type").First().Value },
+						new FieldElement { Key = "binaryPath", Value = serviceNode.Element("BinaryPath").Value },
+						new FieldElement { Key = "systemArea", Value = serviceNode.Element("SystemArea").Value },
+						new FieldElement { Key = "state", Value = serviceNode.Element("State").Value },
 					};
+
+					var serviceTags = serviceNode.Element("Tags");
+					if (serviceTags != null)
+					{
+						fields.Add(new FieldElement { Key = "tags", Value = serviceTags.Value });
+					}
+
+					var bundlePath = serviceNode.Element("BundlePath");
+					if (bundlePath != null)
+					{
+						fields.Add(new FieldElement { Key = "bundlePath", Value = bundlePath.Value });
+					}
+
+					var webSite = serviceNode.Element("Website");
+					if (webSite != null)
+					{
+						fields.Add(new FieldElement { Key = "website", Value = webSite.Value });
+					}
+
+					var applicationUri = serviceNode.Element("ApplicationUri");
+					if (applicationUri != null)
+					{
+						fields.Add(new FieldElement { Key = "applicationUri", Value = applicationUri.Value });
+					}
+
 					foreach (FieldElement field in _environmentWatchElement.Fields)
 					{
 						fields.Add(field);
