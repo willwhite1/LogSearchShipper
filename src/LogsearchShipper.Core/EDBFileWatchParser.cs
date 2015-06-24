@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+
 using log4net;
 using LogSearchShipper.Core.ConfigurationSections;
 
@@ -90,58 +91,60 @@ namespace LogSearchShipper.Core
 
 		public List<FileWatchElement> ToFileWatchCollection()
 		{
-			XDocument environmentDataXml = LoadEDBXml();
+			var environmentDataXml = LoadEDBXml();
 
 			var serversFiltered = environmentDataXml.Descendants("Servers").Descendants("Server").Where(
-				server => server.Element("Name").Value.RegExMatches(_environmentWatchElement.ServerNames) &&
-					!server.Element("Name").Value.RegExMatches(_environmentWatchElement.ServerNamesNotMatch) &&
-					server.Element("NetworkArea").Value.RegExMatches(_environmentWatchElement.NetworkAreas) &&
-					!server.Element("NetworkArea").Value.RegExMatches(_environmentWatchElement.NetworkAreasNotMatch)
-				).ToArray();
+				server =>
+				{
+					var serverName = server.Element("Name").Value;
+					var networkArea = server.Element("NetworkArea").Value;
 
-			var servers = (from server in serversFiltered
-							select new
-							{
-								Name = server.Element("Name").Value,
-								NetworkArea = server.Element("NetworkArea").Value,
-								Services = from service in server.Descendants("Services").Descendants("Entity")
-										where service.Element("Name").Value.RegExMatches(_environmentWatchElement.ServiceNames) &&
-											!service.Element("Name").Value.RegExMatches(_environmentWatchElement.ServiceNamesNotMatch)
-										select new
-										{
-											Name = service.Element("Name").Value,
-											LogFile = (string)service.Elements("LogPath").FirstOrDefault(),
-											LogType = (string)service.Elements("LogPathType").FirstOrDefault(),
-											LogFile1 = (string)service.Elements("LogPath1").FirstOrDefault(),
-											LogType1 = (string)service.Elements("LogPath1Type").FirstOrDefault(),
-											LogFile2 = (string)service.Elements("LogPath2").FirstOrDefault(),
-											LogType2 = (string)service.Elements("LogPath2Type").FirstOrDefault()
-										}
-							}).ToArray();
+					return serverName.RegExMatches(_environmentWatchElement.ServerNames) &&
+						!serverName.RegExMatches(_environmentWatchElement.ServerNamesNotMatch) &&
+						networkArea.RegExMatches(_environmentWatchElement.NetworkAreas) &&
+						!networkArea.RegExMatches(_environmentWatchElement.NetworkAreasNotMatch);
+				}).ToArray();
 
 			var watches = new List<FileWatchElement>();
-			foreach (var server in servers)
+			foreach (var serverNode in serversFiltered)
 			{
-				foreach (var service in server.Services)
+				var serverName = serverNode.Element("Name").Value;
+				var serverNetworkArea = serverNode.Element("NetworkArea").Value;
+
+				foreach (var serviceNode in serverNode.Descendants("Services").Descendants("Entity"))
 				{
+					var serviceName = serviceNode.Element("Name").Value;
+
+					if (!serviceName.RegExMatches(_environmentWatchElement.ServiceNames) ||
+							serviceName.RegExMatches(_environmentWatchElement.ServiceNamesNotMatch))
+						continue;
+
 					var fields = new FieldCollection
 					{
-						new FieldElement { Key = "host", Value = server.Name },
-						new FieldElement { Key = "service", Value = service.Name },
+						new FieldElement { Key = "host", Value = serverName },
+						new FieldElement { Key = "service", Value = serviceName },
 					};
 					foreach (FieldElement field in _environmentWatchElement.Fields)
 					{
 						fields.Add(field);
 					}
 
-					AddFileWatchElementForLogFile(service.LogFile, service.LogType, watches, fields, server.NetworkArea, server.Name,
-						service.Name);
-					AddFileWatchElementForLogFile(service.LogFile1, service.LogType1, watches, fields, server.NetworkArea, server.Name,
-						service.Name);
-					AddFileWatchElementForLogFile(service.LogFile2, service.LogType2, watches, fields, server.NetworkArea, server.Name,
-						service.Name);
+					var serviceLogFile = (string)serviceNode.Elements("LogPath").FirstOrDefault();
+					var serviceLogType = (string)serviceNode.Elements("LogPathType").FirstOrDefault();
+					var serviceLogFile1 = (string)serviceNode.Elements("LogPath1").FirstOrDefault();
+					var serviceLogType1 = (string)serviceNode.Elements("LogPath1Type").FirstOrDefault();
+					var serviceLogFile2 = (string)serviceNode.Elements("LogPath2").FirstOrDefault();
+					var serviceLogType2 = (string)serviceNode.Elements("LogPath2Type").FirstOrDefault();
+
+					AddFileWatchElementForLogFile(serviceLogFile, serviceLogType, watches, fields, serverNetworkArea, serverName,
+						serviceName);
+					AddFileWatchElementForLogFile(serviceLogFile1, serviceLogType1, watches, fields, serverNetworkArea, serverName,
+						serviceName);
+					AddFileWatchElementForLogFile(serviceLogFile2, serviceLogType2, watches, fields, serverNetworkArea, serverName,
+						serviceName);
 				}
 			}
+
 			return watches;
 		}
 
