@@ -34,27 +34,29 @@ namespace LogSearchShipper.Core.Tests
 		{
 			var config = ConfigurationManager.GetSection("LogSearchShipperGroup/LogSearchShipper") as LogSearchShipperSection;
 			var edbFileWatchParser = new EDBFileWatchParser(config.EDBFileWatchers[1]);
-			List<FileWatchElement> fileWatches = edbFileWatchParser.ToFileWatchCollection();
+			var fileWatches = edbFileWatchParser.ToFileWatchCollection();
 
 			Assert.AreEqual(6, fileWatches.Count, "edbFileWatch filters not working correctly");
 
 			Assert.AreEqual("\\\\PKH-STG-WEB01\\Logs\\Nolio\\all.log", fileWatches[0].Files);
 			Assert.AreEqual("log4j", fileWatches[0].Type);
 
-			Assert.AreEqual("host", fileWatches[0].Fields[0].Key);
-			Assert.AreEqual("PKH-STG-WEB01", fileWatches[0].Fields[0].Value);
-
-			Assert.AreEqual("service", fileWatches[0].Fields[1].Key);
-			Assert.AreEqual("nolioagent2", fileWatches[0].Fields[1].Value);
-
-			Assert.AreEqual("environment", fileWatches[0].Fields[2].Key);
-			Assert.AreEqual("ENV2", fileWatches[0].Fields[2].Value);
-
 			Assert.AreEqual("\\\\PKH-STG-WEB01\\Logs\\Nolio\\include1.log", fileWatches[1].Files);
 			Assert.AreEqual("log4j1", fileWatches[1].Type);
 
 			Assert.AreEqual("\\\\PKH-STG-PRICE01\\Logs\\Nolio\\include2.log", fileWatches[3].Files);
 			Assert.AreEqual("log4j2", fileWatches[3].Type);
+
+			var fileWatch = fileWatches[0];
+
+			var hostField = fileWatch.Fields["host"];
+			Assert.AreEqual("PKH-STG-WEB01", hostField.Value);
+
+			var serviceField = fileWatch.Fields["service"];
+			Assert.AreEqual("nolioagent2", serviceField.Value);
+
+			var environmentField = fileWatch.Fields["environment"];
+			Assert.AreEqual("ENV2", environmentField.Value);
 		}
 
 		[Test]
