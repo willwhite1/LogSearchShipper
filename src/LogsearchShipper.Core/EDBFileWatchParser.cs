@@ -119,10 +119,12 @@ namespace LogSearchShipper.Core
 							serviceName.RegExMatches(_environmentWatchElement.ServiceNamesNotMatch))
 						continue;
 
+					var xsiNamespace = environmentDataXml.Root.GetNamespaceOfPrefix("xsi");
 					var fields = new FieldCollection
 					{
 						new FieldElement { Key = "host", Value = serverName },
 						new FieldElement { Key = "service", Value = serviceName },
+						new FieldElement { Key = "serviceType", Value = serviceNode.Attributes(xsiNamespace + "type").First().Value },
 					};
 					foreach (FieldElement field in _environmentWatchElement.Fields)
 					{
