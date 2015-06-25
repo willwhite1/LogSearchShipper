@@ -130,29 +130,10 @@ namespace LogSearchShipper.Core
 						new FieldElement { Key = "state", Value = serviceNode.Element("State").Value },
 					};
 
-					var serviceTags = serviceNode.Element("Tags");
-					if (serviceTags != null)
-					{
-						fields.Add(new FieldElement { Key = "tags", Value = serviceTags.Value });
-					}
-
-					var bundlePath = serviceNode.Element("BundlePath");
-					if (bundlePath != null)
-					{
-						fields.Add(new FieldElement { Key = "bundlePath", Value = bundlePath.Value });
-					}
-
-					var webSite = serviceNode.Element("Website");
-					if (webSite != null)
-					{
-						fields.Add(new FieldElement { Key = "website", Value = webSite.Value });
-					}
-
-					var applicationUri = serviceNode.Element("ApplicationUri");
-					if (applicationUri != null)
-					{
-						fields.Add(new FieldElement { Key = "applicationUri", Value = applicationUri.Value });
-					}
+					TryAddField(serviceNode, fields, "Tags", "tags");
+					TryAddField(serviceNode, fields, "BundlePath", "bundlePath");
+					TryAddField(serviceNode, fields, "Website", "website");
+					TryAddField(serviceNode, fields, "ApplicationUri", "applicationUri");
 
 					foreach (FieldElement field in _environmentWatchElement.Fields)
 					{
@@ -303,6 +284,15 @@ namespace LogSearchShipper.Core
 			}
 
 			return null;
+		}
+
+		private static void TryAddField(XElement serviceNode, FieldCollection fields, string elementName, string fieldName)
+		{
+			var element = serviceNode.Element(elementName);
+			if (element != null)
+			{
+				fields.Add(new FieldElement { Key = fieldName, Value = element.Value });
+			}
 		}
 	}
 }
