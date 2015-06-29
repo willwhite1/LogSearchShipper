@@ -18,6 +18,11 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			get { return (String) this["value"]; }
 			set { this["value"] = value; }
 		}
+
+		public override string ToString()
+		{
+			return string.Format("{0} = {1}", Key, Value);
+		}
 	}
 
 	public class FieldCollection : ConfigurationElementCollection
