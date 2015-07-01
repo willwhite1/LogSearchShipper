@@ -39,6 +39,13 @@ namespace LogSearchShipper.Core
 										service = service.Name,
 										event_source = eventSource,
 										expected_state = service.State,
+										serviceType = service.ServiceType,
+										binaryPath = service.BinaryPath,
+										systemArea = service.SystemArea,
+										tags = service.Tags,
+										bundlePath = service.BundlePath,
+										website = service.Website,
+										applicationUri = service.ApplicationUri,
 									});
 							}
 						}
