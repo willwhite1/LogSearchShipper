@@ -48,11 +48,37 @@ namespace LogSearchShipper.Core
 
 				EventSources.Add(sourceElem.Value);
 			}
+
+			var xsiNamespace = source.Document.Root.GetNamespaceOfPrefix("xsi");
+			ServiceType = source.Attributes(xsiNamespace + "type").First().Value;
+
+			BinaryPath = source.Element("BinaryPath").Value;
+			SystemArea = source.Element("SystemArea").Value;
+
+			Tags = TryGetField(source, "Tags");
+			BundlePath = TryGetField(source, "BundlePath");
+			Website = TryGetField(source, "Website");
+			ApplicationUri = TryGetField(source, "ApplicationUri");
+		}
+
+		private string TryGetField(XElement serviceNode, string elementName)
+		{
+			var element = serviceNode.Element(elementName);
+			return element == null ? null : element.Value;
 		}
 
 		public string Name;
 		public string State;
 		public List<string> EventSources = new List<string>();
+
+		public string ServiceType;
+		public string BinaryPath;
+		public string SystemArea;
+
+		public string Tags;
+		public string BundlePath;
+		public string Website;
+		public string ApplicationUri;
 	}
 
 	public class EDBEnvironmentComparer : IEqualityComparer<EDBEnvironment>
@@ -119,21 +145,11 @@ namespace LogSearchShipper.Core
 							serviceName.RegExMatches(_environmentWatchElement.ServiceNamesNotMatch))
 						continue;
 
-					var xsiNamespace = environmentDataXml.Root.GetNamespaceOfPrefix("xsi");
 					var fields = new FieldCollection
 					{
 						new FieldElement { Key = "host", Value = serverName },
 						new FieldElement { Key = "service", Value = serviceName },
-						new FieldElement { Key = "serviceType", Value = serviceNode.Attributes(xsiNamespace + "type").First().Value },
-						new FieldElement { Key = "binaryPath", Value = serviceNode.Element("BinaryPath").Value },
-						new FieldElement { Key = "systemArea", Value = serviceNode.Element("SystemArea").Value },
-						new FieldElement { Key = "state", Value = serviceNode.Element("State").Value },
 					};
-
-					TryAddField(serviceNode, fields, "Tags", "tags");
-					TryAddField(serviceNode, fields, "BundlePath", "bundlePath");
-					TryAddField(serviceNode, fields, "Website", "website");
-					TryAddField(serviceNode, fields, "ApplicationUri", "applicationUri");
 
 					foreach (FieldElement field in _environmentWatchElement.Fields)
 					{
@@ -284,15 +300,6 @@ namespace LogSearchShipper.Core
 			}
 
 			return null;
-		}
-
-		private static void TryAddField(XElement serviceNode, FieldCollection fields, string elementName, string fieldName)
-		{
-			var element = serviceNode.Element(elementName);
-			if (element != null)
-			{
-				fields.Add(new FieldElement { Key = fieldName, Value = element.Value });
-			}
 		}
 	}
 }
