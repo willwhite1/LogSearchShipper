@@ -39,6 +39,7 @@ namespace LogSearchShipper.Core
 										serverDescription = server.Description,
 										service = service.Name,
 										serviceName = service.ServiceName,
+										serviceDescription = service.Description,
 										event_source = eventSource,
 										expected_state = service.State,
 										serviceType = service.ServiceType,
