@@ -36,6 +36,7 @@ namespace LogSearchShipper.Core
 										environment = envName,
 										cluster = cluster,
 										host = host,
+										serverDescription = server.Description,
 										service = service.Name,
 										event_source = eventSource,
 										expected_state = service.State,
