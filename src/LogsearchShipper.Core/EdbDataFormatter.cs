@@ -36,7 +36,10 @@ namespace LogSearchShipper.Core
 										environment = envName,
 										cluster = cluster,
 										host = host,
+										serverDescription = server.Description,
 										service = service.Name,
+										serviceName = service.ServiceName,
+										serviceDescription = service.Description,
 										event_source = eventSource,
 										expected_state = service.State,
 										serviceType = service.ServiceType,
@@ -46,6 +49,12 @@ namespace LogSearchShipper.Core
 										bundlePath = service.BundlePath,
 										website = service.Website,
 										applicationUri = service.ApplicationUri,
+										logPath = service.LogPath,
+										logPathType = service.LogPathType,
+										logPath1 = service.LogPath1,
+										logPath1Type = service.LogPath1Type,
+										logPath2 = service.LogPath2,
+										logPath2Type = service.LogPath2Type,
 									});
 							}
 						}
