@@ -37,6 +37,8 @@ namespace LogSearchShipper.Core
 		public EdbService(XElement source)
 		{
 			Name = source.Element("Name").Value;
+			ServiceName = source.Element("ServiceName").Value;
+			Description = source.Element("Description").Value;
 			State = source.Element("State").Value;
 
 			for (int i = 0; ; i++)
@@ -59,6 +61,15 @@ namespace LogSearchShipper.Core
 			BundlePath = TryGetField(source, "BundlePath");
 			Website = TryGetField(source, "Website");
 			ApplicationUri = TryGetField(source, "ApplicationUri");
+
+			LogPath = source.Element("LogPath").Value;
+			LogPathType = source.Element("LogPathType").Value;
+
+			LogPath1 = source.Element("LogPath1").Value;
+			LogPath1Type = source.Element("LogPath1Type").Value;
+
+			LogPath2 = source.Element("LogPath2").Value;
+			LogPath2Type = source.Element("LogPath2Type").Value;
 		}
 
 		private string TryGetField(XElement serviceNode, string elementName)
@@ -68,6 +79,8 @@ namespace LogSearchShipper.Core
 		}
 
 		public string Name;
+		public string ServiceName;
+		public string Description;
 		public string State;
 		public List<string> EventSources = new List<string>();
 
@@ -79,6 +92,15 @@ namespace LogSearchShipper.Core
 		public string BundlePath;
 		public string Website;
 		public string ApplicationUri;
+
+		public string LogPath;
+		public string LogPathType;
+
+		public string LogPath1;
+		public string LogPath1Type;
+
+		public string LogPath2;
+		public string LogPath2Type;
 	}
 
 	public class EDBEnvironmentComparer : IEqualityComparer<EDBEnvironment>
