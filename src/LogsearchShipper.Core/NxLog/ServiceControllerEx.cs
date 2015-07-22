@@ -34,7 +34,7 @@ namespace LogSearchShipper.Core.NxLog
 					password = null;
 
 				serviceHandle = NativeMethods.CreateService(scmHandle, name, name, NativeMethods.ServiceAccessRights.AllAccess,
-					NativeMethods.SERVICE_WIN32_OWN_PROCESS, NativeMethods.ServiceBootFlag.AutoStart, NativeMethods.ServiceError.Normal,
+					NativeMethods.SERVICE_WIN32_OWN_PROCESS, NativeMethods.ServiceBootFlag.DemandStart, NativeMethods.ServiceError.Normal,
 					filePath, null, IntPtr.Zero, null, userName, password);
 
 				if (serviceHandle == IntPtr.Zero)
