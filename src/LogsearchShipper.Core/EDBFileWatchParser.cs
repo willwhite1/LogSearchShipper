@@ -37,9 +37,9 @@ namespace LogSearchShipper.Core
 		public EdbService(XElement source)
 		{
 			Name = source.Element("Name").Value;
-			ServiceName = source.Element("ServiceName").Value;
-			Description = source.Element("Description").Value;
-			State = source.Element("State").Value;
+			ServiceName = TryGetField(source, "ServiceName");
+			Description = TryGetField(source, "Description");
+			State = TryGetField(source, "State");
 
 			for (int i = 0; ; i++)
 			{
@@ -54,22 +54,22 @@ namespace LogSearchShipper.Core
 			var xsiNamespace = source.Document.Root.GetNamespaceOfPrefix("xsi");
 			ServiceType = source.Attributes(xsiNamespace + "type").First().Value;
 
-			BinaryPath = source.Element("BinaryPath").Value;
-			SystemArea = source.Element("SystemArea").Value;
+			BinaryPath = TryGetField(source, "BinaryPath");
+			SystemArea = TryGetField(source, "SystemArea");
 
 			Tags = TryGetField(source, "Tags");
 			BundlePath = TryGetField(source, "BundlePath");
 			Website = TryGetField(source, "Website");
 			ApplicationUri = TryGetField(source, "ApplicationUri");
 
-			LogPath = source.Element("LogPath").Value;
-			LogPathType = source.Element("LogPathType").Value;
+			LogPath = TryGetField(source, "LogPath");
+			LogPathType = TryGetField(source, "LogPathType");
 
-			LogPath1 = source.Element("LogPath1").Value;
-			LogPath1Type = source.Element("LogPath1Type").Value;
+			LogPath1 = TryGetField(source, "LogPath1");
+			LogPath1Type = TryGetField(source, "LogPath1Type");
 
-			LogPath2 = source.Element("LogPath2").Value;
-			LogPath2Type = source.Element("LogPath2Type").Value;
+			LogPath2 = TryGetField(source, "LogPath2");
+			LogPath2Type = TryGetField(source, "LogPath2Type");
 		}
 
 		private string TryGetField(XElement serviceNode, string elementName)
