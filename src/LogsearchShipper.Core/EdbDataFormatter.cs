@@ -58,6 +58,21 @@ namespace LogSearchShipper.Core
 									});
 							}
 						}
+
+						if (server.Services.Count == 0)
+						{
+							log.Info(
+								new
+								{
+									environment = envName,
+									cluster = cluster,
+									host = host,
+									serverDescription = server.Description,
+									service = "None",
+									serviceName = "None",
+									serviceDescription = "No services to display",
+								});
+						}
 					}
 				}
 			}
