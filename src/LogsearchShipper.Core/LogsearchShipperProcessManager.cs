@@ -77,10 +77,18 @@ namespace LogSearchShipper.Core
 
 				try
 				{
-					_log.Info("Updating config and restarting shipping...");
-					NxLogProcessManager.Stop();
+					_log.Info("Updating config...");
+
+					var oldConfig = NxLogProcessManager.Config;
 					SetupInputFiles();
-					NxLogProcessManager.Start();
+					NxLogProcessManager.SetupConfigFile();
+
+					if (NxLogProcessManager.Config != oldConfig)
+					{
+						_log.Info("Restarting shipping...");
+						NxLogProcessManager.Stop();
+						NxLogProcessManager.Start();
+					}
 				}
 				finally
 				{
