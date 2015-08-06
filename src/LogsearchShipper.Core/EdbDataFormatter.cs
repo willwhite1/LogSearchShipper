@@ -71,6 +71,7 @@ namespace LogSearchShipper.Core
 									service = "None",
 									serviceName = "None",
 									serviceDescription = "No services to display",
+									serviceType = "NoService",
 								});
 						}
 					}
