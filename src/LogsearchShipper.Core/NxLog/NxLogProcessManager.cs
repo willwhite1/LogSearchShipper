@@ -675,9 +675,9 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			var buf = new StringBuilder();
 			foreach (FieldElement field in inputFile.Fields)
 			{
-				if (!field.Key.All(Char.IsLetter))
+				if (!field.Key.All(ch => Char.IsLetterOrDigit(ch) || ch == '/' || ch == '_'))
 				{
-					var message = string.Format("fileWatch: '{0}' contains invalid field name '{1}' (must contain letters only)",
+					var message = string.Format("fileWatch: '{0}' contains invalid field name '{1}' (must contain letters, digits, slashes and underscores only)",
 						inputFile.Files, field.Key);
 					throw new ApplicationException(message);
 				}
