@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+
 using log4net;
 
 namespace LogSearchShipper.Core
 {
+	[DebuggerDisplay("FullPath = {FullPath}")]
 	class ConfigWatcher : IDisposable
 	{
 		public ConfigWatcher(string fullPath, ILog log)
 		{
+			_fullPath = fullPath;
 			_log = log;
 			Watcher = new FileSystemWatcher(Path.GetDirectoryName(fullPath), Path.GetFileName(fullPath))
 			{
@@ -19,6 +23,11 @@ namespace LogSearchShipper.Core
 		}
 
 		public readonly FileSystemWatcher Watcher;
+
+		public string FullPath
+		{
+			get { return _fullPath; }
+		}
 
 		public void SubscribeConfigFileChanges(Action actionsToRun)
 		{
@@ -59,6 +68,8 @@ namespace LogSearchShipper.Core
 			Watcher.EnableRaisingEvents = false;
 			Watcher.Dispose();
 		}
+
+		private readonly string _fullPath;
 
 		private DateTime _lastWriteTime;
 		private readonly ILog _log;
