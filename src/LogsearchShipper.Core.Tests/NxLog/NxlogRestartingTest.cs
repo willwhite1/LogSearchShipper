@@ -13,18 +13,22 @@ namespace LogSearchShipper.Core.Tests.NxLog
 {
 	class NxlogRestartingTest
 	{
+		[SetUp]
+		public void Init()
+		{
+			_lssManager = new LogSearchShipperProcessManager();
+			_edbConfig = _lssManager.LogSearchShipperConfig.EDBFileWatchers[0].DataFile;
+		}
+
 		[Test]
 		public void TestNxlogRestartsOnConfigUpdate()
 		{
-			var lssManager = new LogSearchShipperProcessManager();
-			var nxLogProcessId = lssManager.Start();
+			var nxLogProcessId = _lssManager.Start();
 
 			try
 			{
-				var edbConfig = lssManager.LogSearchShipperConfig.EDBFileWatchers[0].DataFile;
-
 				var config = new XmlDocument();
-				config.Load(edbConfig);
+				config.Load(_edbConfig);
 
 				var nodes = config.SelectNodes("/Environment/Servers/Server/Name");
 				foreach (XmlElement node in nodes)
@@ -32,40 +36,37 @@ namespace LogSearchShipper.Core.Tests.NxLog
 					node.InnerText += "_TEST_UPDATE";
 				}
 
-				config.Save(edbConfig);
+				config.Save(_edbConfig);
 
 				// give the LSS manager some time to restart the nxlog service
 				Thread.Sleep(TimeSpan.FromSeconds(10));
 
-				Assert.IsTrue(nxLogProcessId != lssManager.NxLogProcessManager.NxLogProcess.Id);
+				Assert.IsTrue(nxLogProcessId != _lssManager.NxLogProcessManager.NxLogProcess.Id);
 			}
 			finally
 			{
-				lssManager.Stop();
+				_lssManager.Stop();
 			}
 		}
 
 		[Test]
 		public void TestNxlogDoesntRestartWhenConfigIsTheSame()
 		{
-			var lssManager = new LogSearchShipperProcessManager();
-			var nxLogProcessId = lssManager.Start();
+			var nxLogProcessId = _lssManager.Start();
 
 			try
 			{
-				var edbConfig = lssManager.LogSearchShipperConfig.EDBFileWatchers[0].DataFile;
-
 				// test restarting when the config file last write time is updated without changing content
-				File.SetLastWriteTime(edbConfig, DateTime.Now);
+				File.SetLastWriteTime(_edbConfig, DateTime.Now);
 
 				// give the LSS manager some time to restart the nxlog service
 				Thread.Sleep(TimeSpan.FromSeconds(10));
 
-				Assert.IsTrue(nxLogProcessId == lssManager.NxLogProcessManager.NxLogProcess.Id);
+				Assert.IsTrue(nxLogProcessId == _lssManager.NxLogProcessManager.NxLogProcess.Id);
 
 				// test restarting when a config file update doesn't affect the nxlog config
 				var config = new XmlDocument();
-				config.Load(edbConfig);
+				config.Load(_edbConfig);
 
 				var nodes = config.SelectNodes("/Environment");
 				foreach (XmlElement node in nodes)
@@ -73,16 +74,19 @@ namespace LogSearchShipper.Core.Tests.NxLog
 					node.InsertAfter(config.CreateElement("TEST_UPDATE"), node.ChildNodes[0]);
 				}
 
-				config.Save(edbConfig);
+				config.Save(_edbConfig);
 
 				Thread.Sleep(TimeSpan.FromSeconds(10));
 
-				Assert.IsTrue(nxLogProcessId == lssManager.NxLogProcessManager.NxLogProcess.Id);
+				Assert.IsTrue(nxLogProcessId == _lssManager.NxLogProcessManager.NxLogProcess.Id);
 			}
 			finally
 			{
-				lssManager.Stop();
+				_lssManager.Stop();
 			}
 		}
+
+		private LogSearchShipperProcessManager _lssManager;
+		private string _edbConfig;
 	}
 }
