@@ -18,6 +18,16 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		{
 			_lssManager = new LogSearchShipperProcessManager();
 			_edbConfig = _lssManager.LogSearchShipperConfig.EDBFileWatchers[0].DataFile;
+			
+			_bakFile = _edbConfig + ".bak";
+			File.Copy(_edbConfig, _bakFile);
+		}
+
+		[TearDown]
+		public void Cleanup()
+		{
+			File.Delete(_edbConfig);
+			File.Move(_bakFile, _edbConfig);
 		}
 
 		[Test]
@@ -88,5 +98,6 @@ namespace LogSearchShipper.Core.Tests.NxLog
 
 		private LogSearchShipperProcessManager _lssManager;
 		private string _edbConfig;
+		private string _bakFile;
 	}
 }
