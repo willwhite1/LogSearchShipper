@@ -108,7 +108,8 @@ namespace LogSearchShipper.Core.NxLog
 		{
 			get
 			{
-				if (!Directory.Exists(_dataFolder)) Directory.CreateDirectory(_dataFolder);
+				if (!Directory.Exists(_dataFolder))
+					Directory.CreateDirectory(_dataFolder);
 				return _dataFolder;
 			}
 		}
