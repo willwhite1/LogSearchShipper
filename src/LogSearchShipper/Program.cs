@@ -61,6 +61,8 @@ namespace LogSearchShipper
 			{
 				ServiceName = ServiceName
 			};
+
+			_LogSearchShipperProcessManager.RegisterService();
 			_LogSearchShipperProcessManager.Start();
 
 			return true;

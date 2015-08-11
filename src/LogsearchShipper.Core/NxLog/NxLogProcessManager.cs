@@ -115,6 +115,31 @@ namespace LogSearchShipper.Core.NxLog
 
 		public string Config { get; private set; }
 
+		public void RegisterNxlogService()
+		{
+			_log.Info("NxLogProcessManager.RegisterNxlogService");
+
+			VerifyNotDisposed();
+
+			_curSessionId = SessionId == "*"
+				? Guid.NewGuid().ToString()
+				: SessionId;
+
+			ExtractNXLog();
+			SetupConfigFile();
+
+			var executablePath = Path.Combine(BinFolder, "nxlog.exe");
+			var serviceArguments = string.Format("\"{0}\" -c \"{1}\"", executablePath, ConfigFile);
+			_log.InfoFormat("Running {0} as a service", serviceArguments);
+
+			_log.InfoFormat("Truncating {0}", NxLogFile);
+			if (File.Exists(NxLogFile))
+				File.WriteAllText(NxLogFile, string.Empty);
+
+			ServiceControllerEx.DeleteService(_serviceName);
+			ServiceControllerEx.CreateService(_serviceName, serviceArguments, _userName, _password);
+		}
+
 		public void UnregisterNxlogService()
 		{
 			try
@@ -130,32 +155,18 @@ namespace LogSearchShipper.Core.NxLog
 		public int Start()
 		{
 			VerifyNotDisposed();
+
 			_stopped = false;
 
-			_curSessionId = SessionId == "*"
-				? Guid.NewGuid().ToString()
-				: SessionId;
-
-			ExtractNXLog();
-			SetupConfigFile();
 			StartNxLogProcess();
 
 			return NxLogProcess.Id;
 		}
 
-		public void StartNxLogProcess()
+		void StartNxLogProcess()
 		{
 			_log.Info("NxLogProcessManager.StartNxLogProcess");
 
-			var executablePath = Path.Combine(BinFolder, "nxlog.exe");
-			var serviceArguments = string.Format("\"{0}\" -c \"{1}\"", executablePath, ConfigFile);
-			_log.InfoFormat("Running {0} as a service", serviceArguments);
-
-			_log.InfoFormat("Truncating {0}", NxLogFile);
-			if (File.Exists(NxLogFile))
-				File.WriteAllText(NxLogFile, string.Empty);
-
-			ServiceControllerEx.CreateService(_serviceName, serviceArguments, _userName, _password);
 			ServiceControllerEx.StartService(_serviceName);
 
 			lock (_sync)
@@ -277,7 +288,7 @@ namespace LogSearchShipper.Core.NxLog
 			_log.Info("Trying to close nxlog service gracefully");
 			try
 			{
-				ServiceControllerEx.DeleteService(_serviceName);
+				ServiceControllerEx.StopService(_serviceName);
 			}
 			catch (Exception exc)
 			{

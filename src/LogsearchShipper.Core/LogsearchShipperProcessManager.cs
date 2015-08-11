@@ -34,12 +34,13 @@ namespace LogSearchShipper.Core
 			}
 		}
 
-		public int Start()
+		public void RegisterService()
 		{
-			_log.Info("LogSearchShipperProcessManager.Start");
+			_log.Info("LogSearchShipperProcessManager.RegisterService");
 
 			if (!Directory.Exists(LogSearchShipperConfig.DataFolder))
 				Directory.CreateDirectory(LogSearchShipperConfig.DataFolder);
+
 			NxLogProcessManager = new NxLogProcessManager(LogSearchShipperConfig.DataFolder, ServiceName,
 				LogSearchShipperConfig.ShipperServiceUsername, LogSearchShipperConfig.ShipperServicePassword)
 				{
@@ -49,6 +50,13 @@ namespace LogSearchShipper.Core
 					OutputFile = LogSearchShipperConfig.OutputFile,
 					ResolveUncPaths = LogSearchShipperConfig.ResolveUncPaths,
 				};
+
+			NxLogProcessManager.RegisterNxlogService();
+		}
+
+		public int Start()
+		{
+			_log.Info("LogSearchShipperProcessManager.Start");
 
 			SetupInputFiles();
 			NxLogProcessManager.OutputSyslog = new SyslogEndpoint(LogSearchShipperConfig.IngestorHost,
