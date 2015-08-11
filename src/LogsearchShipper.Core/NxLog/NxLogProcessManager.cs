@@ -115,6 +115,18 @@ namespace LogSearchShipper.Core.NxLog
 
 		public string Config { get; private set; }
 
+		public void UnregisterNxlogService()
+		{
+			try
+			{
+				ServiceControllerEx.DeleteService(_serviceName);
+			}
+			catch (Exception exc)
+			{
+				_log.Error(exc);
+			}
+		}
+
 		public int Start()
 		{
 			VerifyNotDisposed();
@@ -234,6 +246,7 @@ namespace LogSearchShipper.Core.NxLog
 				if (disposing)
 				{
 					Stop();
+					UnregisterNxlogService();
 				}
 
 				_disposed = true;
