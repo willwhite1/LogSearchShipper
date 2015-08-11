@@ -31,9 +31,9 @@ namespace IntegrationTests
 			var outputFile = Path.Combine(tmpDir, "receiverOutputFile.log");
 			if (File.Exists(sourceLogFile)) File.WriteAllText(sourceLogFile, string.Empty);
 			if (File.Exists(outputFile)) File.WriteAllText(outputFile, string.Empty);
-			
-			
-			var receiver = new NxLogProcessManager(receiverDataFolder)
+
+
+			var receiver = new NxLogProcessManager(receiverDataFolder, "MultilineTests")
 			{
 				InputSyslog = new SyslogEndpoint("localhost", 10121),
 				OutputFile = outputFile
@@ -43,7 +43,7 @@ namespace IntegrationTests
 			receiver.Start();
 			//Console.WriteLine(receiver.Config);
 
-			var shipper = new NxLogProcessManager(shipperDataFolder)
+			var shipper = new NxLogProcessManager(shipperDataFolder, "MultilineTests")
 			{
 				InputFiles = new List<FileWatchElement>
 				{
