@@ -69,6 +69,8 @@ namespace LogSearchShipper.Core.NxLog
 
 			_userName = userName;
 			_password = password;
+
+			ConfigFile = Path.Combine(DataFolder, "nxlog.conf");
 		}
 
 		public NxLogProcessManager()
@@ -127,7 +129,6 @@ namespace LogSearchShipper.Core.NxLog
 				: SessionId;
 
 			ExtractNXLog();
-			SetupConfigFile();
 
 			var executablePath = Path.Combine(BinFolder, "nxlog.exe");
 			var serviceArguments = string.Format("\"{0}\" -c \"{1}\"", executablePath, ConfigFile);
@@ -159,6 +160,7 @@ namespace LogSearchShipper.Core.NxLog
 
 			_stopped = false;
 
+			SetupConfigFile();
 			StartNxLogProcess();
 
 			return NxLogProcess.Id;
@@ -411,7 +413,6 @@ SpoolDir	{6}
 				);
 
 			Config = config;
-			ConfigFile = Path.Combine(DataFolder, "nxlog.conf");
 			File.WriteAllText(ConfigFile, config);
 			_log.InfoFormat("NXLog config file: {0}", ConfigFile);
 		}
