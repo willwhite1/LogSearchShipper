@@ -39,6 +39,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 				OutputSyslog = new SyslogEndpoint("ingestor.example.com", 443),
 				FilePollIntervalSeconds = 5,
 			};
+			_nxLogProcessManager.RegisterNxlogService();
 			_nxLogProcessManager.SetupConfigFile();
 		}
 
