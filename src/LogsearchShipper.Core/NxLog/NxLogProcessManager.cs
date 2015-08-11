@@ -39,7 +39,6 @@ namespace LogSearchShipper.Core.NxLog
 	{
 		private static readonly ILog _log = LogManager.GetLogger(typeof(NxLogProcessManager));
 		private readonly string _dataFolder;
-		private readonly TimeSpan _waitForNxLogProcessToExitBeforeKilling = TimeSpan.FromSeconds(1);
 		private string _nxBinFolder;
 		private string _nxLogFile;
 		private string _maxNxLogFileSize = "1M";
@@ -219,8 +218,8 @@ namespace LogSearchShipper.Core.NxLog
 			GC.SuppressFinalize(this);
 		}
 
-		private volatile bool _disposed = false;
-		private volatile bool _stopped = false;
+		private volatile bool _disposed;
+		private volatile bool _stopped;
 
 		protected virtual void Dispose(bool disposing)
 		{
