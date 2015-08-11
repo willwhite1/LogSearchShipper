@@ -74,6 +74,8 @@ namespace LogSearchShipper
 			_LogSearchShipperProcessManager.Stop();
 			_log.Debug("Stop: LogSearchShipperProcessManager.Stop() completed");
 
+			_LogSearchShipperProcessManager.Dispose();
+
 			return true;
 		}
 

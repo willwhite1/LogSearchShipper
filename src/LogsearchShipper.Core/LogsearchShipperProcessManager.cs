@@ -11,7 +11,7 @@ using LogSearchShipper.Core.NxLog;
 
 namespace LogSearchShipper.Core
 {
-	public class LogSearchShipperProcessManager
+	public class LogSearchShipperProcessManager : IDisposable
 	{
 		public string ServiceName;
 
@@ -211,6 +211,15 @@ namespace LogSearchShipper.Core
 			catch (Exception exc)
 			{
 				_log.Error(exc);
+			}
+		}
+
+		public void Dispose()
+		{
+			if (NxLogProcessManager != null)
+			{
+				NxLogProcessManager.Dispose();
+				NxLogProcessManager = null;
 			}
 		}
 	}
