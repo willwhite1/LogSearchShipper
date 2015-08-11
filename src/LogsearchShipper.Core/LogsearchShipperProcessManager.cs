@@ -13,6 +13,8 @@ namespace LogSearchShipper.Core
 {
 	public class LogSearchShipperProcessManager
 	{
+		public string ServiceName;
+
 		private static readonly ILog _log = LogManager.GetLogger(typeof(LogSearchShipperProcessManager));
 
 		private readonly Dictionary<string, Timer> _environmentDiagramLoggingTimers = new Dictionary<string, Timer>();
@@ -39,7 +41,7 @@ namespace LogSearchShipper.Core
 			{
 				Directory.CreateDirectory(LogSearchShipperConfig.DataFolder);
 			}
-			NxLogProcessManager = new NxLogProcessManager(LogSearchShipperConfig.DataFolder,
+			NxLogProcessManager = new NxLogProcessManager(LogSearchShipperConfig.DataFolder, ServiceName,
 				LogSearchShipperConfig.ShipperServiceUsername, LogSearchShipperConfig.ShipperServicePassword)
 				{
 					SessionId = LogSearchShipperConfig.SessionId,

@@ -55,7 +55,7 @@ namespace LogSearchShipper.Core.NxLog
 		private DateTime _lastProcessorUsageSentTime;
 		private Thread _processorUsageReportingThread;
 
-		public NxLogProcessManager(string dataFolder, string userName = null, string password = null)
+		public NxLogProcessManager(string dataFolder, string serviceNamePrefix, string userName = null, string password = null)
 		{
 			_dataFolder = Path.GetFullPath(dataFolder);
 			InputFiles = new List<FileWatchElement>();
@@ -63,14 +63,17 @@ namespace LogSearchShipper.Core.NxLog
 			var configId = Path.GetFullPath(dataFolder);
 			var hash = MD5.Create().ComputeHash(Encoding.ASCII.GetBytes(configId));
 			configId = BitConverter.ToString(hash).Replace("-", "");
+
 			_serviceName = "nxlog_" + configId;
+			if (!string.IsNullOrEmpty(serviceNamePrefix))
+				_serviceName = serviceNamePrefix + "_" + _serviceName;
 
 			_userName = userName;
 			_password = password;
 		}
 
 		public NxLogProcessManager()
-			: this(Path.Combine(Path.GetTempPath(), "nxlog-data-" + Guid.NewGuid().ToString("N")), null, null)
+			: this(Path.Combine(Path.GetTempPath(), "nxlog-data-" + Guid.NewGuid().ToString("N")), "")
 		{
 		}
 

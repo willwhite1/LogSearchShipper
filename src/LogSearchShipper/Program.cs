@@ -19,7 +19,11 @@ namespace LogSearchShipper
 
 			HostFactory.Run(x =>
 			{
-				x.Service<LogSearchShipperService>();
+				x.Service(
+					settings => new LogSearchShipperService
+					{
+						ServiceName = settings.ServiceName + (string.IsNullOrEmpty(settings.InstanceName) ? "" : "." + settings.InstanceName)
+					});
 				x.RunAsNetworkService();
 				x.StartAutomatically();
 
@@ -38,7 +42,9 @@ namespace LogSearchShipper
 
 	public class LogSearchShipperService : ServiceControl
 	{
-		private static readonly ILog _log = LogManager.GetLogger(typeof (LogSearchShipperService));
+		public string ServiceName;
+
+		private static readonly ILog _log = LogManager.GetLogger(typeof(LogSearchShipperService));
 		private LogSearchShipperProcessManager _LogSearchShipperProcessManager;
 
 		private volatile bool _terminate;
@@ -51,7 +57,10 @@ namespace LogSearchShipper
 			var thread = new Thread(args => WatchForExitKey(hostControl));
 			thread.Start();
 
-			_LogSearchShipperProcessManager = new LogSearchShipperProcessManager();
+			_LogSearchShipperProcessManager = new LogSearchShipperProcessManager
+			{
+				ServiceName = ServiceName
+			};
 			_LogSearchShipperProcessManager.Start();
 
 			return true;
