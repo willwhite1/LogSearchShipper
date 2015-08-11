@@ -117,8 +117,7 @@ namespace LogSearchShipper.Core.NxLog
 
 		public int Start()
 		{
-			if (_disposed)
-				throw new ObjectDisposedException(GetType().Name);
+			VerifyNotDisposed();
 			_stopped = false;
 
 			_curSessionId = SessionId == "*"
@@ -216,6 +215,12 @@ namespace LogSearchShipper.Core.NxLog
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
+		}
+
+		void VerifyNotDisposed()
+		{
+			if (_disposed)
+				throw new ObjectDisposedException(GetType().Name);
 		}
 
 		private volatile bool _disposed;
