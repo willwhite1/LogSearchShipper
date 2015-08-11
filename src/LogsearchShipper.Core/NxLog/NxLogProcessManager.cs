@@ -137,12 +137,13 @@ namespace LogSearchShipper.Core.NxLog
 		{
 			_log.Info("NxLogProcessManager.StartNxLogProcess");
 
-			string executablePath = Path.Combine(BinFolder, "nxlog.exe");
-			string serviceArguments = string.Format("\"{0}\" -c \"{1}\"", executablePath, ConfigFile);
+			var executablePath = Path.Combine(BinFolder, "nxlog.exe");
+			var serviceArguments = string.Format("\"{0}\" -c \"{1}\"", executablePath, ConfigFile);
 			_log.InfoFormat("Running {0} as a service", serviceArguments);
 
 			_log.InfoFormat("Truncating {0}", NxLogFile);
-			if (File.Exists(NxLogFile)) File.WriteAllText(NxLogFile, string.Empty);
+			if (File.Exists(NxLogFile))
+				File.WriteAllText(NxLogFile, string.Empty);
 
 			ServiceControllerEx.CreateService(_serviceName, serviceArguments, _userName, _password);
 			ServiceControllerEx.StartService(_serviceName);
