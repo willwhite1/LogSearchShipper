@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+
 using log4net;
 using LogSearchShipper.Core.ConfigurationSections;
 using LogSearchShipper.Core.NxLog;
@@ -38,9 +39,7 @@ namespace LogSearchShipper.Core
 			_log.Info("LogSearchShipperProcessManager.Start");
 
 			if (!Directory.Exists(LogSearchShipperConfig.DataFolder))
-			{
 				Directory.CreateDirectory(LogSearchShipperConfig.DataFolder);
-			}
 			NxLogProcessManager = new NxLogProcessManager(LogSearchShipperConfig.DataFolder, ServiceName,
 				LogSearchShipperConfig.ShipperServiceUsername, LogSearchShipperConfig.ShipperServicePassword)
 				{

@@ -43,10 +43,10 @@ namespace LogSearchShipper.Core.NxLog
 		private string _nxLogFile;
 		private string _maxNxLogFileSize = "1M";
 		private string _rotateNxLogFileEvery = "1 min";
-		private string _serviceName;
+		private readonly string _serviceName;
 
-		private string _userName;
-		private string _password;
+		private readonly string _userName;
+		private readonly string _password;
 
 		private readonly object _sync = new object();
 		private double _lastProcessorSecondsUsed;
