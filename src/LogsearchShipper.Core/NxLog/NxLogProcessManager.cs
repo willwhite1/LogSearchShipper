@@ -73,11 +73,6 @@ namespace LogSearchShipper.Core.NxLog
 			ConfigFile = Path.Combine(DataFolder, "nxlog.conf");
 		}
 
-		public NxLogProcessManager()
-			: this(Path.Combine(Path.GetTempPath(), "nxlog-data-" + Guid.NewGuid().ToString("N")), "")
-		{
-		}
-
 		public SyslogEndpoint InputSyslog { get; set; }
 		public List<FileWatchElement> InputFiles { get; set; }
 
