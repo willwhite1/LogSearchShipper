@@ -39,15 +39,14 @@ namespace LogSearchShipper.Core.NxLog
 	{
 		private static readonly ILog _log = LogManager.GetLogger(typeof(NxLogProcessManager));
 		private readonly string _dataFolder;
-		private readonly TimeSpan _waitForNxLogProcessToExitBeforeKilling = TimeSpan.FromSeconds(1);
 		private string _nxBinFolder;
 		private string _nxLogFile;
 		private string _maxNxLogFileSize = "1M";
 		private string _rotateNxLogFileEvery = "1 min";
-		private string _serviceName;
+		private readonly string _serviceName;
 
-		private string _userName;
-		private string _password;
+		private readonly string _userName;
+		private readonly string _password;
 
 		private readonly object _sync = new object();
 		private double _lastProcessorSecondsUsed;
@@ -55,7 +54,7 @@ namespace LogSearchShipper.Core.NxLog
 		private DateTime _lastProcessorUsageSentTime;
 		private Thread _processorUsageReportingThread;
 
-		public NxLogProcessManager(string dataFolder, string userName = null, string password = null)
+		public NxLogProcessManager(string dataFolder, string serviceNamePrefix, string userName = null, string password = null)
 		{
 			_dataFolder = Path.GetFullPath(dataFolder);
 			InputFiles = new List<FileWatchElement>();
@@ -63,15 +62,19 @@ namespace LogSearchShipper.Core.NxLog
 			var configId = Path.GetFullPath(dataFolder);
 			var hash = MD5.Create().ComputeHash(Encoding.ASCII.GetBytes(configId));
 			configId = BitConverter.ToString(hash).Replace("-", "");
+
 			_serviceName = "nxlog_" + configId;
+			if (!string.IsNullOrEmpty(serviceNamePrefix))
+				_serviceName = serviceNamePrefix + "_" + _serviceName;
+			// limit max service name length.
+			// See https://social.msdn.microsoft.com/Forums/vstudio/en-US/2c42c776-5e8b-4534-b11e-afaecabb3427/size-limitation-on-service-name-in-servicecontroller?forum=netfxbcl
+			if (_serviceName.Length > 80)
+				_serviceName = _serviceName.Substring(0, 80);
 
 			_userName = userName;
 			_password = password;
-		}
 
-		public NxLogProcessManager()
-			: this(Path.Combine(Path.GetTempPath(), "nxlog-data-" + Guid.NewGuid().ToString("N")), null, null)
-		{
+			ConfigFile = Path.Combine(DataFolder, "nxlog.conf");
 		}
 
 		public SyslogEndpoint InputSyslog { get; set; }
@@ -106,42 +109,68 @@ namespace LogSearchShipper.Core.NxLog
 		{
 			get
 			{
-				if (!Directory.Exists(_dataFolder)) Directory.CreateDirectory(_dataFolder);
+				if (!Directory.Exists(_dataFolder))
+					Directory.CreateDirectory(_dataFolder);
 				return _dataFolder;
 			}
 		}
 
 		public string Config { get; private set; }
 
-		public int Start()
+		public void RegisterNxlogService()
 		{
-			if (_disposed)
-				throw new ObjectDisposedException(GetType().Name);
-			_stopped = false;
+			_log.Info("NxLogProcessManager.RegisterNxlogService");
+
+			VerifyNotDisposed();
 
 			_curSessionId = SessionId == "*"
 				? Guid.NewGuid().ToString()
 				: SessionId;
 
+			ServiceControllerEx.StopService(_serviceName);
+			ServiceControllerEx.DeleteService(_serviceName);
+
 			ExtractNXLog();
+
+			var executablePath = Path.Combine(BinFolder, "nxlog.exe");
+			var serviceArguments = string.Format("\"{0}\" -c \"{1}\"", executablePath, ConfigFile);
+			_log.InfoFormat("Running {0} as a service", serviceArguments);
+
+			_log.InfoFormat("Truncating {0}", NxLogFile);
+			if (File.Exists(NxLogFile))
+				File.WriteAllText(NxLogFile, string.Empty);
+
+			ServiceControllerEx.CreateService(_serviceName, serviceArguments, _userName, _password);
+		}
+
+		public void UnregisterNxlogService()
+		{
+			try
+			{
+				ServiceControllerEx.DeleteService(_serviceName);
+			}
+			catch (Exception exc)
+			{
+				_log.Error(exc);
+			}
+		}
+
+		public int Start()
+		{
+			VerifyNotDisposed();
+
+			_stopped = false;
+
 			SetupConfigFile();
 			StartNxLogProcess();
 
 			return NxLogProcess.Id;
 		}
 
-		public void StartNxLogProcess()
+		void StartNxLogProcess()
 		{
 			_log.Info("NxLogProcessManager.StartNxLogProcess");
 
-			string executablePath = Path.Combine(BinFolder, "nxlog.exe");
-			string serviceArguments = string.Format("\"{0}\" -c \"{1}\"", executablePath, ConfigFile);
-			_log.InfoFormat("Running {0} as a service", serviceArguments);
-
-			_log.InfoFormat("Truncating {0}", NxLogFile);
-			if (File.Exists(NxLogFile)) File.WriteAllText(NxLogFile, string.Empty);
-
-			ServiceControllerEx.CreateService(_serviceName, serviceArguments, _userName, _password);
 			ServiceControllerEx.StartService(_serviceName);
 
 			lock (_sync)
@@ -215,8 +244,14 @@ namespace LogSearchShipper.Core.NxLog
 			GC.SuppressFinalize(this);
 		}
 
-		private volatile bool _disposed = false;
-		private volatile bool _stopped = false;
+		void VerifyNotDisposed()
+		{
+			if (_disposed)
+				throw new ObjectDisposedException(GetType().Name);
+		}
+
+		private volatile bool _disposed;
+		private volatile bool _stopped;
 
 		protected virtual void Dispose(bool disposing)
 		{
@@ -226,6 +261,7 @@ namespace LogSearchShipper.Core.NxLog
 				if (disposing)
 				{
 					Stop();
+					UnregisterNxlogService();
 				}
 
 				_disposed = true;
@@ -256,7 +292,7 @@ namespace LogSearchShipper.Core.NxLog
 			_log.Info("Trying to close nxlog service gracefully");
 			try
 			{
-				ServiceControllerEx.DeleteService(_serviceName);
+				ServiceControllerEx.StopService(_serviceName);
 			}
 			catch (Exception exc)
 			{
@@ -378,7 +414,6 @@ SpoolDir	{6}
 				);
 
 			Config = config;
-			ConfigFile = Path.Combine(DataFolder, "nxlog.conf");
 			File.WriteAllText(ConfigFile, config);
 			_log.InfoFormat("NXLog config file: {0}", ConfigFile);
 		}

@@ -23,7 +23,9 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		[SetUp]
 		public void Setup()
 		{
-			_nxLogProcessManager = new NxLogProcessManager
+			var dataPath = Path.GetFullPath(@".\NxLogProcessManagerTests");
+
+			_nxLogProcessManager = new NxLogProcessManager(dataPath, "NxLogProcessManagerTests")
 			{
 				InputFiles = new List<FileWatchElement>{
 				new FileWatchElement
@@ -39,6 +41,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 				OutputSyslog = new SyslogEndpoint("ingestor.example.com", 443),
 				FilePollIntervalSeconds = 5,
 			};
+			_nxLogProcessManager.RegisterNxlogService();
 			_nxLogProcessManager.SetupConfigFile();
 		}
 
@@ -46,6 +49,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		public void TearDown()
 		{
 			_nxLogProcessManager.Stop();
+			_nxLogProcessManager.Dispose();
 		}
 
 		private NxLogProcessManager _nxLogProcessManager;
