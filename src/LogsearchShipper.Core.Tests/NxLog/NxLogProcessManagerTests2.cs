@@ -14,7 +14,9 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		[Test]
 		public void TestCloseWhenIdle1()
 		{
-			var nxLogProcessManager = new NxLogProcessManager
+			var dataPath = Path.GetFullPath(@".\NxLogProcessManagerTests2");
+
+			var nxLogProcessManager = new NxLogProcessManager(dataPath, "NxLogProcessManagerTests2")
 			{
 				InputFiles = new List<FileWatchElement>
 				{
@@ -44,7 +46,9 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		[Test]
 		public void TestCloseWhenIdle2()
 		{
-			var nxLogProcessManager = new NxLogProcessManager
+			var dataPath = Path.GetFullPath(@".\NxLogProcessManagerTests2");
+
+			var nxLogProcessManager = new NxLogProcessManager(dataPath, "NxLogProcessManagerTests2")
 			{
 				InputFiles = new List<FileWatchElement>
 				{

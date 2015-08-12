@@ -23,7 +23,9 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		[SetUp]
 		public void Setup()
 		{
-			_nxLogProcessManager = new NxLogProcessManager
+			var dataPath = Path.GetFullPath(@".\NxLogProcessManagerTests");
+
+			_nxLogProcessManager = new NxLogProcessManager(dataPath, "NxLogProcessManagerTests")
 			{
 				InputFiles = new List<FileWatchElement>{
 				new FileWatchElement
