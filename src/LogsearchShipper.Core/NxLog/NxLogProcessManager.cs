@@ -66,6 +66,10 @@ namespace LogSearchShipper.Core.NxLog
 			_serviceName = "nxlog_" + configId;
 			if (!string.IsNullOrEmpty(serviceNamePrefix))
 				_serviceName = serviceNamePrefix + "_" + _serviceName;
+			// limit max service name length.
+			// See https://social.msdn.microsoft.com/Forums/vstudio/en-US/2c42c776-5e8b-4534-b11e-afaecabb3427/size-limitation-on-service-name-in-servicecontroller?forum=netfxbcl
+			if (_serviceName.Length > 80)
+				_serviceName = _serviceName.Substring(0, 80);
 
 			_userName = userName;
 			_password = password;
