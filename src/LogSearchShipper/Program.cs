@@ -22,7 +22,7 @@ namespace LogSearchShipper
 				x.Service(
 					settings => new LogSearchShipperService
 					{
-						ServiceName = settings.ServiceName + (string.IsNullOrEmpty(settings.InstanceName) ? "" : "." + settings.InstanceName)
+						ServiceName = settings.ServiceName
 					});
 				x.RunAsNetworkService();
 				x.StartAutomatically();
