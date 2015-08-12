@@ -15,8 +15,6 @@ namespace LogSearchShipper.Core.NxLog
 	{
 		public static void CreateService(string name, string filePath, string userName, string password)
 		{
-			DeleteService(name);
-
 			var scmHandle = IntPtr.Zero;
 			var serviceHandle = IntPtr.Zero;
 
@@ -58,8 +56,6 @@ namespace LogSearchShipper.Core.NxLog
 
 		public static void DeleteService(string name)
 		{
-			StopService(name);
-
 			var scmHandle = IntPtr.Zero;
 			var serviceHandle = IntPtr.Zero;
 
