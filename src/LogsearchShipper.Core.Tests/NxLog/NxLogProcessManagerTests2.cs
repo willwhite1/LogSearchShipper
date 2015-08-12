@@ -37,6 +37,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 			finally
 			{
 				nxLogProcessManager.Stop();
+				nxLogProcessManager.Dispose();
 			}
 		}
 
@@ -67,6 +68,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 			finally
 			{
 				nxLogProcessManager.Stop();
+				nxLogProcessManager.Dispose();
 			}
 		}
 	}

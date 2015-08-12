@@ -47,6 +47,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		public void TearDown()
 		{
 			_nxLogProcessManager.Stop();
+			_nxLogProcessManager.Dispose();
 		}
 
 		private NxLogProcessManager _nxLogProcessManager;
