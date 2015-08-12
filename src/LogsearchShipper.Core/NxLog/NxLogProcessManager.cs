@@ -123,6 +123,9 @@ namespace LogSearchShipper.Core.NxLog
 				? Guid.NewGuid().ToString()
 				: SessionId;
 
+			ServiceControllerEx.StopService(_serviceName);
+			ServiceControllerEx.DeleteService(_serviceName);
+
 			ExtractNXLog();
 
 			var executablePath = Path.Combine(BinFolder, "nxlog.exe");
@@ -133,7 +136,6 @@ namespace LogSearchShipper.Core.NxLog
 			if (File.Exists(NxLogFile))
 				File.WriteAllText(NxLogFile, string.Empty);
 
-			ServiceControllerEx.DeleteService(_serviceName);
 			ServiceControllerEx.CreateService(_serviceName, serviceArguments, _userName, _password);
 		}
 
