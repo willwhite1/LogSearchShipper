@@ -703,17 +703,17 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			return res;
 		}
 
-		private static string AppendCustomFields(FileWatchElement inputFile)
+		private static string AppendCustomFields(IWatchElement watchElement)
 		{
-			if (inputFile.Fields.Count == 0)
+			if (watchElement.Fields.Count == 0)
 				return "";
 			var buf = new StringBuilder();
-			foreach (FieldElement field in inputFile.Fields)
+			foreach (FieldElement field in watchElement.Fields)
 			{
 				if (!field.Key.All(ch => Char.IsLetterOrDigit(ch) || ch == '/' || ch == '_'))
 				{
 					var message = string.Format("fileWatch: '{0}' contains invalid field name '{1}' (must contain letters, digits, slashes and underscores only)",
-						inputFile.Files, field.Key);
+						watchElement.Key, field.Key);
 					throw new ApplicationException(message);
 				}
 
