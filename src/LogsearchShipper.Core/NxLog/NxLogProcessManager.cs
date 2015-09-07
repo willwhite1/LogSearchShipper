@@ -815,9 +815,10 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			// Limit maximum message size to just less than 1MB; or NXLog dies with: ERROR string limit (1048576 bytes) reached
 			res += @"	Exec if $Message $Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
 
-			res += @"
+			res += string.Format(@"
+	Exec $timestamp = strftime($EventTime, '%Y-%m-%dT%H:%M:%S' + '{0}'); delete($EventTime);
 	Exec to_json(); $type = 'json';
-</Input>" + Environment.NewLine;
+</Input>" + Environment.NewLine, _timeZoneText);
 
 			return res;
 		}
