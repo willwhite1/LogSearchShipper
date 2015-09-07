@@ -76,6 +76,8 @@ namespace LogSearchShipper.Core.NxLog
 			_password = password;
 
 			ConfigFile = Path.Combine(DataFolder, "nxlog.conf");
+
+			InitTimeZoneOffset();
 		}
 
 		public SyslogEndpoint InputSyslog { get; set; }
@@ -759,12 +761,6 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 
 		private string GenerateInternalLoggingConfig()
 		{
-			// nxlog doesn't handle time zone correctly, so we need to set the correct time zone variable to be used in the nxlog config file
-			var timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
-			var timeZoneText = timeZoneOffset.ToString("hh\\:mm");
-			var sign = (timeZoneOffset >= TimeSpan.Zero) ? "+" : "-";
-			timeZoneText = sign + timeZoneText;
-
 			var res = string.Format(@"
 <Input in_internal>
 	Module im_internal
@@ -781,7 +777,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 
 	Exec to_json(); $type = 'json';
 {1}
-</Input>", timeZoneText, GetSessionId());
+</Input>", _timeZoneText, GetSessionId());
 			return res;
 		}
 
@@ -824,6 +820,15 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 </Input>" + Environment.NewLine;
 
 			return res;
+		}
+
+		void InitTimeZoneOffset()
+		{
+			// nxlog doesn't handle time zone correctly, so we need to set the correct time zone variable to be used in the nxlog config file
+			var timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
+			_timeZoneText = timeZoneOffset.ToString("hh\\:mm");
+			var sign = (timeZoneOffset >= TimeSpan.Zero) ? "+" : "-";
+			_timeZoneText = sign + _timeZoneText;
 		}
 
 		string GetSessionId()
@@ -905,5 +910,6 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 		}
 
 		private string _curSessionId;
+		private string _timeZoneText;
 	}
 }
