@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationSections\FileWatchElement.cs" />
+    <Compile Include="ConfigurationSections\IWatchElement.cs" />
     <Compile Include="ConfigurationSections\OverrideConfig.cs" />
     <Compile Include="ConfigWatcher.cs" />
     <Compile Include="CustomPatternLayoutConverter.cs" />
