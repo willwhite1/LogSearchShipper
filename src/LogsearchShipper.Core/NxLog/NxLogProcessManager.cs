@@ -471,7 +471,7 @@ SpoolDir	{6}
 			{
 				allInputs += "in_file" + i + ",";
 			}
-			allInputs = allInputs.TrimEnd(new[] { ',' });
+			allInputs = allInputs.TrimEnd(',');
 
 			allInputs = "in_internal," + allInputs;
 
