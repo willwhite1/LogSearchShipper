@@ -359,13 +359,13 @@ LogLevel	{0}
 LogFile		{1}
 
 <Extension fileop>
-		Module		xm_fileop
+	Module xm_fileop
 
-		# Check the size of our log file every {2}, rotate if larger than {3}, keeping a maximum of 1 files
-		<Schedule>
-			 Every	{2}
-			 Exec		if (file_size('{1}') >= {3}) file_cycle('{1}', 1);
-		</Schedule>
+	# Check the size of our log file every {2}, rotate if larger than {3}, keeping a maximum of 1 files
+	<Schedule>
+		Every {2}
+		Exec if (file_size('{1}') >= {3}) file_cycle('{1}', 1);
+	</Schedule>
 </Extension>
 
 <Extension json>
@@ -382,15 +382,15 @@ SpoolDir	{6}
 </Extension>
 
 <Extension multiline_default>
-		Module	xm_multiline
-		#HeaderLine == Anything not starting with whitespace
-		HeaderLine	/^([^ ]+).*/
+	Module	xm_multiline
+	#HeaderLine == Anything not starting with whitespace
+	HeaderLine	/^([^ ]+).*/
 </Extension>
 
 <Extension multiline_ci_log4net>
-		Module	xm_multiline
-		#HeaderLine == Any line starting with text (WARN, ERROR) and YYYY-
-		HeaderLine	/^[A-Z]+[ \t]+\d{{4}}-.*/
+	Module	xm_multiline
+	#HeaderLine == Any line starting with text (WARN, ERROR) and YYYY-
+	HeaderLine	/^[A-Z]+[ \t]+\d{{4}}-.*/
 </Extension>
 
 {7}
@@ -480,12 +480,12 @@ SpoolDir	{6}
 				routeSection += string.Format(@"
 # The buffer needed to NOT loose events when Logstash restarts
 <Processor buffer_out_syslog>
-    Module      pm_buffer
-    # 100Mb buffer
-    MaxSize 100000
-    Type Mem
-    # warn at 50Mb
-    WarnLimit 50000
+	Module pm_buffer
+	# 100Mb buffer
+	MaxSize 100000
+	Type Mem
+	# warn at 50Mb
+	WarnLimit 50000
 </Processor>
 <Route route_to_syslog>
 	Path {0} => buffer_out_syslog => out_syslog
@@ -566,12 +566,12 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			_log.InfoFormat("Sending data to: syslog-tls://{0}:{1}", OutputSyslog.Host, OutputSyslog.Port);
 			return string.Format(@"
 <Output out_syslog>
-		Module	om_ssl
-		Host	{0}
-		Port	{1}
-		AllowUntrusted TRUE
-		Exec	if $Message $Message=replace($Message,""\n"",""¬""); 
-		Exec	to_syslog_ietf();
+	Module	om_ssl
+	Host	{0}
+	Port	{1}
+	AllowUntrusted TRUE
+	Exec	if $Message $Message=replace($Message,""\n"",""¬"");
+	Exec	to_syslog_ietf();
 </Output>",
 				OutputSyslog.Host, OutputSyslog.Port);
 		}
@@ -761,19 +761,19 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 
 			var res = string.Format(@"
 <Input in_internal>
-   Module im_internal
-   Exec $logger = 'nxlog.exe';
-   Exec delete($SourceModuleType); delete($SourceModuleName); delete($SeverityValue); delete($ProcessID);
-   Exec delete($SourceName); delete($EventReceivedTime); delete($Hostname);
-   Exec rename_field('Severity', 'level');
-   Exec $timestamp = strftime($EventTime, '%Y-%m-%dT%H:%M:%S' + '{0}'); delete($EventTime);
+	Module im_internal
+	Exec $logger = 'nxlog.exe';
+	Exec delete($SourceModuleType); delete($SourceModuleName); delete($SeverityValue); delete($ProcessID);
+	Exec delete($SourceName); delete($EventReceivedTime); delete($Hostname);
+	Exec rename_field('Severity', 'level');
+	Exec $timestamp = strftime($EventTime, '%Y-%m-%dT%H:%M:%S' + '{0}'); delete($EventTime);
 
-   Exec if string($Message) =~ /^failed to open/ $Category = 'MISSING_FILE';
-   Exec if string($Message) =~ /^input file does not exist:/ $Category = 'MISSING_FILE';
-   Exec if string($Message) =~ /^apr_stat failed on file/ $Category = 'MISSING_FILE';
-   Exec rename_field('Message', 'nxlog_message');
+	Exec if string($Message) =~ /^failed to open/ $Category = 'MISSING_FILE';
+	Exec if string($Message) =~ /^input file does not exist:/ $Category = 'MISSING_FILE';
+	Exec if string($Message) =~ /^apr_stat failed on file/ $Category = 'MISSING_FILE';
+	Exec rename_field('Message', 'nxlog_message');
 
-   Exec to_json();  $type = 'json';
+	Exec to_json(); $type = 'json';
 {1}
 </Input>", timeZoneText, GetSessionId());
 			return res;
@@ -783,7 +783,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 		{
 			if (string.IsNullOrEmpty(_curSessionId))
 				return "";
-			var res = string.Format("   Exec $sessionId = '{0}';" + Environment.NewLine, _curSessionId);
+			var res = string.Format("	Exec $sessionId = '{0}';" + Environment.NewLine, _curSessionId);
 			return res;
 		}
 
