@@ -807,6 +807,8 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			</Query>\
 		</QueryList>
 	Exec $service = ""WindowsEvents"";
+	Exec delete($SeverityValue);
+	Exec rename_field('Severity', 'level');
 {4}
 ", i, watcher.ReadFromLast.ToString().ToUpper(), watcher.Path, watcher.Query, GetSessionId());
 
