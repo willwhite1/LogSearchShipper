@@ -399,6 +399,7 @@ SpoolDir	{6}
 {10}
 {11}
 {12}
+{13}
 ",
 				_log.IsDebugEnabled ? "DEBUG" : "INFO",
 				NxLogFile,
@@ -412,6 +413,7 @@ SpoolDir	{6}
 				GenerateInputSyslogConfig(),
 				GenerateInputFilesConfig(),
 				GenerateInternalLoggingConfig(),
+				GenerateWinEventWatchersConfig(),
 				GenerateRoutes()
 				);
 
@@ -470,6 +472,10 @@ SpoolDir	{6}
 			for (int i = 0; i < InputFiles.Count; i++)
 			{
 				allInputs += "in_file" + i + ",";
+			}
+			for (int i = 0; i < WinEventLogs.Count; i++)
+			{
+				allInputs += "in_eventlog" + i + ",";
 			}
 			allInputs = allInputs.TrimEnd(',');
 
@@ -776,6 +782,47 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	Exec to_json(); $type = 'json';
 {1}
 </Input>", timeZoneText, GetSessionId());
+			return res;
+		}
+
+		private string GenerateWinEventWatchersConfig()
+		{
+			var res = new StringBuilder();
+
+			var i = 0;
+			foreach (var cur in WinEventLogs)
+			{
+				res.Append(GenerateWinEventWatcherConfig(cur, i));
+				i++;
+			}
+
+			return res.ToString();
+		}
+
+		private string GenerateWinEventWatcherConfig(WinEventWatchElement watcher, int i)
+		{
+			var res = string.Format(@"
+<Input in_eventlog{0}>
+	Module im_msvistalog
+	ReadFromLast {1}
+	Query <QueryList> \
+			<Query Id=""0"">\
+				<Select Path=""{2}"">{3}</Select>\
+			</Query>\
+		</QueryList>
+	Exec $service = ""WindowsEvents"";
+{4}
+", i, watcher.ReadFromLast.ToString().ToUpper(), watcher.Path, watcher.Query, GetSessionId());
+
+			res += AppendCustomFields(watcher);
+
+			// Limit maximum message size to just less than 1MB; or NXLog dies with: ERROR string limit (1048576 bytes) reached
+			res += @"	Exec if $Message $Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
+
+			res += @"
+	Exec to_json(); $type = 'json';
+</Input>" + Environment.NewLine;
+
 			return res;
 		}
 
