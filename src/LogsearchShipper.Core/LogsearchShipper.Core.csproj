@@ -48,6 +48,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationSections\WinEventWatchCollection.cs" />
+    <Compile Include="ConfigurationSections\WinEventWatchElement.cs" />
     <Compile Include="ConfigurationSections\FileWatchElement.cs" />
     <Compile Include="ConfigurationSections\IWatchElement.cs" />
     <Compile Include="ConfigurationSections\OverrideConfig.cs" />
