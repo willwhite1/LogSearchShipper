@@ -58,6 +58,7 @@ namespace LogSearchShipper.Core.NxLog
 		{
 			_dataFolder = Path.GetFullPath(dataFolder);
 			InputFiles = new List<FileWatchElement>();
+			WinEventLogs = new List<WinEventWatchElement>();
 
 			var configId = Path.GetFullPath(dataFolder);
 			var hash = MD5.Create().ComputeHash(Encoding.ASCII.GetBytes(configId));
@@ -79,6 +80,7 @@ namespace LogSearchShipper.Core.NxLog
 
 		public SyslogEndpoint InputSyslog { get; set; }
 		public List<FileWatchElement> InputFiles { get; set; }
+		public List<WinEventWatchElement> WinEventLogs { get; set; }
 
 		public SyslogEndpoint OutputSyslog { get; set; }
 		public string OutputFile { get; set; }
