@@ -16,7 +16,12 @@ namespace IntegrationTests
 		[TestFixtureTearDown]
 		public void CleanUp()
 		{
-			_nxLogProcessManagers.ForEach(n => n.Stop());
+			_nxLogProcessManagers.ForEach(
+				n =>
+				{
+					n.Stop();
+					n.UnregisterNxlogService();
+				});
 		}
 
 		[Test]
@@ -42,6 +47,8 @@ namespace IntegrationTests
 			_nxLogProcessManagers.Add(receiver);
 			if (File.Exists(receiver.NxLogFile))
 				File.WriteAllText(receiver.NxLogFile, string.Empty);
+
+			receiver.RegisterNxlogService();
 			receiver.Start();
 			//Console.WriteLine(receiver.Config);
 
@@ -60,6 +67,8 @@ namespace IntegrationTests
 			_nxLogProcessManagers.Add(shipper);
 			if (File.Exists(shipper.NxLogFile))
 				File.WriteAllText(shipper.NxLogFile, string.Empty);
+
+			shipper.RegisterNxlogService();
 			shipper.Start();
 			//Console.WriteLine(shipper.Config);
 
@@ -87,7 +96,7 @@ INFO  2014-07-15 08:20:18,172 44 UTPMessaging.ActiveMQ.Server.ResponseChannel Re
 ");
 
 			Thread.Sleep(TimeSpan.FromSeconds(10));
-			_nxLogProcessManagers.ForEach(n => n.Stop());
+			CleanUp();
 			Thread.Sleep(TimeSpan.FromSeconds(3));
 
 			var shippedLogsText = File.ReadAllText(outputFile);
