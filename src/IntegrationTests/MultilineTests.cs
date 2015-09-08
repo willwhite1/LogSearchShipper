@@ -22,16 +22,17 @@ namespace IntegrationTests
 		[Test]
 		public void ShouldHandleMultilineLog4NetExceptions()
 		{
-		 var syslogEndpoint = new SyslogEndpoint("localhost", 10121);
+			var syslogEndpoint = new SyslogEndpoint("localhost", 10121);
 
 			var tmpDir = Path.Combine(Path.GetTempPath(), "ShouldHandleMultilineLog4NetExceptions");
 			var receiverDataFolder = Path.Combine(tmpDir, "receiver");
 			var shipperDataFolder = Path.Combine(tmpDir, "shipper");
 			var sourceLogFile = Path.Combine(tmpDir, "sourceLogFile.log");
 			var outputFile = Path.Combine(tmpDir, "receiverOutputFile.log");
-			if (File.Exists(sourceLogFile)) File.WriteAllText(sourceLogFile, string.Empty);
-			if (File.Exists(outputFile)) File.WriteAllText(outputFile, string.Empty);
-
+			if (File.Exists(sourceLogFile))
+				File.WriteAllText(sourceLogFile, string.Empty);
+			if (File.Exists(outputFile))
+				File.WriteAllText(outputFile, string.Empty);
 
 			var receiver = new NxLogProcessManager(receiverDataFolder, "MultilineTests")
 			{
@@ -39,7 +40,8 @@ namespace IntegrationTests
 				OutputFile = outputFile
 			};
 			_nxLogProcessManagers.Add(receiver);
-			if (File.Exists(receiver.NxLogFile)) File.WriteAllText(receiver.NxLogFile, string.Empty);
+			if (File.Exists(receiver.NxLogFile))
+				File.WriteAllText(receiver.NxLogFile, string.Empty);
 			receiver.Start();
 			//Console.WriteLine(receiver.Config);
 
@@ -56,7 +58,8 @@ namespace IntegrationTests
 				OutputSyslog = syslogEndpoint
 			};
 			_nxLogProcessManagers.Add(shipper);
-			if (File.Exists(shipper.NxLogFile)) File.WriteAllText(shipper.NxLogFile, string.Empty);
+			if (File.Exists(shipper.NxLogFile))
+				File.WriteAllText(shipper.NxLogFile, string.Empty);
 			shipper.Start();
 			//Console.WriteLine(shipper.Config);
 
@@ -85,12 +88,12 @@ INFO  2014-07-15 08:20:18,172 44 UTPMessaging.ActiveMQ.Server.ResponseChannel Re
 
 			Thread.Sleep(TimeSpan.FromSeconds(10));
 			_nxLogProcessManagers.ForEach(n => n.Stop());
-		  Thread.Sleep(TimeSpan.FromSeconds(3));
+			Thread.Sleep(TimeSpan.FromSeconds(3));
 
 			var shippedLogsText = File.ReadAllText(outputFile);
 			Console.WriteLine("shippedLogsText:{0}", shippedLogsText);
 
-			string[] shippedLogs = shippedLogsText.Replace("\r", "").Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries);
+			string[] shippedLogs = shippedLogsText.Replace("\r", "").Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
 			Assert.AreEqual(3, shippedLogs.Length, "Expected 3 shippedLogs, but was only {0} : \n\n{1},", shippedLogs.Length, shippedLogsText);
 
