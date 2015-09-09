@@ -806,9 +806,6 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 				<Select Path=""{2}"">{3}</Select>\
 			</Query>\
 		</QueryList>
-	Exec $service = ""WindowsEvents"";
-	Exec delete($SeverityValue);
-	Exec rename_field('Severity', 'level');
 {4}
 ", i, watcher.ReadFromLast.ToString().ToUpper(), watcher.Path, watcher.Query, GetSessionId());
 
@@ -818,7 +815,16 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			res += @"	Exec if $Message $Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
 
 			res += string.Format(@"
+	Exec $logger = 'nxlog.exe';
+	Exec $service = 'WindowsEvents';
+	Exec delete($SeverityValue);
+	Exec rename_field('Severity', 'level');
 	Exec $timestamp = strftime($EventTime, '%Y-%m-%dT%H:%M:%S' + '{0}'); delete($EventTime);
+	Exec rename_field('Hostname', 'host');
+	Exec delete ($EventID); delete ($EventType); delete ($Keywords); delete ($Task); delete ($RecordNumber); delete ($ProcessID);
+	Exec delete ($ThreadID); delete ($Channel); delete ($EventReceivedTime);
+	Exec if $level == 'WARNING' $level = 'WARN';
+	Exec rename_field('Message', 'event_description');
 	Exec to_json(); $type = 'json';
 </Input>" + Environment.NewLine, _timeZoneText);
 
