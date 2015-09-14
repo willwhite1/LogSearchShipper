@@ -136,6 +136,8 @@ namespace LogSearchShipper.Core
 			ExtractEDBFileWatchers(LogSearchShipperConfig, watches);
 
 			NxLogProcessManager.InputFiles = watches;
+			NxLogProcessManager.WinEventLogs = new List<WinEventWatchElement>(
+				LogSearchShipperConfig.WinEventWatchers.Cast<WinEventWatchElement>());
 		}
 
 		private void AddWatchedConfigFile(string filePath)

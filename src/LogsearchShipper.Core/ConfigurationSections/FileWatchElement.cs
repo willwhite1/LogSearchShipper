@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace LogSearchShipper.Core.ConfigurationSections
 {
-	public class FileWatchElement : ConfigurationElement
+	public class FileWatchElement : ConfigurationElement, IWatchElement
 	{
 		private FieldCollection _fieldCollection;
 
@@ -74,9 +74,14 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { _fieldCollection = value; }
 		}
 
+		public string Key
+		{
+			get { return Files; }
+		}
+
 		public override string ToString()
 		{
-			return string.Format("{0}", Files);
+			return string.Format("{0}", Key);
 		}
 	}
 

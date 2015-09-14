@@ -38,6 +38,12 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			get { return (EDBFileWatchCollection) base["edbFileWatchers"]; }
 		}
 
+		[ConfigurationProperty("winEventWatchers", IsDefaultCollection = false)]
+		public WinEventWatchCollection WinEventWatchers
+		{
+			get { return (WinEventWatchCollection)base["winEventWatchers"]; }
+		}
+
 		[ConfigurationProperty("shipper_service_username", IsRequired = false)]
 		public String ShipperServiceUsername
 		{
