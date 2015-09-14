@@ -58,6 +58,7 @@ namespace LogSearchShipper.Core.NxLog
 		{
 			_dataFolder = Path.GetFullPath(dataFolder);
 			InputFiles = new List<FileWatchElement>();
+			WinEventLogs = new List<WinEventWatchElement>();
 
 			var configId = Path.GetFullPath(dataFolder);
 			var hash = MD5.Create().ComputeHash(Encoding.ASCII.GetBytes(configId));
@@ -75,10 +76,13 @@ namespace LogSearchShipper.Core.NxLog
 			_password = password;
 
 			ConfigFile = Path.Combine(DataFolder, "nxlog.conf");
+
+			InitTimeZoneOffset();
 		}
 
 		public SyslogEndpoint InputSyslog { get; set; }
 		public List<FileWatchElement> InputFiles { get; set; }
+		public List<WinEventWatchElement> WinEventLogs { get; set; }
 
 		public SyslogEndpoint OutputSyslog { get; set; }
 		public string OutputFile { get; set; }
@@ -357,13 +361,13 @@ LogLevel	{0}
 LogFile		{1}
 
 <Extension fileop>
-		Module		xm_fileop
+	Module xm_fileop
 
-		# Check the size of our log file every {2}, rotate if larger than {3}, keeping a maximum of 1 files
-		<Schedule>
-			 Every	{2}
-			 Exec		if (file_size('{1}') >= {3}) file_cycle('{1}', 1);
-		</Schedule>
+	# Check the size of our log file every {2}, rotate if larger than {3}, keeping a maximum of 1 files
+	<Schedule>
+		Every {2}
+		Exec if (file_size('{1}') >= {3}) file_cycle('{1}', 1);
+	</Schedule>
 </Extension>
 
 <Extension json>
@@ -380,15 +384,15 @@ SpoolDir	{6}
 </Extension>
 
 <Extension multiline_default>
-		Module	xm_multiline
-		#HeaderLine == Anything not starting with whitespace
-		HeaderLine	/^([^ ]+).*/
+	Module	xm_multiline
+	#HeaderLine == Anything not starting with whitespace
+	HeaderLine	/^([^ ]+).*/
 </Extension>
 
 <Extension multiline_ci_log4net>
-		Module	xm_multiline
-		#HeaderLine == Any line starting with text (WARN, ERROR) and YYYY-
-		HeaderLine	/^[A-Z]+[ \t]+\d{{4}}-.*/
+	Module	xm_multiline
+	#HeaderLine == Any line starting with text (WARN, ERROR) and YYYY-
+	HeaderLine	/^[A-Z]+[ \t]+\d{{4}}-.*/
 </Extension>
 
 {7}
@@ -397,6 +401,7 @@ SpoolDir	{6}
 {10}
 {11}
 {12}
+{13}
 ",
 				_log.IsDebugEnabled ? "DEBUG" : "INFO",
 				NxLogFile,
@@ -410,6 +415,7 @@ SpoolDir	{6}
 				GenerateInputSyslogConfig(),
 				GenerateInputFilesConfig(),
 				GenerateInternalLoggingConfig(),
+				GenerateWinEventWatchersConfig(),
 				GenerateRoutes()
 				);
 
@@ -469,7 +475,11 @@ SpoolDir	{6}
 			{
 				allInputs += "in_file" + i + ",";
 			}
-			allInputs = allInputs.TrimEnd(new[] { ',' });
+			for (int i = 0; i < WinEventLogs.Count; i++)
+			{
+				allInputs += "in_eventlog" + i + ",";
+			}
+			allInputs = allInputs.TrimEnd(',');
 
 			allInputs = "in_internal," + allInputs;
 
@@ -478,12 +488,12 @@ SpoolDir	{6}
 				routeSection += string.Format(@"
 # The buffer needed to NOT loose events when Logstash restarts
 <Processor buffer_out_syslog>
-    Module      pm_buffer
-    # 100Mb buffer
-    MaxSize 100000
-    Type Mem
-    # warn at 50Mb
-    WarnLimit 50000
+	Module pm_buffer
+	# 100Mb buffer
+	MaxSize 100000
+	Type Mem
+	# warn at 50Mb
+	WarnLimit 50000
 </Processor>
 <Route route_to_syslog>
 	Path {0} => buffer_out_syslog => out_syslog
@@ -564,12 +574,12 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			_log.InfoFormat("Sending data to: syslog-tls://{0}:{1}", OutputSyslog.Host, OutputSyslog.Port);
 			return string.Format(@"
 <Output out_syslog>
-		Module	om_ssl
-		Host	{0}
-		Port	{1}
-		AllowUntrusted TRUE
-		Exec	if $Message $Message=replace($Message,""\n"",""¬""); 
-		Exec	to_syslog_ietf();
+	Module	om_ssl
+	Host	{0}
+	Port	{1}
+	AllowUntrusted TRUE
+	Exec	if $Message $Message=replace($Message,""\n"",""¬"");
+	Exec	to_syslog_ietf();
 </Output>",
 				OutputSyslog.Host, OutputSyslog.Port);
 		}
@@ -703,17 +713,17 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 			return res;
 		}
 
-		private static string AppendCustomFields(FileWatchElement inputFile)
+		private static string AppendCustomFields(IWatchElement watchElement)
 		{
-			if (inputFile.Fields.Count == 0)
+			if (watchElement.Fields.Count == 0)
 				return "";
 			var buf = new StringBuilder();
-			foreach (FieldElement field in inputFile.Fields)
+			foreach (FieldElement field in watchElement.Fields)
 			{
 				if (!field.Key.All(ch => Char.IsLetterOrDigit(ch) || ch == '/' || ch == '_'))
 				{
 					var message = string.Format("fileWatch: '{0}' contains invalid field name '{1}' (must contain letters, digits, slashes and underscores only)",
-						inputFile.Files, field.Key);
+						watchElement.Key, field.Key);
 					throw new ApplicationException(message);
 				}
 
@@ -751,37 +761,90 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 
 		private string GenerateInternalLoggingConfig()
 		{
-			// nxlog doesn't handle time zone correctly, so we need to set the correct time zone variable to be used in the nxlog config file
-			var timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
-			var timeZoneText = timeZoneOffset.ToString("hh\\:mm");
-			var sign = (timeZoneOffset >= TimeSpan.Zero) ? "+" : "-";
-			timeZoneText = sign + timeZoneText;
-
 			var res = string.Format(@"
 <Input in_internal>
-   Module im_internal
-   Exec $logger = 'nxlog.exe';
-   Exec delete($SourceModuleType); delete($SourceModuleName); delete($SeverityValue); delete($ProcessID);
-   Exec delete($SourceName); delete($EventReceivedTime); delete($Hostname);
-   Exec rename_field('Severity', 'level');
-   Exec $timestamp = strftime($EventTime, '%Y-%m-%dT%H:%M:%S' + '{0}'); delete($EventTime);
+	Module im_internal
+	Exec $logger = 'nxlog.exe';
+	Exec delete($SourceModuleType); delete($SourceModuleName); delete($SeverityValue); delete($ProcessID);
+	Exec delete($SourceName); delete($EventReceivedTime); delete($Hostname);
+	Exec rename_field('Severity', 'level');
+	Exec $timestamp = strftime($EventTime, '%Y-%m-%dT%H:%M:%S' + '{0}'); delete($EventTime);
 
-   Exec if string($Message) =~ /^failed to open/ $Category = 'MISSING_FILE';
-   Exec if string($Message) =~ /^input file does not exist:/ $Category = 'MISSING_FILE';
-   Exec if string($Message) =~ /^apr_stat failed on file/ $Category = 'MISSING_FILE';
-   Exec rename_field('Message', 'nxlog_message');
+	Exec if string($Message) =~ /^failed to open/ $Category = 'MISSING_FILE';
+	Exec if string($Message) =~ /^input file does not exist:/ $Category = 'MISSING_FILE';
+	Exec if string($Message) =~ /^apr_stat failed on file/ $Category = 'MISSING_FILE';
+	Exec rename_field('Message', 'nxlog_message');
 
-   Exec to_json();  $type = 'json';
+	Exec to_json(); $type = 'json';
 {1}
-</Input>", timeZoneText, GetSessionId());
+</Input>", _timeZoneText, GetSessionId());
 			return res;
+		}
+
+		private string GenerateWinEventWatchersConfig()
+		{
+			var res = new StringBuilder();
+
+			var i = 0;
+			foreach (var cur in WinEventLogs)
+			{
+				res.Append(GenerateWinEventWatcherConfig(cur, i));
+				i++;
+			}
+
+			return res.ToString();
+		}
+
+		private string GenerateWinEventWatcherConfig(WinEventWatchElement watcher, int i)
+		{
+			var res = string.Format(@"
+<Input in_eventlog{0}>
+	Module im_msvistalog
+	ReadFromLast {1}
+	Query <QueryList> \
+			<Query Id=""0"">\
+				<Select Path=""{2}"">{3}</Select>\
+			</Query>\
+		</QueryList>
+{4}
+", i, watcher.ReadFromLast.ToString().ToUpper(), watcher.Path, watcher.Query, GetSessionId());
+
+			res += AppendCustomFields(watcher);
+
+			// Limit maximum message size to just less than 1MB; or NXLog dies with: ERROR string limit (1048576 bytes) reached
+			res += @"	Exec if $Message $Message = substr($raw_event, 0, 1040000);" + Environment.NewLine;
+
+			res += string.Format(@"
+	Exec $logger = 'nxlog.exe';
+	Exec $service = 'WindowsEvents';
+	Exec delete($SeverityValue);
+	Exec rename_field('Severity', 'level');
+	Exec $timestamp = strftime($EventTime, '%Y-%m-%dT%H:%M:%S' + '{0}'); delete($EventTime);
+	Exec rename_field('Hostname', 'host');
+	Exec delete ($EventID); delete ($EventType); delete ($Keywords); delete ($Task); delete ($RecordNumber); delete ($ProcessID);
+	Exec delete ($ThreadID); delete ($Channel); delete ($EventReceivedTime);
+	Exec if $level == 'WARNING' $level = 'WARN';
+	Exec rename_field('Message', 'event_description');
+	Exec to_json(); $type = 'json';
+</Input>" + Environment.NewLine, _timeZoneText);
+
+			return res;
+		}
+
+		void InitTimeZoneOffset()
+		{
+			// nxlog doesn't handle time zone correctly, so we need to set the correct time zone variable to be used in the nxlog config file
+			var timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
+			_timeZoneText = timeZoneOffset.ToString("hh\\:mm");
+			var sign = (timeZoneOffset >= TimeSpan.Zero) ? "+" : "-";
+			_timeZoneText = sign + _timeZoneText;
 		}
 
 		string GetSessionId()
 		{
 			if (string.IsNullOrEmpty(_curSessionId))
 				return "";
-			var res = string.Format("   Exec $sessionId = '{0}';" + Environment.NewLine, _curSessionId);
+			var res = string.Format("	Exec $sessionId = '{0}';" + Environment.NewLine, _curSessionId);
 			return res;
 		}
 
@@ -856,5 +919,6 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 		}
 
 		private string _curSessionId;
+		private string _timeZoneText;
 	}
 }

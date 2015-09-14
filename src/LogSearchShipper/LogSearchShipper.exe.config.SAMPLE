@@ -72,6 +72,11 @@ Change the settings to fit your environment
 					<field key="service" value="MT" />
 				</watch>-->
 			</fileWatchers>
+      <winEventWatchers>
+        <watch path="Application" query="*[System[Provider[@Name='.NET Runtime' or @Name='ASP.NET 4.0.30319.0'] and (Level=0 or Level=1 or Level=2 or Level=3 or Level=4 or Level=5)]]" readFromLast="false">
+          <field key="host" value="Andrei-PC" />
+        </watch>
+      </winEventWatchers>
 		</LogSearchShipper>
 	</LogSearchShipperGroup>
 	
