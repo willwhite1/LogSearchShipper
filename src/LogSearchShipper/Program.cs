@@ -66,7 +66,7 @@ namespace LogSearchShipper
 			};
 			thread.Start();
 
-			_updateThread = new Thread(CheckForUpdates)
+			_updateThread = new Thread(args => CheckForUpdates(hostControl))
 			{
 				IsBackground = true,
 			};
@@ -142,7 +142,7 @@ namespace LogSearchShipper
 			Environment.Exit(0);
 		}
 
-		void CheckForUpdates()
+		void CheckForUpdates(HostControl hostControl)
 		{
 			while (!_terminate)
 			{
@@ -167,6 +167,10 @@ namespace LogSearchShipper
 				catch (ThreadAbortException)
 				{
 					break;
+				}
+				catch (ApplicationException exc)
+				{
+					Log.Error(exc.Message);
 				}
 				catch (Exception exc)
 				{
