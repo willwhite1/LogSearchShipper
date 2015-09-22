@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
 using log4net;
 using log4net.Config;
 using LogSearchShipper.Core;
+using NuGet;
 using Topshelf;
 
 namespace LogSearchShipper
@@ -48,6 +51,9 @@ namespace LogSearchShipper
 		private LogSearchShipperProcessManager _logSearchShipperProcessManager;
 
 		private volatile bool _terminate;
+		private readonly ManualResetEvent _terminationEvent = new ManualResetEvent(false);
+
+		private Thread _updateThread;
 
 		public bool Start(HostControl hostControl)
 		{
@@ -59,6 +65,12 @@ namespace LogSearchShipper
 				IsBackground = true,
 			};
 			thread.Start();
+
+			_updateThread = new Thread(CheckForUpdates)
+			{
+				IsBackground = true,
+			};
+			_updateThread.Start();
 
 			_logSearchShipperProcessManager = new LogSearchShipperProcessManager
 			{
@@ -74,6 +86,7 @@ namespace LogSearchShipper
 		public bool Stop(HostControl hostControl)
 		{
 			_terminate = true;
+			_terminationEvent.Set();
 
 			Log.Debug("Stop: Calling LogSearchShipperProcessManager.Stop()");
 
@@ -127,6 +140,42 @@ namespace LogSearchShipper
 		{
 			Stop(hostControl);
 			Environment.Exit(0);
+		}
+
+		void CheckForUpdates()
+		{
+			while (!_terminate)
+			{
+				try
+				{
+					var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
+					var packages = repo.FindPackagesById(Const.AppName).ToList();
+					var lastPackage = packages.Max(val => val.Version);
+					var updateVersion = lastPackage.Version;
+
+					var curAssemblyPath = Process.GetCurrentProcess().MainModule.FileName;
+					var curVersion = new Version(FileVersionInfo.GetVersionInfo(curAssemblyPath).ProductVersion);
+
+					if (updateVersion > curVersion)
+					{
+					}
+				}
+				catch (ThreadInterruptedException)
+				{
+					break;
+				}
+				catch (ThreadAbortException)
+				{
+					break;
+				}
+				catch (Exception exc)
+				{
+					Log.Error(exc.ToString());
+				}
+
+				if (_terminationEvent.WaitOne(TimeSpan.FromMinutes(1)))
+					break;
+			}
 		}
 	}
 }
