@@ -50,7 +50,6 @@ namespace LogSearchShipper
 		private static readonly ILog Log = LogManager.GetLogger(typeof(LogSearchShipperService));
 		private LogSearchShipperProcessManager _logSearchShipperProcessManager;
 
-		private volatile bool _terminate;
 		private readonly ManualResetEvent _terminationEvent = new ManualResetEvent(false);
 
 		private Thread _updateThread;
@@ -85,7 +84,6 @@ namespace LogSearchShipper
 
 		public bool Stop(HostControl hostControl)
 		{
-			_terminate = true;
 			_terminationEvent.Set();
 
 			Log.Debug("Stop: Calling LogSearchShipperProcessManager.Stop()");
@@ -106,9 +104,10 @@ namespace LogSearchShipper
 		// 'q' is used when running with a redirected input, as it's impossible to send Ctrl+C in this case
 		void WatchForExitKey(HostControl hostControl)
 		{
-			while (!_terminate)
+			while (true)
 			{
-				Thread.Sleep(TimeSpan.FromMilliseconds(1));
+				if (_terminationEvent.WaitOne(TimeSpan.FromMilliseconds(1)))
+					break;
 
 				char ch;
 
@@ -144,7 +143,7 @@ namespace LogSearchShipper
 
 		void CheckForUpdates(HostControl hostControl)
 		{
-			while (!_terminate)
+			while (true)
 			{
 				try
 				{
