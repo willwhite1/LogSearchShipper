@@ -11,7 +11,7 @@ namespace LogSearchShipper
 {
 	internal class MainClass
 	{
-		private static readonly ILog _log = LogManager.GetLogger(typeof (MainClass));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(MainClass));
 
 		public static void Main(string[] args)
 		{
@@ -31,7 +31,9 @@ namespace LogSearchShipper
 				x.SetDisplayName("LogSearchShipper");
 				x.SetServiceName("LogSearchShipper");
 
-				x.EnableServiceRecovery(rc => { rc.RestartService(1); // restart the service after 1 minute
+				x.EnableServiceRecovery(rc =>
+				{
+					rc.RestartService(1); // restart the service after 1 minute
 				});
 
 				x.UseLog4Net();
@@ -44,26 +46,26 @@ namespace LogSearchShipper
 	{
 		public string ServiceName;
 
-		private static readonly ILog _log = LogManager.GetLogger(typeof(LogSearchShipperService));
-		private LogSearchShipperProcessManager _LogSearchShipperProcessManager;
+		private static readonly ILog Log = LogManager.GetLogger(typeof(LogSearchShipperService));
+		private LogSearchShipperProcessManager _logSearchShipperProcessManager;
 
 		private volatile bool _terminate;
 
 		public bool Start(HostControl hostControl)
 		{
 			var curAssembly = typeof(MainClass).Assembly;
-			_log.Info(new { MainProcessVersion = curAssembly.GetName().Version.ToString() });
+			Log.Info(new { MainProcessVersion = curAssembly.GetName().Version.ToString() });
 
 			var thread = new Thread(args => WatchForExitKey(hostControl));
 			thread.Start();
 
-			_LogSearchShipperProcessManager = new LogSearchShipperProcessManager
+			_logSearchShipperProcessManager = new LogSearchShipperProcessManager
 			{
 				ServiceName = ServiceName
 			};
 
-			_LogSearchShipperProcessManager.RegisterService();
-			_LogSearchShipperProcessManager.Start();
+			_logSearchShipperProcessManager.RegisterService();
+			_logSearchShipperProcessManager.Start();
 
 			return true;
 		}
@@ -72,11 +74,11 @@ namespace LogSearchShipper
 		{
 			_terminate = true;
 
-			_log.Debug("Stop: Calling LogSearchShipperProcessManager.Stop()");
-			_LogSearchShipperProcessManager.Stop();
-			_log.Debug("Stop: LogSearchShipperProcessManager.Stop() completed");
+			Log.Debug("Stop: Calling LogSearchShipperProcessManager.Stop()");
+			_logSearchShipperProcessManager.Stop();
+			Log.Debug("Stop: LogSearchShipperProcessManager.Stop() completed");
 
-			_LogSearchShipperProcessManager.Dispose();
+			_logSearchShipperProcessManager.Dispose();
 
 			return true;
 		}
