@@ -11,8 +11,6 @@ namespace LogSearchShipper
 {
 	internal class MainClass
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(MainClass));
-
 		public static void Main(string[] args)
 		{
 			XmlConfigurator.Configure();
@@ -78,10 +76,15 @@ namespace LogSearchShipper
 			_terminate = true;
 
 			Log.Debug("Stop: Calling LogSearchShipperProcessManager.Stop()");
-			_logSearchShipperProcessManager.Stop();
-			Log.Debug("Stop: LogSearchShipperProcessManager.Stop() completed");
 
-			_logSearchShipperProcessManager.Dispose();
+			if (_logSearchShipperProcessManager != null)
+			{
+				_logSearchShipperProcessManager.Stop();
+				Log.Debug("Stop: LogSearchShipperProcessManager.Stop() completed");
+
+				_logSearchShipperProcessManager.Dispose();
+				_logSearchShipperProcessManager = null;
+			}
 
 			return true;
 		}
@@ -113,7 +116,7 @@ namespace LogSearchShipper
 					ch = (char)tmp;
 				}
 
-				if (ch == 'q')
+				if (Char.ToLower(ch) == 'q')
 				{
 					Stop(hostControl);
 					Environment.Exit(0);
