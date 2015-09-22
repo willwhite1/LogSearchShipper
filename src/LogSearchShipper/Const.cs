@@ -12,7 +12,7 @@ namespace LogSearchShipper
 	{
 		public const string AppName = "LogSearchShipper";
 
-		public static string WorkingAreaPath
+		public static string AppPath
 		{
 			get
 			{
@@ -23,7 +23,7 @@ namespace LogSearchShipper
 
 		public static string UpdateAreaPath
 		{
-			get { return Path.Combine(WorkingAreaPath, "Update"); }
+			get { return Path.Combine(AppPath, "Update"); }
 		}
 	}
 }
