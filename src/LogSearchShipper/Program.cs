@@ -119,11 +119,14 @@ namespace LogSearchShipper
 				}
 
 				if (Char.ToLower(ch) == 'q')
-				{
-					Stop(hostControl);
-					Environment.Exit(0);
-				}
+					StopApplication(hostControl);
 			}
+		}
+
+		private void StopApplication(HostControl hostControl)
+		{
+			Stop(hostControl);
+			Environment.Exit(0);
 		}
 	}
 }
