@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LogSearchShipper
+namespace LogSearchShipper.Updater
 {
-	static class Const
+	public static class Const
 	{
 		public const string AppName = "LogSearchShipper";
 

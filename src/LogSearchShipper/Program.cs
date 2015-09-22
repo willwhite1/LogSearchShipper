@@ -6,9 +6,12 @@ using System.Threading;
 
 using log4net;
 using log4net.Config;
-using LogSearchShipper.Core;
 using NuGet;
 using Topshelf;
+
+using LogSearchShipper.Core;
+using LogSearchShipper.Updater;
+
 
 namespace LogSearchShipper
 {

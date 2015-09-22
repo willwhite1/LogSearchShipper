@@ -74,7 +74,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Const.cs" />
     <Compile Include="Log4net\DefaultConsoleAppender.cs" />
     <Compile Include="Log4net\EdbExpectedEventSourcesAppender.cs" />
     <Compile Include="Log4net\EnvironmentDiagramAppender.cs" />
@@ -98,6 +97,10 @@
     <ProjectReference Include="..\LogsearchShipper.Core\LogSearchShipper.Core.csproj">
       <Project>{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}</Project>
       <Name>LogSearchShipper.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Updater\Updater.csproj">
+      <Project>{bb144ba2-ba62-43e8-8115-db58eb8dc600}</Project>
+      <Name>Updater</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
