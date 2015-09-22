@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,8 +16,7 @@ namespace LogSearchShipper
 		{
 			get
 			{
-				var basePath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-				var res = Path.Combine(basePath, "City Index", AppName);
+				var res = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
 				return res;
 			}
 		}
