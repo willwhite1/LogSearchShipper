@@ -7,7 +7,7 @@
     <ProjectGuid>{BB144BA2-BA62-43E8-8115-DB58EB8DC600}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Updater</RootNamespace>
+    <RootNamespace>LogSearchShipper.Updater</RootNamespace>
     <AssemblyName>Updater</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
