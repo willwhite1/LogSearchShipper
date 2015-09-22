@@ -147,12 +147,14 @@ namespace LogSearchShipper
 			{
 				try
 				{
+					var packageId = Const.AppName;
+
 					var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
-					var packages = repo.FindPackagesById(Const.AppName).ToList();
+					var packages = repo.FindPackagesById(packageId).ToList();
 					var lastPackage = packages.Max(val => val.Version);
 					var updateVersion = lastPackage.Version;
 
-					var curAssemblyPath = Process.GetCurrentProcess().MainModule.FileName;
+					var curAssemblyPath = Assembly.GetExecutingAssembly().Location;
 					var curVersion = new Version(FileVersionInfo.GetVersionInfo(curAssemblyPath).ProductVersion);
 
 					if (updateVersion > curVersion)
