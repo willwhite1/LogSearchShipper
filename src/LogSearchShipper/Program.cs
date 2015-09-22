@@ -56,7 +56,10 @@ namespace LogSearchShipper
 			var curAssembly = typeof(MainClass).Assembly;
 			Log.Info(new { MainProcessVersion = curAssembly.GetName().Version.ToString() });
 
-			var thread = new Thread(args => WatchForExitKey(hostControl));
+			var thread = new Thread(args => WatchForExitKey(hostControl))
+			{
+				IsBackground = true,
+			};
 			thread.Start();
 
 			_logSearchShipperProcessManager = new LogSearchShipperProcessManager
