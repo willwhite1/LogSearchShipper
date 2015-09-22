@@ -89,6 +89,8 @@ namespace LogSearchShipper
 			return true;
 		}
 
+		// NOTE check keyboard exit commands, when running as a console application
+		// 'q' is used when running with a redirected input, as it's impossible to send Ctrl+C in this case
 		void WatchForExitKey(HostControl hostControl)
 		{
 			while (!_terminate)
