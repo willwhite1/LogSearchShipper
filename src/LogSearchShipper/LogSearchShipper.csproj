@@ -74,6 +74,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Const.cs" />
     <Compile Include="Log4net\DefaultConsoleAppender.cs" />
     <Compile Include="Log4net\EdbExpectedEventSourcesAppender.cs" />
     <Compile Include="Log4net\EnvironmentDiagramAppender.cs" />
