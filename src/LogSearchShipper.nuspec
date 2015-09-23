@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>LogSearchShipper</id>
+    <title>LogSearchShipper</title>
+    <version>1.0.0.0</version>
+    <authors>CityIndex Ltd</authors>
+    <description>LogSearchShipper client</description>
+    <language>en-GB</language>
+    <licenseUrl>https://github.com/cityindex/LogSearchShipper/blob/master/LICENSE</licenseUrl>
+    <dependencies>
+      <dependency id="NuGet.Core" />
+      <dependency id="Topshelf.Linux" />
+      <dependency id="Topshelf.Log4Net" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\bin\LogSearchShipper.exe" target="app\"/>
+    <file src="..\bin\Updater.exe" target="app\"/>
+    <file src="..\bin\MtLogTailer.exe" target="app\"/>
+    <file src="..\bin\log4net.dll" target="lib\net45\"/>
+    <file src="..\bin\LogSearchShipper.Core.dll" target="lib\net45\"/>
+    <file src="..\bin\Microsoft.Web.XmlTransform.dll" target="lib\net45\"/>
+    <file src="..\bin\Newtonsoft.Json.dll" target="lib\net45\"/>
+    <file src="..\bin\NuGet.Core.dll" target="lib\net45\"/>
+    <file src="..\bin\Topshelf.dll" target="lib\net45\"/>
+    <file src="..\bin\Topshelf.Linux.dll" target="lib\net45\"/>
+    <file src="..\bin\Topshelf.Log4Net.dll" target="lib\net45\"/>
+  </files>
+</package>
