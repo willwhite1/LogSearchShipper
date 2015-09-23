@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 
 using log4net;
 using log4net.Config;
 using NuGet;
 using Topshelf;
+using Topshelf.Hosts;
 
 using LogSearchShipper.Core;
 using LogSearchShipper.Updater;
@@ -144,6 +147,11 @@ namespace LogSearchShipper
 			Environment.Exit(0);
 		}
 
+		public static AppMode GetAppMode(HostControl hostControl)
+		{
+			return (hostControl is ConsoleRunHost) ? AppMode.Console : AppMode.Service;
+		}
+
 		void CheckForUpdates(HostControl hostControl)
 		{
 			while (true)
@@ -162,6 +170,15 @@ namespace LogSearchShipper
 
 					if (updateVersion > curVersion)
 					{
+						var packageManager = new PackageManager(repo, Const.UpdateAreaPath);
+						packageManager.InstallPackage(packageId, new SemanticVersion(lastPackage.Version));
+						var packagePath = Path.Combine(Const.UpdateAreaPath, packageId + "." + lastPackage.Version, @"app");
+
+						var updaterPath = Path.Combine(packagePath, "Updater.exe");
+						var args = string.Format("{0} {1} \"{2}\" \"{3}\"", Process.GetCurrentProcess().Id, GetAppMode(hostControl),
+							Const.AppPath, ServiceName);
+						Process.Start(updaterPath, args);
+						StopApplication(hostControl);
 					}
 				}
 				catch (ThreadInterruptedException)
