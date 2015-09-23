@@ -32,7 +32,8 @@ namespace LogSearchShipper.Updater
 				{
 					// process already has stopped
 				}
-				FileUtil.DeleteAllFiles(targetPath, new[] { "*.exe", "*.dll", "*.pdb" });
+
+				FileUtil.DeleteAllFiles(targetPath, UpdateFileTypes);
 			}
 			catch (ApplicationException exc)
 			{
@@ -49,5 +50,7 @@ namespace LogSearchShipper.Updater
 			Trace.WriteLine(message);
 			Console.WriteLine(message);
 		}
+
+		private static readonly string[] UpdateFileTypes = { "*.exe", "*.dll", "*.pdb" };
 	}
 }
