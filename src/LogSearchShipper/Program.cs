@@ -54,7 +54,7 @@ namespace LogSearchShipper
 		public string ServiceName;
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(LogSearchShipperService));
-		private LogSearchShipperProcessManager _logSearchShipperProcessManager;
+		private LogSearchShipperProcessManager _core;
 
 		private readonly ManualResetEvent _terminationEvent = new ManualResetEvent(false);
 
@@ -77,13 +77,13 @@ namespace LogSearchShipper
 			};
 			_updateThread.Start();
 
-			_logSearchShipperProcessManager = new LogSearchShipperProcessManager
+			_core = new LogSearchShipperProcessManager
 			{
 				ServiceName = ServiceName
 			};
 
-			_logSearchShipperProcessManager.RegisterService();
-			_logSearchShipperProcessManager.Start();
+			_core.RegisterService();
+			_core.Start();
 
 			return true;
 		}
@@ -94,13 +94,13 @@ namespace LogSearchShipper
 
 			Log.Debug("Stop: Calling LogSearchShipperProcessManager.Stop()");
 
-			if (_logSearchShipperProcessManager != null)
+			if (_core != null)
 			{
-				_logSearchShipperProcessManager.Stop();
+				_core.Stop();
 				Log.Debug("Stop: LogSearchShipperProcessManager.Stop() completed");
 
-				_logSearchShipperProcessManager.Dispose();
-				_logSearchShipperProcessManager = null;
+				_core.Dispose();
+				_core = null;
 			}
 
 			return true;
