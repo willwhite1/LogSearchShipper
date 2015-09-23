@@ -27,12 +27,18 @@ namespace LogSearchShipper.Updater
 			}
 			catch (ApplicationException exc)
 			{
-				Trace.WriteLine(exc.Message);
+				Report(exc.Message);
 			}
 			catch (Exception exc)
 			{
-				Trace.WriteLine(exc.ToString());
+				Report(exc.ToString());
 			}
+		}
+
+		static void Report(string message)
+		{
+			Trace.WriteLine(message);
+			Console.WriteLine(message);
 		}
 	}
 }
