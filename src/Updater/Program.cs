@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.ServiceProcess;
 using System.Threading.Tasks;
 
 namespace LogSearchShipper.Updater
@@ -34,6 +36,8 @@ namespace LogSearchShipper.Updater
 				}
 
 				FileUtil.DeleteAllFiles(targetPath, UpdateFileTypes);
+				DoUpdate(targetPath);
+				Start(appMode, serviceName, targetPath);
 			}
 			catch (ApplicationException exc)
 			{
@@ -49,6 +53,37 @@ namespace LogSearchShipper.Updater
 		{
 			Trace.WriteLine(message);
 			Console.WriteLine(message);
+		}
+
+		static void DoUpdate(string targetPath)
+		{
+			var sourcePath = Const.AppPath;
+
+			foreach (var wildcard in UpdateFileTypes)
+			{
+				foreach (var file in Directory.GetFiles(sourcePath, wildcard))
+				{
+					var targetFilePath = Path.Combine(targetPath, Path.GetFileName(file));
+					File.Copy(file, targetFilePath, true);
+				}
+			}
+		}
+
+		static void Start(AppMode appMode, string serviceName, string targetPath)
+		{
+			switch (appMode)
+			{
+				case AppMode.Console:
+					var processFilePath = Path.Combine(targetPath, "LogSearchShipper.exe");
+					Process.Start(processFilePath, "");
+					break;
+				case AppMode.Service:
+					var service = new ServiceController(serviceName);
+					service.Start();
+					break;
+				default:
+					throw new ArgumentOutOfRangeException("appMode", appMode, null);
+			}
 		}
 
 		private static readonly string[] UpdateFileTypes = { "*.exe", "*.dll", "*.pdb" };
