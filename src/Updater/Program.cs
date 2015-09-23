@@ -16,14 +16,26 @@ namespace LogSearchShipper.Updater
 		{
 			try
 			{
-				if (args.Length != 1)
+				if (args.Length != 4)
 					throw new ApplicationException("Invalid args");
 
 				var parentProcessId = int.Parse(args[0]);
-				var parentProcess = Process.GetProcessById(parentProcessId);
-				
-				if (!parentProcess.WaitForExit(10 * 1000))
-					throw new ApplicationException("Parent process didn't stop");
+
+				var appMode = (AppMode)Enum.Parse(typeof(AppMode), args[1], true);
+
+				var targetPath = args[2];
+				var serviceName = args[3];
+
+				try
+				{
+					var parentProcess = Process.GetProcessById(parentProcessId);
+					if (!parentProcess.WaitForExit(10 * 1000))
+						throw new ApplicationException("Parent process didn't stop");
+				}
+				catch (ArgumentException)
+				{
+					// process already has stopped
+				}
 			}
 			catch (ApplicationException exc)
 			{
