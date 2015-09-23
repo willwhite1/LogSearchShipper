@@ -36,6 +36,7 @@ namespace LogSearchShipper.Updater
 				{
 					// process already has stopped
 				}
+				FileUtil.DeleteAllFiles(targetPath, new[] { "*.exe", "*.dll", "*.pdb" });
 			}
 			catch (ApplicationException exc)
 			{
