@@ -163,6 +163,8 @@ namespace LogSearchShipper
 					var appPath = Path.GetDirectoryName(curAssemblyPath);
 					var updateAreaPath = Path.Combine(appPath, "Update");
 
+					FileUtil.DeleteAllFiles(updateAreaPath, "*.*");
+
 					var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
 					var packages = repo.FindPackagesById(packageId).ToList();
 					var lastPackage = packages.Max(val => val.Version);
