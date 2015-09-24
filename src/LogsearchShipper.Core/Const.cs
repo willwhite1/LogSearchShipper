@@ -10,5 +10,10 @@ namespace LogSearchShipper.Core
 	public static class Const
 	{
 		public const string AppName = "LogSearchShipper";
+
+		public static class LogCategory
+		{
+			public const string InternalDiagnostic = "LssInternal";
+		}
 	}
 }
