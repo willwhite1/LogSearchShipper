@@ -159,20 +159,19 @@ namespace LogSearchShipper
 				try
 				{
 					var packageId = Const.AppName;
+					var curAssemblyPath = Assembly.GetExecutingAssembly().Location;
+					var appPath = Path.GetDirectoryName(curAssemblyPath);
+					var updateAreaPath = Path.Combine(appPath, "Update");
 
 					var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
 					var packages = repo.FindPackagesById(packageId).ToList();
 					var lastPackage = packages.Max(val => val.Version);
 					var updateVersion = lastPackage.Version;
 
-					var curAssemblyPath = Assembly.GetExecutingAssembly().Location;
 					var curVersion = new Version(FileVersionInfo.GetVersionInfo(curAssemblyPath).ProductVersion);
-
-					var appPath = Path.GetDirectoryName(curAssemblyPath);
 
 					if (updateVersion > curVersion)
 					{
-						var updateAreaPath = Path.Combine(appPath, "Update");
 						var packageManager = new PackageManager(repo, updateAreaPath);
 						packageManager.InstallPackage(packageId, new SemanticVersion(lastPackage.Version));
 						var packagePath = Path.Combine(updateAreaPath, packageId + "." + lastPackage.Version);
