@@ -197,11 +197,19 @@ namespace LogSearchShipper
 				}
 				catch (ApplicationException exc)
 				{
-					Log.Error(exc.Message);
+					Log.Error(new
+						{
+							Category = Const.LogCategory.InternalDiagnostic,
+							Message = exc.Message,
+						});
 				}
 				catch (Exception exc)
 				{
-					Log.Error(exc.ToString());
+					Log.Error(new
+						{
+							Category = Const.LogCategory.InternalDiagnostic,
+							Message = exc.ToString(),
+						});
 				}
 
 				if (_terminationEvent.WaitOne(TimeSpan.FromMinutes(1)))
