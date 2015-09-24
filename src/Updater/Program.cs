@@ -14,15 +14,16 @@ namespace LogSearchShipper.Updater
 		{
 			try
 			{
-				if (args.Length != 4)
+				if (args.Length != 5)
 					throw new ApplicationException("Invalid args");
 
 				var parentProcessId = int.Parse(args[0]);
 
 				var appMode = (AppMode)Enum.Parse(typeof(AppMode), args[1], true);
 
-				var targetPath = args[2];
-				var serviceName = args[3];
+				var startingName = args[2];
+				var sourcePath = args[3];
+				var targetPath = args[4];
 
 				try
 				{
@@ -36,8 +37,8 @@ namespace LogSearchShipper.Updater
 				}
 
 				FileUtil.DeleteAllFiles(targetPath, UpdateFileTypes);
-				DoUpdate(targetPath);
-				Start(appMode, serviceName, targetPath);
+				DoUpdate(sourcePath, targetPath);
+				Start(appMode, startingName, targetPath);
 			}
 			catch (ApplicationException exc)
 			{
@@ -55,13 +56,11 @@ namespace LogSearchShipper.Updater
 			Console.WriteLine(message);
 		}
 
-		static void DoUpdate(string targetPath)
+		static void DoUpdate(string sourcePath, string targetPath)
 		{
-			var sourcePath = Const.AppPath;
-
 			foreach (var wildcard in UpdateFileTypes)
 			{
-				foreach (var file in Directory.GetFiles(sourcePath, wildcard))
+				foreach (var file in Directory.GetFiles(sourcePath, wildcard, SearchOption.AllDirectories))
 				{
 					var targetFilePath = Path.Combine(targetPath, Path.GetFileName(file));
 					File.Copy(file, targetFilePath, true);
@@ -69,16 +68,16 @@ namespace LogSearchShipper.Updater
 			}
 		}
 
-		static void Start(AppMode appMode, string serviceName, string targetPath)
+		static void Start(AppMode appMode, string startingName, string targetPath)
 		{
 			switch (appMode)
 			{
 				case AppMode.Console:
-					var processFilePath = Path.Combine(targetPath, "LogSearchShipper.exe");
+					var processFilePath = Path.Combine(targetPath, startingName);
 					Process.Start(processFilePath, "");
 					break;
 				case AppMode.Service:
-					var service = new ServiceController(serviceName);
+					var service = new ServiceController(startingName);
 					service.Start();
 					break;
 				default:
