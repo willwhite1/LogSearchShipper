@@ -168,15 +168,20 @@ namespace LogSearchShipper
 					var curAssemblyPath = Assembly.GetExecutingAssembly().Location;
 					var curVersion = new Version(FileVersionInfo.GetVersionInfo(curAssemblyPath).ProductVersion);
 
+					var appPath = Path.GetDirectoryName(curAssemblyPath);
+
 					if (updateVersion > curVersion)
 					{
-						var packageManager = new PackageManager(repo, Const.UpdateAreaPath);
+						var updateAreaPath = Path.Combine(appPath, "Update");
+						var packageManager = new PackageManager(repo, updateAreaPath);
 						packageManager.InstallPackage(packageId, new SemanticVersion(lastPackage.Version));
-						var packagePath = Path.Combine(Const.UpdateAreaPath, packageId + "." + lastPackage.Version, @"app");
+						var packagePath = Path.Combine(updateAreaPath, packageId + "." + lastPackage.Version);
 
 						var updaterPath = Path.Combine(packagePath, "Updater.exe");
-						var args = string.Format("{0} {1} \"{2}\" \"{3}\"", Process.GetCurrentProcess().Id, GetAppMode(hostControl),
-							Const.AppPath, ServiceName);
+						var appMode = GetAppMode(hostControl);
+						var startingName = (appMode == AppMode.Service) ? ServiceName : "LogSearchShipper.exe";
+						var args = string.Format("{0} {1} \"{2}\" \"{3}\" \"{4}\"", Process.GetCurrentProcess().Id, appMode,
+							startingName, packagePath, appPath);
 						Process.Start(updaterPath, args);
 						StopApplication(hostControl);
 					}
