@@ -175,6 +175,14 @@ namespace LogSearchShipper
 
 					if (updateVersion > curVersion)
 					{
+						Log.Info(new
+						{
+							Category = Const.LogCategory.InternalDiagnostic,
+							Message = "Updating LogSearchShipper",
+							OldVersion = curVersion.ToString(),
+							NewVersion = updateVersion.ToString(),
+						});
+
 						var packageManager = new PackageManager(repo, updateAreaPath);
 						packageManager.InstallPackage(packageId, new SemanticVersion(lastPackage.Version));
 						var packagePath = Path.Combine(updateAreaPath, packageId + "." + lastPackage.Version);
