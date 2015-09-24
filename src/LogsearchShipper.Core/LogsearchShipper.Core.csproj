@@ -54,6 +54,7 @@
     <Compile Include="ConfigurationSections\IWatchElement.cs" />
     <Compile Include="ConfigurationSections\OverrideConfig.cs" />
     <Compile Include="ConfigWatcher.cs" />
+    <Compile Include="Const.cs" />
     <Compile Include="CustomPatternLayoutConverter.cs" />
     <Compile Include="ConfigurationSections\FieldElement.cs" />
     <Compile Include="EdbDataFormatter.cs" />
