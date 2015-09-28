@@ -190,7 +190,7 @@ namespace LogSearchShipper
 						var appMode = GetAppMode(hostControl);
 						var startingName = (appMode == AppMode.Service) ? ServiceName : "LogSearchShipper.exe";
 						var args = string.Format("{0} {1} \"{2}\" \"{3}\" \"{4}\"", Process.GetCurrentProcess().Id, appMode,
-							startingName, updateAreaPath, appPath);
+							EscapeCommandLineArg(startingName), EscapeCommandLineArg(updateAreaPath), EscapeCommandLineArg(appPath));
 						Process.Start(updaterPath, args);
 						StopApplication(hostControl);
 					}
@@ -223,6 +223,13 @@ namespace LogSearchShipper
 				if (_terminationEvent.WaitOne(TimeSpan.FromMinutes(1)))
 					break;
 			}
+		}
+
+		static string EscapeCommandLineArg(string val)
+		{
+			if (val.EndsWith("\\"))
+				return val + "\\";
+			return val;
 		}
 	}
 }
