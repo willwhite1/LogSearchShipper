@@ -9,9 +9,6 @@
     <language>en-GB</language>
     <licenseUrl>https://github.com/cityindex/LogSearchShipper/blob/master/LICENSE</licenseUrl>
     <dependencies>
-      <dependency id="NuGet.Core" />
-      <dependency id="Topshelf.Linux" />
-      <dependency id="Topshelf.Log4Net" />
     </dependencies>
   </metadata>
   <files>
