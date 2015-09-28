@@ -191,7 +191,13 @@ namespace LogSearchShipper
 						var startingName = (appMode == AppMode.Service) ? ServiceName : "LogSearchShipper.exe";
 						var args = string.Format("{0} {1} \"{2}\" \"{3}\" \"{4}\"", Process.GetCurrentProcess().Id, appMode,
 							EscapeCommandLineArg(startingName), EscapeCommandLineArg(updateAreaPath), EscapeCommandLineArg(appPath));
-						Process.Start(updaterPath, args);
+
+						Process.Start(new ProcessStartInfo
+							{
+								WorkingDirectory = appPath,
+								FileName = updaterPath,
+								Arguments = args,
+							});
 						StopApplication(hostControl);
 					}
 				}

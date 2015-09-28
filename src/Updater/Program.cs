@@ -14,8 +14,7 @@ namespace LogSearchShipper.Updater
 		{
 			try
 			{
-				var mainModulePath = new Uri(Process.GetCurrentProcess().MainModule.FileName).LocalPath;
-				LogFilePath = Path.Combine(Path.GetDirectoryName(mainModulePath), "Updater.log");
+				LogFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Updater.log");
 
 				if (args.Length != 5)
 					throw new ApplicationException("Invalid args: " + Environment.CommandLine);
