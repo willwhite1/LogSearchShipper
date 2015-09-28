@@ -14,8 +14,13 @@ namespace LogSearchShipper.Updater
 		{
 			try
 			{
+				var mainModulePath = new Uri(Process.GetCurrentProcess().MainModule.FileName).LocalPath;
+				LogFilePath = Path.Combine(Path.GetDirectoryName(mainModulePath), "Updater.log");
+
 				if (args.Length != 5)
-					throw new ApplicationException("Invalid args");
+					throw new ApplicationException("Invalid args: " + Environment.CommandLine);
+
+				Report("Updating: " + Environment.CommandLine);
 
 				var parentProcessId = int.Parse(args[0]);
 
@@ -39,6 +44,8 @@ namespace LogSearchShipper.Updater
 				FileUtil.Cleanup(targetPath, UpdateFileTypes, false);
 				DoUpdate(sourcePath, targetPath);
 				Start(appMode, startingName, targetPath);
+
+				Report("Finished successfully");
 			}
 			catch (ApplicationException exc)
 			{
@@ -54,6 +61,17 @@ namespace LogSearchShipper.Updater
 		{
 			Trace.WriteLine(message);
 			Console.WriteLine(message);
+
+			try
+			{
+				var line = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ") + "\t" + message + Environment.NewLine;
+				File.AppendAllText(LogFilePath, line);
+			}
+			catch (Exception exc)
+			{
+				Trace.WriteLine(exc.ToString());
+				Console.WriteLine(exc.ToString());
+			}
 		}
 
 		static void DoUpdate(string sourcePath, string targetPath)
@@ -86,5 +104,7 @@ namespace LogSearchShipper.Updater
 		}
 
 		private static readonly string[] UpdateFileTypes = { "*.exe", "*.dll", "*.pdb" };
+
+		private static string LogFilePath;
 	}
 }
