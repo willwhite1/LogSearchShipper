@@ -36,7 +36,7 @@ namespace LogSearchShipper.Updater
 					// process already has stopped
 				}
 
-				FileUtil.DeleteAllFiles(targetPath, UpdateFileTypes);
+				FileUtil.Cleanup(targetPath, UpdateFileTypes, false);
 				DoUpdate(sourcePath, targetPath);
 				Start(appMode, startingName, targetPath);
 			}

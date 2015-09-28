@@ -19,20 +19,28 @@ namespace LogSearchShipper.Updater
 			return ((File.GetAttributes(fileName) & attr) == attr);
 		}
 
-		public static void DeleteAllFiles(string path, string wildcard)
+		public static void Cleanup(string path, string wildcard, bool removeThisFolder)
 		{
 			foreach (var file in Directory.GetFiles(path, wildcard))
 			{
 				ResetAttributes(file, FileAttributes.ReadOnly);
 				File.Delete(file);
 			}
+
+			foreach (var directory in Directory.GetDirectories(path))
+			{
+				Cleanup(directory, wildcard, true);
+			}
+
+			if (removeThisFolder && Directory.GetFileSystemEntries(path).Length == 0)
+				Directory.Delete(path);
 		}
 
-		public static void DeleteAllFiles(string path, string[] wildcards)
+		public static void Cleanup(string path, string[] wildcards, bool removeThisFolder)
 		{
 			foreach (var wildcard in wildcards)
 			{
-				DeleteAllFiles(path, wildcard);
+				Cleanup(path, wildcard, removeThisFolder);
 			}
 		}
 	}

@@ -163,7 +163,7 @@ namespace LogSearchShipper
 					var updateAreaPath = Path.Combine(appPath, "Update");
 
 					if (Directory.Exists(updateAreaPath))
-						FileUtil.DeleteAllFiles(updateAreaPath, "*.*");
+						FileUtil.Cleanup(updateAreaPath, "*.*", false);
 
 					var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
 					var packages = repo.FindPackagesById(packageId).ToList();
