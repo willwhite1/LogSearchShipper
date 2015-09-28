@@ -186,8 +186,8 @@ namespace LogSearchShipper
 						var packageManager = new PackageManager(repo, updateAreaPath);
 						packageManager.InstallPackage(packageId, new SemanticVersion(lastPackage.Version));
 						var packagePath = Path.Combine(updateAreaPath, packageId + "." + lastPackage.Version);
+						var updaterPath = Path.Combine(packagePath, "lib", "net45", "Updater.exe");
 
-						var updaterPath = Path.Combine(packagePath, "Updater.exe");
 						var appMode = GetAppMode(hostControl);
 						var startingName = (appMode == AppMode.Service) ? ServiceName : "LogSearchShipper.exe";
 						var args = string.Format("{0} {1} \"{2}\" \"{3}\" \"{4}\"", Process.GetCurrentProcess().Id, appMode,
