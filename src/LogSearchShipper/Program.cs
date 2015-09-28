@@ -160,7 +160,7 @@ namespace LogSearchShipper
 					var packageId = Const.AppName;
 					var curAssemblyPath = Assembly.GetExecutingAssembly().Location;
 					var appPath = Path.GetDirectoryName(curAssemblyPath);
-					var updateAreaPath = Path.Combine(appPath, "Update");
+					var updateAreaPath = Path.Combine(appPath, "UpdateData");
 
 					if (Directory.Exists(updateAreaPath))
 						FileUtil.Cleanup(updateAreaPath, "*.*", false);
