@@ -102,7 +102,7 @@ namespace LogSearchShipper.Updater
 			}
 		}
 
-		private static readonly string[] UpdateFileTypes = { "*.exe", "*.dll", "*.pdb" };
+		private static readonly string[] UpdateFileTypes = { "*.exe", "*.dll", "*.pdb", "*.xml" };
 
 		private static string LogFilePath;
 	}
