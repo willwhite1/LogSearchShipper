@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>LogSearchShipper</id>
+    <title>LogSearchShipper</title>
+    <version>$version$</version>
+    <authors>CityIndex Ltd</authors>
+    <description>LogSearchShipper client</description>
+    <language>en-GB</language>
+    <licenseUrl>https://github.com/cityindex/LogSearchShipper/blob/master/LICENSE</licenseUrl>
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\bin\Updater.exe" target="lib\net45\"/>
+    <file src="..\..\bin\MtLogTailer.exe" target="lib\net45\"/>
+  </files>
+</package>
