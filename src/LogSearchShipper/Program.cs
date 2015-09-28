@@ -44,7 +44,6 @@ namespace LogSearchShipper
 				});
 
 				x.UseLog4Net();
-				x.UseLinuxIfAvailable();
 			});
 		}
 	}
