@@ -32,7 +32,7 @@ namespace LogSearchShipper.Updater
 				try
 				{
 					var parentProcess = Process.GetProcessById(parentProcessId);
-					if (!parentProcess.WaitForExit(10 * 1000))
+					if (!parentProcess.WaitForExit(30 * 1000))
 						throw new ApplicationException("Parent process didn't stop");
 				}
 				catch (ArgumentException)
