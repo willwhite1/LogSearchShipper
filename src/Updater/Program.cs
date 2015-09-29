@@ -19,7 +19,7 @@ namespace LogSearchShipper.Updater
 				if (args.Length != 5)
 					throw new ApplicationException("Invalid args: " + Environment.CommandLine);
 
-				Report("Updating: " + Environment.CommandLine);
+				Log("Updating: " + Environment.CommandLine);
 
 				var parentProcessId = int.Parse(args[0]);
 
@@ -44,19 +44,19 @@ namespace LogSearchShipper.Updater
 				DoUpdate(sourcePath, targetPath);
 				Start(appMode, startingName, targetPath);
 
-				Report("Finished successfully");
+				Log("Finished successfully");
 			}
 			catch (ApplicationException exc)
 			{
-				Report(exc.Message);
+				Log(exc.Message);
 			}
 			catch (Exception exc)
 			{
-				Report(exc.ToString());
+				Log(exc.ToString());
 			}
 		}
 
-		static void Report(string message)
+		static void Log(string message)
 		{
 			Trace.WriteLine(message);
 			Console.WriteLine(message);
