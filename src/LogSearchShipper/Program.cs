@@ -136,14 +136,8 @@ namespace LogSearchShipper
 				}
 
 				if (Char.ToLower(ch) == 'q')
-					StopApplication(hostControl);
+					hostControl.Stop();
 			}
-		}
-
-		private void StopApplication(HostControl hostControl)
-		{
-			Stop(hostControl);
-			Environment.Exit(0);
 		}
 
 		public static AppMode GetAppMode(HostControl hostControl)
@@ -198,7 +192,7 @@ namespace LogSearchShipper
 								FileName = updaterPath,
 								Arguments = args,
 							});
-						StopApplication(hostControl);
+						hostControl.Stop();
 					}
 				}
 				catch (ThreadInterruptedException)
