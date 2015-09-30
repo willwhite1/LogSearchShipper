@@ -135,6 +135,16 @@ namespace LogSearchShipper.Core
 			ExtractFileWatchers(LogSearchShipperConfig, watches);
 			ExtractEDBFileWatchers(LogSearchShipperConfig, watches);
 
+			var updaterLog = "Updater.log";
+			if (!watches.Any(val => val.Files.EndsWith(updaterLog)))
+				watches.Add(new FileWatchElement
+					{
+						Files = updaterLog,
+						Type = "plain",
+						MultilineRule = MultilineRuleType.multiline_ci_log4net,
+						ReadFromLast = false,
+					});
+
 			NxLogProcessManager.InputFiles = watches;
 			NxLogProcessManager.WinEventLogs = new List<WinEventWatchElement>(
 				LogSearchShipperConfig.WinEventWatchers.Cast<WinEventWatchElement>());
