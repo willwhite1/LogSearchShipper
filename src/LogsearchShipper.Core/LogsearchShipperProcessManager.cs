@@ -145,6 +145,17 @@ namespace LogSearchShipper.Core
 						MultilineRule = MultilineRuleType.multiline_ci_log4net,
 						ReadFromLast = false,
 					};
+
+				var mainLogWatch = watches.FirstOrDefault(
+					val => val.Files.EndsWith("LogSearchShipper.log",StringComparison.OrdinalIgnoreCase));
+				if (mainLogWatch != null)
+				{
+					foreach (FieldElement cur in mainLogWatch.Fields)
+					{
+						updaterLogWatch.Fields.Add(new FieldElement { Key = cur.Key, Value = cur.Value });
+					}
+				}
+
 				watches.Add(updaterLogWatch);
 			}
 
