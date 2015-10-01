@@ -31,7 +31,7 @@ namespace LogSearchShipper
 					{
 						ServiceName = settings.ServiceName
 					});
-				x.RunAsNetworkService();
+				x.RunAsLocalSystem();
 				x.StartAutomatically();
 
 				x.SetDescription("LogSearchShipper - forwards (Windows) log files to Logsearch cluster");
