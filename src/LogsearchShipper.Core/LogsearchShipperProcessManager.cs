@@ -137,13 +137,16 @@ namespace LogSearchShipper.Core
 
 			var updaterLog = "Updater.log";
 			if (!watches.Any(val => val.Files.EndsWith(updaterLog)))
-				watches.Add(new FileWatchElement
+			{
+				var updaterLogWatch = new FileWatchElement
 					{
 						Files = updaterLog,
 						Type = "plain",
 						MultilineRule = MultilineRuleType.multiline_ci_log4net,
 						ReadFromLast = false,
-					});
+					};
+				watches.Add(updaterLogWatch);
+			}
 
 			NxLogProcessManager.InputFiles = watches;
 			NxLogProcessManager.WinEventLogs = new List<WinEventWatchElement>(
