@@ -166,10 +166,7 @@ namespace LogSearchShipper
 						FileUtil.Cleanup(updateAreaPath, "*.*", false, true);
 
 					var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
-					var packages = repo.FindPackagesById(packageId).ToList();
-					packages.RemoveAll(val => !val.IsListed());
-					packages.Sort((x, y) => x.Version.CompareTo(y.Version));
-					var lastPackage = packages.Last();
+					var lastPackage = GetLastPackage(repo, packageId);
 					var updateVersion = lastPackage.Version.Version;
 
 					var curVersion = new Version(FileVersionInfo.GetVersionInfo(curAssemblyPath).ProductVersion);
@@ -231,6 +228,15 @@ namespace LogSearchShipper
 				if (_terminationEvent.WaitOne(TimeSpan.FromMinutes(1)))
 					break;
 			}
+		}
+
+		private static IPackage GetLastPackage(IPackageRepository repo, string packageId)
+		{
+			var packages = repo.FindPackagesById(packageId).ToList();
+			packages.RemoveAll(val => !val.IsListed());
+			packages.Sort((x, y) => x.Version.CompareTo(y.Version));
+			var lastPackage = packages.Last();
+			return lastPackage;
 		}
 
 		static string EscapeCommandLineArg(string val)
