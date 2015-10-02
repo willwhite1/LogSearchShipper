@@ -167,8 +167,10 @@ namespace LogSearchShipper
 
 					var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
 					var packages = repo.FindPackagesById(packageId).ToList();
-					var lastPackage = packages.Max(val => val.Version);
-					var updateVersion = lastPackage.Version;
+					packages.RemoveAll(val => !val.IsListed());
+					packages.Sort((x, y) => x.Version.CompareTo(y.Version));
+					var lastPackage = packages.Last();
+					var updateVersion = lastPackage.Version.Version;
 
 					var curVersion = new Version(FileVersionInfo.GetVersionInfo(curAssemblyPath).ProductVersion);
 
@@ -183,7 +185,7 @@ namespace LogSearchShipper
 						});
 
 						var packageManager = new PackageManager(repo, updateAreaPath);
-						packageManager.InstallPackage(packageId, new SemanticVersion(lastPackage.Version));
+						packageManager.InstallPackage(packageId, lastPackage.Version);
 						var packagePath = Path.Combine(updateAreaPath, packageId + "." + lastPackage.Version);
 						var updaterPath = Path.Combine(packagePath, "lib", "net45", "Updater.exe");
 
