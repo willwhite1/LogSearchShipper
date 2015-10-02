@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace LogSearchShipper.Updater
@@ -14,8 +15,6 @@ namespace LogSearchShipper.Updater
 		{
 			try
 			{
-				LogFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Updater.log");
-
 				if (args.Length != 5)
 					throw new ApplicationException("Invalid args: " + Environment.CommandLine);
 
@@ -63,8 +62,15 @@ namespace LogSearchShipper.Updater
 
 			try
 			{
+				if (LogFile == null)
+				{
+					var path = Path.Combine(Directory.GetCurrentDirectory(), "Updater.log");
+					LogFile = new StreamWriter(path, true);
+				}
+
 				var line = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ") + "\t" + message + Environment.NewLine;
-				File.AppendAllText(LogFilePath, line);
+				LogFile.WriteLine(line);
+				LogFile.Flush();
 			}
 			catch (Exception exc)
 			{
@@ -104,6 +110,6 @@ namespace LogSearchShipper.Updater
 
 		private static readonly string[] UpdateFileTypes = { "*.exe", "*.dll", "*.pdb", "*.xml" };
 
-		private static string LogFilePath;
+		private static TextWriter LogFile;
 	}
 }
