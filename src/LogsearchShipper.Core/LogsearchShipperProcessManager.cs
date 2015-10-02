@@ -141,7 +141,7 @@ namespace LogSearchShipper.Core
 				var updaterLogWatch = new FileWatchElement
 					{
 						Files = updaterLog,
-						Type = "plain",
+						Type = "json",
 						MultilineRule = MultilineRuleType.multiline_ci_log4net,
 						ReadFromLast = false,
 					};
