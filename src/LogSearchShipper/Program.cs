@@ -62,7 +62,13 @@ namespace LogSearchShipper
 		public bool Start(HostControl hostControl)
 		{
 			var curAssembly = typeof(MainClass).Assembly;
-			Log.Info(new { MainProcessVersion = curAssembly.GetName().Version.ToString() });
+			Log.Info(new
+				{
+					Message = "Process info",
+					MainProcessVersion = curAssembly.GetName().Version.ToString(),
+					Mode = GetAppMode(hostControl).ToString(),
+					User = Environment.UserName,
+				});
 
 			var thread = new Thread(args => WatchForExitKey(hostControl))
 			{
