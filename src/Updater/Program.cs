@@ -6,6 +6,7 @@ using System.Linq;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace LogSearchShipper.Updater
 {
@@ -18,7 +19,7 @@ namespace LogSearchShipper.Updater
 				if (args.Length != 5)
 					throw new ApplicationException("Invalid args: " + Environment.CommandLine);
 
-				Log("Updating: " + Environment.CommandLine);
+				LogInfo("Updating: " + Environment.CommandLine);
 
 				var parentProcessId = int.Parse(args[0]);
 
@@ -43,19 +44,21 @@ namespace LogSearchShipper.Updater
 				DoUpdate(sourcePath, targetPath);
 				Start(appMode, startingName, targetPath);
 
-				Log("Finished successfully");
+				LogInfo("Finished successfully");
+
+				LogFile.Dispose();
 			}
 			catch (ApplicationException exc)
 			{
-				Log(exc.Message);
+				LogError(exc.Message);
 			}
 			catch (Exception exc)
 			{
-				Log(exc.ToString());
+				LogError(exc.ToString());
 			}
 		}
 
-		static void Log(string message)
+		static void Log(string message, string level)
 		{
 			Trace.WriteLine(message);
 			Console.WriteLine(message);
@@ -68,7 +71,8 @@ namespace LogSearchShipper.Updater
 					LogFile = new StreamWriter(path, true);
 				}
 
-				var line = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ") + "\t" + message + Environment.NewLine;
+				var line = string.Format("{{\"timestamp\":\"{0}\", \"level\":\"{1}\", \"Message\":\"{2}\"}}",
+					DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"), EscapeJsonVal(level), EscapeJsonVal(message));
 				LogFile.WriteLine(line);
 				LogFile.Flush();
 			}
@@ -77,6 +81,21 @@ namespace LogSearchShipper.Updater
 				Trace.WriteLine(exc.ToString());
 				Console.WriteLine(exc.ToString());
 			}
+		}
+
+		static void LogError(string message)
+		{
+			Log(message, "ERROR");
+		}
+
+		static void LogInfo(string message)
+		{
+			Log(message, "INFO");
+		}
+
+		static string EscapeJsonVal(string val)
+		{
+			return HttpUtility.JavaScriptStringEncode(val);
 		}
 
 		static void DoUpdate(string sourcePath, string targetPath)
