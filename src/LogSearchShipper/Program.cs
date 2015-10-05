@@ -212,6 +212,11 @@ namespace LogSearchShipper
 				{
 					LogError(exc.Message);
 				}
+				catch (InvalidOperationException exc)
+				{
+					if (!exc.Message.StartsWith("Unable to find version"))
+						LogError(exc.ToString());
+				}
 				catch (Exception exc)
 				{
 					LogError(exc.ToString());
