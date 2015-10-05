@@ -210,19 +210,11 @@ namespace LogSearchShipper
 				}
 				catch (ApplicationException exc)
 				{
-					Log.Error(new
-						{
-							Category = Const.LogCategory.InternalDiagnostic,
-							Message = exc.Message,
-						});
+					LogError(exc.Message);
 				}
 				catch (Exception exc)
 				{
-					Log.Error(new
-						{
-							Category = Const.LogCategory.InternalDiagnostic,
-							Message = exc.ToString(),
-						});
+					LogError(exc.ToString());
 				}
 
 				if (_terminationEvent.WaitOne(TimeSpan.FromMinutes(1)))
@@ -244,6 +236,15 @@ namespace LogSearchShipper
 			if (val.EndsWith("\\"))
 				return val + "\\";
 			return val;
+		}
+
+		static void LogError(string message)
+		{
+			Log.Error(new
+			{
+				Category = Const.LogCategory.InternalDiagnostic,
+				Message = message,
+			});
 		}
 	}
 }
