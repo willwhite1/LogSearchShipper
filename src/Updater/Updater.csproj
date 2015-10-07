@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="AppMode.cs" />
     <Compile Include="FileUtil.cs" />
+    <Compile Include="JunctionPoint.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -160,7 +160,15 @@ namespace LogSearchShipper
 					var packageId = Const.AppName;
 					var curAssemblyPath = Assembly.GetExecutingAssembly().Location;
 					var appPath = Path.GetDirectoryName(curAssemblyPath);
-					var updateDataPath = Path.Combine(appPath, "UpdateData");
+
+					if (!JunctionPoint.Exists(appPath))
+					{
+						LogError(string.Format("Invalid app folder structure: \"{0}\". Turned off auto updates.", appPath));
+						break;
+					}
+
+					var appParentPath = Path.GetDirectoryName(appPath);
+					var updateDataPath = Path.Combine(appParentPath, "UpdateData");
 
 					if (Directory.Exists(updateDataPath))
 						FileUtil.Cleanup(updateDataPath, "*.*", false, true);
@@ -174,7 +182,7 @@ namespace LogSearchShipper
 					if (updateVersion > curVersion)
 					{
 						var packageManager = new PackageManager(repo, updateDataPath);
-						packageManager.InstallPackage(packageId, lastPackage.Version);
+						packageManager.InstallPackage(packageId, lastPackage.Version, true, false);
 
 						Log.Info(new
 						{
@@ -186,11 +194,15 @@ namespace LogSearchShipper
 
 						var packagePath = Path.Combine(updateDataPath, packageId + "." + lastPackage.Version);
 						var updaterPath = Path.Combine(packagePath, "lib", "net45", "Updater.exe");
+						var updateDeploymentPath = Path.Combine(appParentPath, "v" + lastPackage.Version);
+						var updatedCurrentPath = Path.Combine(appParentPath, "current");
+
+						CopyUpdate(packagePath, updateDeploymentPath);
 
 						var appMode = GetAppMode(hostControl);
 						var startingName = (appMode == AppMode.Service) ? ServiceName : "LogSearchShipper.exe";
 						var args = string.Format("{0} {1} \"{2}\" \"{3}\" \"{4}\"", Process.GetCurrentProcess().Id, appMode,
-							EscapeCommandLineArg(startingName), EscapeCommandLineArg(updateDataPath), EscapeCommandLineArg(appPath));
+							EscapeCommandLineArg(startingName), EscapeCommandLineArg(updateDeploymentPath), EscapeCommandLineArg(updatedCurrentPath));
 
 						Process.Start(new ProcessStartInfo
 							{
@@ -252,5 +264,22 @@ namespace LogSearchShipper
 				Message = message,
 			});
 		}
+
+		static void CopyUpdate(string sourcePath, string targetPath)
+		{
+			if (!Directory.Exists(targetPath))
+				Directory.CreateDirectory(targetPath);
+
+			foreach (var wildcard in UpdateFileTypes)
+			{
+				foreach (var file in Directory.GetFiles(sourcePath, wildcard, SearchOption.AllDirectories))
+				{
+					var targetFilePath = Path.Combine(targetPath, Path.GetFileName(file));
+					File.Copy(file, targetFilePath, true);
+				}
+			}
+		}
+
+		private static readonly string[] UpdateFileTypes = { "*.exe", "*.dll", "*.pdb", "*.xml" };
 	}
 }
