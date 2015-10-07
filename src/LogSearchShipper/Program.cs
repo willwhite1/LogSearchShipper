@@ -173,6 +173,9 @@ namespace LogSearchShipper
 
 					if (updateVersion > curVersion)
 					{
+						var packageManager = new PackageManager(repo, updateDataPath);
+						packageManager.InstallPackage(packageId, lastPackage.Version);
+
 						Log.Info(new
 						{
 							Category = Const.LogCategory.InternalDiagnostic,
@@ -181,8 +184,6 @@ namespace LogSearchShipper
 							NewVersion = updateVersion.ToString(),
 						});
 
-						var packageManager = new PackageManager(repo, updateDataPath);
-						packageManager.InstallPackage(packageId, lastPackage.Version);
 						var packagePath = Path.Combine(updateDataPath, packageId + "." + lastPackage.Version);
 						var updaterPath = Path.Combine(packagePath, "lib", "net45", "Updater.exe");
 
