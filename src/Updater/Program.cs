@@ -40,8 +40,9 @@ namespace LogSearchShipper.Updater
 					// process already has stopped
 				}
 
-				FileUtil.Cleanup(targetPath, UpdateFileTypes, false, false);
-				DoUpdate(sourcePath, targetPath);
+				if (Directory.Exists(targetPath))
+					Directory.Delete(targetPath);
+				JunctionPoint.Create(targetPath, sourcePath);
 				Start(appMode, startingName, targetPath);
 
 				LogInfo("Finished successfully");
@@ -98,18 +99,6 @@ namespace LogSearchShipper.Updater
 			return HttpUtility.JavaScriptStringEncode(val);
 		}
 
-		static void DoUpdate(string sourcePath, string targetPath)
-		{
-			foreach (var wildcard in UpdateFileTypes)
-			{
-				foreach (var file in Directory.GetFiles(sourcePath, wildcard, SearchOption.AllDirectories))
-				{
-					var targetFilePath = Path.Combine(targetPath, Path.GetFileName(file));
-					File.Copy(file, targetFilePath, true);
-				}
-			}
-		}
-
 		static void Start(AppMode appMode, string startingName, string targetPath)
 		{
 			switch (appMode)
@@ -126,8 +115,6 @@ namespace LogSearchShipper.Updater
 					throw new ArgumentOutOfRangeException("appMode", appMode, null);
 			}
 		}
-
-		private static readonly string[] UpdateFileTypes = { "*.exe", "*.dll", "*.pdb", "*.xml" };
 
 		private static TextWriter LogFile;
 	}
