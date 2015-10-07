@@ -160,10 +160,10 @@ namespace LogSearchShipper
 					var packageId = Const.AppName;
 					var curAssemblyPath = Assembly.GetExecutingAssembly().Location;
 					var appPath = Path.GetDirectoryName(curAssemblyPath);
-					var updateAreaPath = Path.Combine(appPath, "UpdateData");
+					var updateDataPath = Path.Combine(appPath, "UpdateData");
 
-					if (Directory.Exists(updateAreaPath))
-						FileUtil.Cleanup(updateAreaPath, "*.*", false, true);
+					if (Directory.Exists(updateDataPath))
+						FileUtil.Cleanup(updateDataPath, "*.*", false, true);
 
 					var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
 					var lastPackage = GetLastPackage(repo, packageId);
@@ -181,15 +181,15 @@ namespace LogSearchShipper
 							NewVersion = updateVersion.ToString(),
 						});
 
-						var packageManager = new PackageManager(repo, updateAreaPath);
+						var packageManager = new PackageManager(repo, updateDataPath);
 						packageManager.InstallPackage(packageId, lastPackage.Version);
-						var packagePath = Path.Combine(updateAreaPath, packageId + "." + lastPackage.Version);
+						var packagePath = Path.Combine(updateDataPath, packageId + "." + lastPackage.Version);
 						var updaterPath = Path.Combine(packagePath, "lib", "net45", "Updater.exe");
 
 						var appMode = GetAppMode(hostControl);
 						var startingName = (appMode == AppMode.Service) ? ServiceName : "LogSearchShipper.exe";
 						var args = string.Format("{0} {1} \"{2}\" \"{3}\" \"{4}\"", Process.GetCurrentProcess().Id, appMode,
-							EscapeCommandLineArg(startingName), EscapeCommandLineArg(updateAreaPath), EscapeCommandLineArg(appPath));
+							EscapeCommandLineArg(startingName), EscapeCommandLineArg(updateDataPath), EscapeCommandLineArg(appPath));
 
 						Process.Start(new ProcessStartInfo
 							{
