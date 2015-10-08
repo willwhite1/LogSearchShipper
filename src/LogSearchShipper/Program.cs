@@ -196,7 +196,7 @@ namespace LogSearchShipper
 						var updateDeploymentPath = Path.Combine(appParentPath, "v" + lastPackage.Version);
 						var updatedCurrentPath = Path.Combine(appParentPath, "current");
 
-						CopyUpdate(packagePath, updateDeploymentPath, UpdateFileTypes);
+						Copy(packagePath, updateDeploymentPath, UpdateFileTypes);
 
 						var updaterPath = Path.Combine(updateDeploymentPath, "Updater.exe");
 
@@ -266,7 +266,7 @@ namespace LogSearchShipper
 			});
 		}
 
-		static void CopyUpdate(string sourcePath, string targetPath, string[] fileTypes)
+		static void Copy(string sourcePath, string targetPath, string[] fileTypes)
 		{
 			if (!Directory.Exists(targetPath))
 				Directory.CreateDirectory(targetPath);
