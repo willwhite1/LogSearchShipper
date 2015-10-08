@@ -193,11 +193,12 @@ namespace LogSearchShipper
 						});
 
 						var packagePath = Path.Combine(updateDataPath, packageId + "." + lastPackage.Version);
-						var updaterPath = Path.Combine(packagePath, "lib", "net45", "Updater.exe");
 						var updateDeploymentPath = Path.Combine(appParentPath, "v" + lastPackage.Version);
 						var updatedCurrentPath = Path.Combine(appParentPath, "current");
 
 						CopyUpdate(packagePath, updateDeploymentPath);
+
+						var updaterPath = Path.Combine(updateDeploymentPath, "Updater.exe");
 
 						var appMode = GetAppMode(hostControl);
 						var startingName = (appMode == AppMode.Service) ? ServiceName : "LogSearchShipper.exe";
@@ -206,7 +207,7 @@ namespace LogSearchShipper
 
 						Process.Start(new ProcessStartInfo
 							{
-								WorkingDirectory = appPath,
+								WorkingDirectory = updateDeploymentPath,
 								FileName = updaterPath,
 								Arguments = args,
 							});
