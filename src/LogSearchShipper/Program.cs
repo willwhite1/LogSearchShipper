@@ -173,7 +173,7 @@ namespace LogSearchShipper
 					if (Directory.Exists(updateDataPath))
 						FileUtil.Cleanup(updateDataPath, "*.*", false, true);
 
-					var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
+					var repo = PackageRepositoryFactory.Default.CreateRepository(_core.LogSearchShipperConfig.NugetUrl);
 					var lastPackage = GetLastPackage(repo, packageId);
 					var updateVersion = lastPackage.Version.Version;
 
