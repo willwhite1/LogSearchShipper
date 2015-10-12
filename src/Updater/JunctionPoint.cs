@@ -24,18 +24,20 @@ namespace LogSearchShipper.Updater
 				FileName = Environment.SystemDirectory + @"\cmd.exe",
 				Arguments = string.Format("/C mklink /j \"{0}\" \"{1}\"", path, target),
 				UseShellExecute = false,
+				RedirectStandardOutput = true,
 				RedirectStandardError = true,
 			};
 			var process = Process.Start(processArgs);
 			if (!process.WaitForExit(10 * 1000))
 				throw new ApplicationException("Timeout when running mklink");
 
-			if (process.ExitCode != 0)
-				throw new ApplicationException(string.Format("mklink: exit code {0}", process.ExitCode));
-
 			var errors = process.StandardError.ReadToEnd();
-			if (!string.IsNullOrEmpty(errors))
-				throw new ApplicationException(errors);
+			if (process.ExitCode != 0 || !string.IsNullOrEmpty(errors))
+			{
+				var output = process.StandardOutput.ReadToEnd();
+				var message = string.Format("mklink: exit code {0}\r\n{1}\r\n{2}", process.ExitCode, output, errors);
+				throw new ApplicationException(message);
+			}
 		}
 	}
 }
