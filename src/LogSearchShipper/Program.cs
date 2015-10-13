@@ -195,9 +195,10 @@ namespace LogSearchShipper
 						var packagePath = Path.Combine(updateDataPath, packageId + "." + lastPackage.Version);
 						var updateDeploymentPath = Path.Combine(appParentPath, "v" + lastPackage.Version);
 						var updatedCurrentPath = Path.Combine(appParentPath, "current");
-						var configPath = FindConfigPath(Dns.GetHostName(), Path.Combine(packagePath, @"content\net45"));
+						var configPath = FindConfigPath(Dns.GetHostName(), Path.Combine(packagePath, @"content\net45\Configs"));
+						var packageBinPath = Path.Combine(packagePath, "lib");
 
-						Copy(packagePath, updateDeploymentPath, UpdateFileTypes);
+						Copy(packageBinPath, updateDeploymentPath, UpdateFileTypes);
 						Copy(appPath, updateDeploymentPath, new[] { "*.log" });
 						Copy(configPath, updateDeploymentPath, new[] { "*.config" });
 
