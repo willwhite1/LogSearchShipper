@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 
@@ -14,7 +15,6 @@ using Topshelf.Hosts;
 
 using LogSearchShipper.Core;
 using LogSearchShipper.Updater;
-
 
 namespace LogSearchShipper
 {
@@ -195,8 +195,11 @@ namespace LogSearchShipper
 						var packagePath = Path.Combine(updateDataPath, packageId + "." + lastPackage.Version);
 						var updateDeploymentPath = Path.Combine(appParentPath, "v" + lastPackage.Version);
 						var updatedCurrentPath = Path.Combine(appParentPath, "current");
+						var configPath = FindConfigPath(Dns.GetHostName(), Path.Combine(packagePath, @"content\net45"));
 
 						Copy(packagePath, updateDeploymentPath, UpdateFileTypes);
+						Copy(appPath, updateDeploymentPath, new[] { "*.log" });
+						Copy(configPath, updateDeploymentPath, new[] { "*.config" });
 
 						var updaterPath = Path.Combine(updateDeploymentPath, "Updater.exe");
 
@@ -279,6 +282,49 @@ namespace LogSearchShipper
 					File.Copy(file, targetFilePath, true);
 				}
 			}
+		}
+
+		static string FindConfigPath(string hostName, string configsBasePath)
+		{
+			var dirs = Directory.GetDirectories(configsBasePath, "*", SearchOption.AllDirectories);
+			dirs = dirs.Select(dir =>ToRelativePath(dir, configsBasePath)).ToArray();
+
+			var hosts = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+			foreach (var dir in dirs)
+			{
+				var parts = dir.Split('\\');
+				if (parts.Length != 4)
+					continue;
+
+				var curHostName = parts.Last();
+				string fullPath;
+				if (hosts.TryGetValue(curHostName, out fullPath))
+				{
+					LogError(string.Format("Duplicate configs in the update package: \"{0}\" \"{1}\"", fullPath, dir));
+					continue;
+				}
+
+				hosts.Add(hostName, dir);
+			}
+
+			string res;
+			if (!hosts.TryGetValue(hostName, out res))
+				throw new ApplicationException(string.Format("Config for host \"{0}\" is not found", hostName));
+			return Path.Combine(configsBasePath, res);
+		}
+
+		public static string ToRelativePath(string filePath, string refPath)
+		{
+			var pathNormalized = Path.GetFullPath(filePath);
+
+			var refNormalized = Path.GetFullPath(refPath);
+			refNormalized = refNormalized.TrimEnd('\\', '/');
+
+			if (!pathNormalized.StartsWith(refNormalized))
+				throw new ArgumentException();
+			var res = pathNormalized.Substring(refNormalized.Length + 1);
+			return res;
 		}
 
 		private static readonly string[] UpdateFileTypes = { "*.exe", "*.dll", "*.pdb", "*.xml" };
