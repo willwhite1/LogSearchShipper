@@ -306,7 +306,7 @@ namespace LogSearchShipper
 					continue;
 				}
 
-				hosts.Add(hostName, dir);
+				hosts.Add(curHostName, dir);
 			}
 
 			string res;
