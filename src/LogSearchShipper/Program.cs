@@ -249,6 +249,8 @@ namespace LogSearchShipper
 		{
 			var packages = repo.FindPackagesById(packageId).ToList();
 			packages.RemoveAll(val => !val.IsListed());
+			if (packages.Count == 0)
+				throw new ApplicationException("No update package is found");
 			packages.Sort((x, y) => x.Version.CompareTo(y.Version));
 			var lastPackage = packages.Last();
 			return lastPackage;
