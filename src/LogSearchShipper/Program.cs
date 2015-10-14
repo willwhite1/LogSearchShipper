@@ -317,7 +317,7 @@ namespace LogSearchShipper
 			return Path.Combine(configsBasePath, res);
 		}
 
-		public static string ToRelativePath(string filePath, string refPath)
+		static string ToRelativePath(string filePath, string refPath)
 		{
 			var pathNormalized = Path.GetFullPath(filePath);
 
@@ -325,7 +325,7 @@ namespace LogSearchShipper
 			refNormalized = refNormalized.TrimEnd('\\', '/');
 
 			if (!pathNormalized.StartsWith(refNormalized))
-				throw new ArgumentException();
+				throw new ApplicationException(string.Format("Invalid reference path: {0}", refPath));
 			var res = pathNormalized.Substring(refNormalized.Length + 1);
 			return res;
 		}
