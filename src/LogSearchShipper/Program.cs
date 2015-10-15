@@ -263,6 +263,15 @@ namespace LogSearchShipper
 			return val;
 		}
 
+		static void LogInfo(string message)
+		{
+			Log.Info(new
+			{
+				Category = Const.LogCategory.InternalDiagnostic,
+				Message = message,
+			});
+		}
+
 		static void LogError(string message)
 		{
 			Log.Error(new
@@ -298,6 +307,8 @@ namespace LogSearchShipper
 			if (!hosts.TryGetValue(hostName, out relativePath))
 				throw new ApplicationException(string.Format("Config for host \"{0}\" is not found", hostName));
 			var res = Path.Combine(configsBasePath, relativePath);
+
+			LogInfo(string.Format("Use config file: \"{0}\"", res));
 			return res;
 		}
 
