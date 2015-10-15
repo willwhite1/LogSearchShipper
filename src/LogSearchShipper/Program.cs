@@ -292,6 +292,17 @@ namespace LogSearchShipper
 			var dirs = Directory.GetDirectories(configsBasePath, "*", SearchOption.AllDirectories);
 			dirs = dirs.Select(dir =>ToRelativePath(dir, configsBasePath)).ToArray();
 
+			var hosts = ExtractHostConfigs(dirs);
+
+			string relativePath;
+			if (!hosts.TryGetValue(hostName, out relativePath))
+				throw new ApplicationException(string.Format("Config for host \"{0}\" is not found", hostName));
+			var res = Path.Combine(configsBasePath, relativePath);
+			return res;
+		}
+
+		private static Dictionary<string, string> ExtractHostConfigs(string[] dirs)
+		{
 			var hosts = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
 			foreach (var dir in dirs)
@@ -310,11 +321,7 @@ namespace LogSearchShipper
 
 				hosts.Add(curHostName, dir);
 			}
-
-			string res;
-			if (!hosts.TryGetValue(hostName, out res))
-				throw new ApplicationException(string.Format("Config for host \"{0}\" is not found", hostName));
-			return Path.Combine(configsBasePath, res);
+			return hosts;
 		}
 
 		static string ToRelativePath(string filePath, string refPath)
