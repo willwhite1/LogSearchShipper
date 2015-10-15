@@ -204,6 +204,7 @@ namespace LogSearchShipper
 			if (Directory.Exists(updateDataPath))
 				FileUtil.Cleanup(updateDataPath, "*.*", false, true);
 
+			LogInfo(string.Format("Auto update URL: {0}", _core.LogSearchShipperConfig.NugetUrl));
 			var repo = PackageRepositoryFactory.Default.CreateRepository(_core.LogSearchShipperConfig.NugetUrl);
 			var lastPackage = GetLastPackage(repo, packageId);
 			var updateVersion = lastPackage.Version.Version;
