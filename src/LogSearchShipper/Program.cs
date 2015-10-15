@@ -231,7 +231,7 @@ namespace LogSearchShipper
 				var packageBinPath = Path.Combine(packagePath, "lib");
 
 				Copy(packageBinPath, updateDeploymentPath, UpdateFileTypes);
-				Copy(appPath, updateDeploymentPath, new[] {"*.log"});
+				Copy(appPath, updateDeploymentPath, new[] { "*.log" });
 				Copy(configPath, updateDeploymentPath, new[] {"*.config"});
 
 				var updaterPath = Path.Combine(updateDeploymentPath, "Updater.exe");
@@ -306,7 +306,7 @@ namespace LogSearchShipper
 		static string FindConfigPath(string hostName, string configsBasePath)
 		{
 			var dirs = Directory.GetDirectories(configsBasePath, "*", SearchOption.AllDirectories);
-			dirs = dirs.Select(dir =>ToRelativePath(dir, configsBasePath)).ToArray();
+			dirs = dirs.Select(dir => ToRelativePath(dir, configsBasePath)).ToArray();
 
 			var hosts = ExtractHostConfigs(dirs);
 
