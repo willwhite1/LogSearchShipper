@@ -17,7 +17,7 @@ namespace LogSearchShipper.Log4net
 		{
 			if (Layout == null)
 			{
-				var layout = new PatternLayout("%utcdate{ISO8601} [%thread] %-5level %logger - %.255message%newline");
+				var layout = new PatternLayout("%utcdate{ISO8601} [%thread] %-5level %logger - %.4096message%newline");
 				layout.ActivateOptions();
 				Layout = layout;
 			}
