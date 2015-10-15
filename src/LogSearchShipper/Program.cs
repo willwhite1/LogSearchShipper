@@ -157,66 +157,7 @@ namespace LogSearchShipper
 			{
 				try
 				{
-					var packageId = Const.AppName;
-					var curAssemblyPath = Assembly.GetExecutingAssembly().Location;
-					var appPath = Path.GetDirectoryName(curAssemblyPath);
-
-					if (!JunctionPoint.Exists(appPath))
-					{
-						LogError(string.Format("Invalid app folder structure: \"{0}\". Turned off auto updates.", appPath));
-						break;
-					}
-
-					var appParentPath = Path.GetDirectoryName(appPath);
-					var updateDataPath = Path.Combine(appParentPath, "UpdateData");
-
-					if (Directory.Exists(updateDataPath))
-						FileUtil.Cleanup(updateDataPath, "*.*", false, true);
-
-					var repo = PackageRepositoryFactory.Default.CreateRepository(_core.LogSearchShipperConfig.NugetUrl);
-					var lastPackage = GetLastPackage(repo, packageId);
-					var updateVersion = lastPackage.Version.Version;
-
-					var curVersion = new Version(FileVersionInfo.GetVersionInfo(curAssemblyPath).ProductVersion);
-
-					if (updateVersion > curVersion)
-					{
-						var packageManager = new PackageManager(repo, updateDataPath);
-						packageManager.InstallPackage(packageId, lastPackage.Version, true, false);
-
-						Log.Info(new
-						{
-							Category = Const.LogCategory.InternalDiagnostic,
-							Message = "Updating LogSearchShipper",
-							OldVersion = curVersion.ToString(),
-							NewVersion = updateVersion.ToString(),
-						});
-
-						var packagePath = Path.Combine(updateDataPath, packageId + "." + lastPackage.Version);
-						var updateDeploymentPath = Path.Combine(appParentPath, "v" + lastPackage.Version);
-						var updatedCurrentPath = Path.Combine(appParentPath, "current");
-						var configPath = FindConfigPath(Dns.GetHostName(), Path.Combine(packagePath, @"content\net45\Configs"));
-						var packageBinPath = Path.Combine(packagePath, "lib");
-
-						Copy(packageBinPath, updateDeploymentPath, UpdateFileTypes);
-						Copy(appPath, updateDeploymentPath, new[] { "*.log" });
-						Copy(configPath, updateDeploymentPath, new[] { "*.config" });
-
-						var updaterPath = Path.Combine(updateDeploymentPath, "Updater.exe");
-
-						var appMode = GetAppMode(hostControl);
-						var startingName = (appMode == AppMode.Service) ? ServiceName : "LogSearchShipper.exe";
-						var args = string.Format("{0} {1} \"{2}\" \"{3}\" \"{4}\"", Process.GetCurrentProcess().Id, appMode,
-							EscapeCommandLineArg(startingName), EscapeCommandLineArg(updateDeploymentPath), EscapeCommandLineArg(updatedCurrentPath));
-
-						Process.Start(new ProcessStartInfo
-							{
-								WorkingDirectory = updateDeploymentPath,
-								FileName = updaterPath,
-								Arguments = args,
-							});
-						hostControl.Stop();
-					}
+					CheckUpdatesOnce(hostControl);
 				}
 				catch (ThreadInterruptedException)
 				{
@@ -242,6 +183,71 @@ namespace LogSearchShipper
 
 				if (_terminationEvent.WaitOne(TimeSpan.FromMinutes(1)))
 					break;
+			}
+		}
+
+		private void CheckUpdatesOnce(HostControl hostControl)
+		{
+			var packageId = Const.AppName;
+			var curAssemblyPath = Assembly.GetExecutingAssembly().Location;
+			var appPath = Path.GetDirectoryName(curAssemblyPath);
+
+			if (!JunctionPoint.Exists(appPath))
+			{
+				LogError(string.Format("Invalid app folder structure: \"{0}\". Turned off auto updates.", appPath));
+				return;
+			}
+
+			var appParentPath = Path.GetDirectoryName(appPath);
+			var updateDataPath = Path.Combine(appParentPath, "UpdateData");
+
+			if (Directory.Exists(updateDataPath))
+				FileUtil.Cleanup(updateDataPath, "*.*", false, true);
+
+			var repo = PackageRepositoryFactory.Default.CreateRepository(_core.LogSearchShipperConfig.NugetUrl);
+			var lastPackage = GetLastPackage(repo, packageId);
+			var updateVersion = lastPackage.Version.Version;
+
+			var curVersion = new Version(FileVersionInfo.GetVersionInfo(curAssemblyPath).ProductVersion);
+
+			if (updateVersion > curVersion)
+			{
+				var packageManager = new PackageManager(repo, updateDataPath);
+				packageManager.InstallPackage(packageId, lastPackage.Version, true, false);
+
+				Log.Info(new
+				{
+					Category = Const.LogCategory.InternalDiagnostic,
+					Message = "Updating LogSearchShipper",
+					OldVersion = curVersion.ToString(),
+					NewVersion = updateVersion.ToString(),
+				});
+
+				var packagePath = Path.Combine(updateDataPath, packageId + "." + lastPackage.Version);
+				var updateDeploymentPath = Path.Combine(appParentPath, "v" + lastPackage.Version);
+				var updatedCurrentPath = Path.Combine(appParentPath, "current");
+				var configPath = FindConfigPath(Dns.GetHostName(), Path.Combine(packagePath, @"content\net45\Configs"));
+				var packageBinPath = Path.Combine(packagePath, "lib");
+
+				Copy(packageBinPath, updateDeploymentPath, UpdateFileTypes);
+				Copy(appPath, updateDeploymentPath, new[] {"*.log"});
+				Copy(configPath, updateDeploymentPath, new[] {"*.config"});
+
+				var updaterPath = Path.Combine(updateDeploymentPath, "Updater.exe");
+
+				var appMode = GetAppMode(hostControl);
+				var startingName = (appMode == AppMode.Service) ? ServiceName : "LogSearchShipper.exe";
+				var args = string.Format("{0} {1} \"{2}\" \"{3}\" \"{4}\"", Process.GetCurrentProcess().Id, appMode,
+					EscapeCommandLineArg(startingName), EscapeCommandLineArg(updateDeploymentPath),
+					EscapeCommandLineArg(updatedCurrentPath));
+
+				Process.Start(new ProcessStartInfo
+				{
+					WorkingDirectory = updateDeploymentPath,
+					FileName = updaterPath,
+					Arguments = args,
+				});
+				hostControl.Stop();
 			}
 		}
 
