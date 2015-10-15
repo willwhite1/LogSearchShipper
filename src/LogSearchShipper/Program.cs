@@ -232,7 +232,8 @@ namespace LogSearchShipper
 
 				Copy(packageBinPath, updateDeploymentPath, UpdateFileTypes);
 				Copy(appPath, updateDeploymentPath, new[] { "*.log" });
-				Copy(configPath, updateDeploymentPath, new[] {"*.config"});
+				if (Copy(configPath, updateDeploymentPath, new[] { "*.config" }) < 1)
+					throw new ApplicationException("Update package - no config files");
 
 				var updaterPath = Path.Combine(updateDeploymentPath, "Updater.exe");
 
@@ -288,8 +289,10 @@ namespace LogSearchShipper
 			});
 		}
 
-		static void Copy(string sourcePath, string targetPath, string[] fileTypes)
+		static int Copy(string sourcePath, string targetPath, string[] fileTypes)
 		{
+			var res = 0;
+
 			if (!Directory.Exists(targetPath))
 				Directory.CreateDirectory(targetPath);
 
@@ -299,8 +302,11 @@ namespace LogSearchShipper
 				{
 					var targetFilePath = Path.Combine(targetPath, Path.GetFileName(file));
 					File.Copy(file, targetFilePath, true);
+					res++;
 				}
 			}
+
+			return res;
 		}
 
 		static string FindConfigPath(string hostName, string configsBasePath)
