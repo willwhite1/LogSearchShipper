@@ -99,5 +99,18 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			get { return (String)this["nuget_url"]; }
 			set { this["nuget_url"] = value; }
 		}
+
+		[ConfigurationProperty("update_checking_period", IsRequired = false)]
+		public TimeSpan UpdateCheckingPeriod
+		{
+			get
+			{
+				var res = (TimeSpan)this["update_checking_period"];
+				if (res.Ticks == 0)
+					res = TimeSpan.FromMinutes(1);
+				return res;
+			}
+			set { this["update_checking_period"] = value; }
+		}
 	}
 }
