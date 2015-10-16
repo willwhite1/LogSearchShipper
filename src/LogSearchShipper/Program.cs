@@ -195,7 +195,7 @@ namespace LogSearchShipper
 			if (!JunctionPoint.Exists(appPath))
 			{
 				LogError(string.Format("Invalid app folder structure: \"{0}\". Turned off auto updates.", appPath));
-				return;
+				throw new ThreadInterruptedException();
 			}
 
 			var appParentPath = Path.GetDirectoryName(appPath);
