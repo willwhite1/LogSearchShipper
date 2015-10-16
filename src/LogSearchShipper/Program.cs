@@ -181,7 +181,7 @@ namespace LogSearchShipper
 					LogError(exc.ToString());
 				}
 
-				if (_terminationEvent.WaitOne(TimeSpan.FromMinutes(1)))
+				if (_terminationEvent.WaitOne(_core.LogSearchShipperConfig.UpdateCheckingPeriod))
 					break;
 			}
 		}
