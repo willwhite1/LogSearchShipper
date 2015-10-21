@@ -191,6 +191,7 @@ namespace LogSearchShipper
 			var packageId = Const.AppName;
 			var curAssemblyPath = Assembly.GetExecutingAssembly().Location;
 			var appPath = Path.GetDirectoryName(curAssemblyPath);
+			var updateUrl = _core.LogSearchShipperConfig.NugetUrl;
 
 			if (!JunctionPoint.Exists(appPath))
 			{
@@ -204,8 +205,8 @@ namespace LogSearchShipper
 			if (Directory.Exists(updateDataPath))
 				FileUtil.Cleanup(updateDataPath, "*.*", false, true);
 
-			LogInfo(string.Format("Auto update URL: {0}", _core.LogSearchShipperConfig.NugetUrl));
-			var repo = PackageRepositoryFactory.Default.CreateRepository(_core.LogSearchShipperConfig.NugetUrl);
+			LogInfo(string.Format("Auto update URL: {0}", updateUrl));
+			var repo = PackageRepositoryFactory.Default.CreateRepository(updateUrl);
 			var lastPackage = GetLastPackage(repo, packageId);
 			var updateVersion = lastPackage.Version.Version;
 
