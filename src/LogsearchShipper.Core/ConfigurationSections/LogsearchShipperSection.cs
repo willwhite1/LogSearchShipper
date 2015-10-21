@@ -93,7 +93,7 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["resolve_unc_paths"] = value; }
 		}
 
-		[ConfigurationProperty("nuget_url", IsRequired = false, DefaultValue = "https://packages.nuget.org/api/v2")]
+		[ConfigurationProperty("nuget_url", IsRequired = false)]
 		public String NugetUrl
 		{
 			get { return (String)this["nuget_url"]; }
