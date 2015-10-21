@@ -20,7 +20,7 @@ Change the settings to fit your environment
 	<LogSearchShipperGroup>
 		<LogSearchShipper data_folder="data" ingestor_host="ingestor.you-logsearch-cluster.com" ingestor_port="443"
 											shipper_service_username="" shipper_service_password="" processor_usage_reporting_interval_seconds="2"
-											file_poll_interval_seconds = "2.5" nuget_url="https://packages.nuget.org/api/v2">
+											file_poll_interval_seconds = "2.5" nuget_url="https://packages.nuget.org/api/v2" update_checking_period="0:01:00">
 			<!-- Extract information on what logs to ship from EDB -->
 			<edbFileWatchers>
 				<watch
