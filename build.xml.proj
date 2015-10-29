@@ -5,6 +5,7 @@
 		<NUnitCommand Condition=" '$(OS)' == 'Windows_NT'">"tools\NUnit.Runners.lite.2.6.3.20131019\nunit-console.exe"</NUnitCommand>
 		<NUnitCommand Condition=" '$(OS)' != 'Windows_NT' ">mono --runtime=v4.0.30319 tools/NUnit.Runners.lite.2.6.3.20131019/nunit-console.exe</NUnitCommand>
 		<MSBuildCommunityTasksPath>$(MSBuildProjectDirectory)\tools\MSBuildTasks.1.4.0.78\tools</MSBuildCommunityTasksPath>
+		<NuGetExe>$(MSBuildProjectDirectory)\src\.nuget\nuget.exe</NuGetExe>
 	</PropertyGroup>
 	<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets" />
 <!-- Version numbers override -->
@@ -48,33 +49,9 @@
 
 	<Target Name="Package">
 
-		<Message Text="Packaging binaries into ZIP" />
-		<ItemGroup>  
-			<PackageExclude Include="bin\*.mdb" />  
-			<PackageExclude Include="bin\*.pdb" />  
-			<PackageExclude Include="bin\*.xml" /> 
-			<PackageExclude Include="bin\mscorlib.dll" /> 
-			<PackageExclude Include="bin\*.nlp" />  
-			<PackageExclude Include="bin\*vshost.exe*" />  
-			<PackageExclude Include="bin\*.log" />  
-			<PackageExclude Include="bin\*.log.*" />  
-			<PackageExclude Include="bin\SampleData\**" />
-			<PackageExclude Include="bin\data\**" />  
-			<PackageExclude Include="bin\*.Tests.*" /> 		
-			<PackageExclude Include="bin\nunit.framework.*" /> 
-			<PackageExclude Include="bin\*.exe.config" /> 
-			<PackageExclude Include="bin\DummyServiceWithLogRolling.*" /> 
-			<PackageExclude Include="bin\IntegrationTests.*" /> 
-		</ItemGroup>
+		<Message Text="Creating a NuGet package" />
 
-		<ItemGroup>
-			<PackageFiles Include="bin\**\*.*" Exclude="@(PackageExclude)" />
-		</ItemGroup>
-
-		<Zip Files="@(PackageFiles)"
-		  ZipFileName="LogSearchShipper-$(BUILD_VERSION).zip"
-		  WorkingDirectory="bin\"
-		  ZipLevel="9"
-		  ParallelCompression="False"/>
+		<Exec Command='"$(NuGetExe)" pack $(MSBuildProjectDirectory)\src\LogSearchShipper\LogSearchShipper.csproj' ContinueOnError='false'
+			WorkingDirectory='$(MSBuildProjectDirectory)\bin\'/>
 	</Target>
 </Project>
