@@ -41,12 +41,9 @@
 
 <!-- /t:RunTests -->
 
-	<ItemGroup>
-		<TestAssembly Include="bin\*.Tests.dll" />
-	</ItemGroup>
 	<Target Name="RunTests">
 		<Message Text="*** NUnit tests beginning..." />
-		<Exec Command="$(NUnitCommand) @(TestAssembly) -result=TestResults.xml -out=TestOutput.log"/>
+		<Exec Command="$(NUnitCommand) $(MSBuildProjectDirectory)\bin\LogSearchShipper.Core.Tests.dll -result=TestResults.xml -out=TestOutput.log"/>
 	</Target>
 
 	<Target Name="Package">
