@@ -21,5 +21,6 @@
     <file src="..\..\bin\NuGet.Core.dll" target="lib\net45\"/>
     <file src="..\..\bin\Topshelf.dll" target="lib\net45\"/>
     <file src="..\..\bin\Topshelf.Log4Net.dll" target="lib\net45\"/>
+    <file src="..\..\bin\Config\**\*.config" target="content\net45\Config\"/>
   </files>
 </package>
