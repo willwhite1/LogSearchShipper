@@ -11,7 +11,7 @@
 <!-- Version numbers override -->
 
 	<PropertyGroup>
-		<BUILD_VERSION>0.0.0.0</BUILD_VERSION>
+		<BUILD_VERSION>0.0.0</BUILD_VERSION>
 		<FullVersion>$(BUILD_VERSION.Replace('-', '.'))</FullVersion>
 	</PropertyGroup>
 
@@ -52,6 +52,9 @@
 		<Message Text="Creating a NuGet package" />
 
 		<Exec Command='"$(NuGetExe)" pack $(MSBuildProjectDirectory)\src\LogSearchShipper\LogSearchShipper.csproj' ContinueOnError='false'
+			WorkingDirectory='$(MSBuildProjectDirectory)\bin\'/>
+
+		<Exec Command='"$(NuGetExe)" pack $(MSBuildProjectDirectory)\src\LogSearchShipper\LogSearchShipper.csproj -Version $(BUILD_VERSION)-rc' ContinueOnError='false'
 			WorkingDirectory='$(MSBuildProjectDirectory)\bin\'/>
 	</Target>
 </Project>
