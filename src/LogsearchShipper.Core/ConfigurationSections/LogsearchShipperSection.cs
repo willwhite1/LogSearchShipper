@@ -8,7 +8,7 @@ namespace LogSearchShipper.Core.ConfigurationSections
 		[ConfigurationProperty("ingestor_host", IsRequired = true)]
 		public String IngestorHost
 		{
-			get { return (String) this["ingestor_host"]; }
+			get { return (String)this["ingestor_host"]; }
 			set { this["ingestor_host"] = value; }
 		}
 
@@ -22,20 +22,20 @@ namespace LogSearchShipper.Core.ConfigurationSections
 		[ConfigurationProperty("data_folder", IsRequired = true)]
 		public String DataFolder
 		{
-			get { return (String) this["data_folder"]; }
+			get { return (String)this["data_folder"]; }
 			set { this["data_folder"] = value; }
 		}
 
 		[ConfigurationProperty("fileWatchers", IsDefaultCollection = false)]
 		public FileWatchCollection FileWatchers
 		{
-			get { return (FileWatchCollection) base["fileWatchers"]; }
+			get { return (FileWatchCollection)base["fileWatchers"]; }
 		}
 
 		[ConfigurationProperty("edbFileWatchers", IsDefaultCollection = false)]
 		public EDBFileWatchCollection EDBFileWatchers
 		{
-			get { return (EDBFileWatchCollection) base["edbFileWatchers"]; }
+			get { return (EDBFileWatchCollection)base["edbFileWatchers"]; }
 		}
 
 		[ConfigurationProperty("winEventWatchers", IsDefaultCollection = false)]
