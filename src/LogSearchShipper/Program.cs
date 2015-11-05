@@ -218,46 +218,46 @@ namespace LogSearchShipper
 
 			var curVersion = new Version(FileVersionInfo.GetVersionInfo(curAssemblyPath).ProductVersion);
 
-			if (updateVersion > curVersion)
+			if (updateVersion <= curVersion)
+				return;
+
+			var packageManager = new PackageManager(repo, updateDataPath);
+			packageManager.InstallPackage(packageId, lastPackage.Version, true, false);
+
+			Log.Info(new
 			{
-				var packageManager = new PackageManager(repo, updateDataPath);
-				packageManager.InstallPackage(packageId, lastPackage.Version, true, false);
+				Category = Const.LogCategory.InternalDiagnostic,
+				Message = "Updating LogSearchShipper",
+				OldVersion = curVersion.ToString(),
+				NewVersion = updateVersion.ToString(),
+			});
 
-				Log.Info(new
-				{
-					Category = Const.LogCategory.InternalDiagnostic,
-					Message = "Updating LogSearchShipper",
-					OldVersion = curVersion.ToString(),
-					NewVersion = updateVersion.ToString(),
-				});
+			var packagePath = Path.Combine(updateDataPath, packageId + "." + lastPackage.Version);
+			var updateDeploymentPath = Path.Combine(appParentPath, "v" + lastPackage.Version);
+			var updatedCurrentPath = Path.Combine(appParentPath, "current");
+			var configPath = FindConfigPath(Dns.GetHostName(), Path.Combine(packagePath, @"content\net45\Config"));
+			var packageBinPath = Path.Combine(packagePath, "lib");
 
-				var packagePath = Path.Combine(updateDataPath, packageId + "." + lastPackage.Version);
-				var updateDeploymentPath = Path.Combine(appParentPath, "v" + lastPackage.Version);
-				var updatedCurrentPath = Path.Combine(appParentPath, "current");
-				var configPath = FindConfigPath(Dns.GetHostName(), Path.Combine(packagePath, @"content\net45\Config"));
-				var packageBinPath = Path.Combine(packagePath, "lib");
+			Copy(packageBinPath, updateDeploymentPath, UpdateFileTypes);
+			Copy(appPath, updateDeploymentPath, new[] { "*.log" });
+			if (Copy(configPath, updateDeploymentPath, new[] { "*.config" }) < 1)
+				throw new ApplicationException("Update package - no config files");
 
-				Copy(packageBinPath, updateDeploymentPath, UpdateFileTypes);
-				Copy(appPath, updateDeploymentPath, new[] { "*.log" });
-				if (Copy(configPath, updateDeploymentPath, new[] { "*.config" }) < 1)
-					throw new ApplicationException("Update package - no config files");
+			var updaterPath = Path.Combine(updateDeploymentPath, "Updater.exe");
 
-				var updaterPath = Path.Combine(updateDeploymentPath, "Updater.exe");
+			var appMode = GetAppMode(hostControl);
+			var startingName = (appMode == AppMode.Service) ? ServiceName : "LogSearchShipper.exe";
+			var args = string.Format("{0} {1} \"{2}\" \"{3}\" \"{4}\"", Process.GetCurrentProcess().Id, appMode,
+				EscapeCommandLineArg(startingName), EscapeCommandLineArg(updateDeploymentPath),
+				EscapeCommandLineArg(updatedCurrentPath));
 
-				var appMode = GetAppMode(hostControl);
-				var startingName = (appMode == AppMode.Service) ? ServiceName : "LogSearchShipper.exe";
-				var args = string.Format("{0} {1} \"{2}\" \"{3}\" \"{4}\"", Process.GetCurrentProcess().Id, appMode,
-					EscapeCommandLineArg(startingName), EscapeCommandLineArg(updateDeploymentPath),
-					EscapeCommandLineArg(updatedCurrentPath));
-
-				Process.Start(new ProcessStartInfo
-				{
-					WorkingDirectory = updateDeploymentPath,
-					FileName = updaterPath,
-					Arguments = args,
-				});
-				hostControl.Stop();
-			}
+			Process.Start(new ProcessStartInfo
+			{
+				WorkingDirectory = updateDeploymentPath,
+				FileName = updaterPath,
+				Arguments = args,
+			});
+			hostControl.Stop();
 		}
 
 		private IPackage GetLastPackage(IPackageRepository repo, string packageId)
