@@ -225,6 +225,7 @@ namespace LogSearchShipper
 			{
 				Category = Const.LogCategory.InternalDiagnostic,
 				Message = "Updating LogSearchShipper",
+				IsPreProductionEnvironment = _core.LogSearchShipperConfig.IsPreProductionEnvironment,
 				OldVersion = curVersion.ToString(),
 				NewVersion = updateVersion.ToString(),
 			});
