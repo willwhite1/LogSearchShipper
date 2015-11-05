@@ -264,7 +264,7 @@ namespace LogSearchShipper
 		{
 			var packages = repo.FindPackagesById(packageId).ToList();
 			packages.RemoveAll(val => !val.IsListed());
-			if (!_core.LogSearchShipperConfig.IsPreProductionEnvironment)
+			if (_core.LogSearchShipperConfig.IsPreProductionEnvironment != true)
 				packages.RemoveAll(val => !val.IsReleaseVersion());
 			if (packages.Count == 0)
 				throw new ApplicationException("No update package is found");
