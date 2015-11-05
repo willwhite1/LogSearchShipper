@@ -140,7 +140,6 @@ namespace LogSearchShipper.Core
 			{
 				var updaterLogWatch = new FileWatchElement
 					{
-						Files = updaterLog,
 						Type = "json",
 						MultilineRule = MultilineRuleType.multiline_ci_log4net,
 						ReadFromLast = false,
@@ -155,6 +154,12 @@ namespace LogSearchShipper.Core
 						updaterLogWatch.Fields.Add(new FieldElement { Key = cur.Key, Value = cur.Value });
 					}
 				}
+
+				var updaterLogFolder = (mainLogWatch == null) ? Path.GetTempPath() : Path.GetDirectoryName(mainLogWatch.Files);
+				if (string.IsNullOrEmpty(updaterLogFolder))
+					updaterLogFolder = Directory.GetCurrentDirectory();
+				updaterLog = Path.Combine(updaterLogFolder, updaterLog);
+				updaterLogWatch.Files = updaterLog;
 
 				watches.Add(updaterLogWatch);
 			}
