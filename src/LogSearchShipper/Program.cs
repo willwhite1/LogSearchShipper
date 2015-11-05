@@ -8,7 +8,9 @@ using System.Reflection;
 using System.Threading;
 
 using log4net;
+using log4net.Appender;
 using log4net.Config;
+using log4net.Repository.Hierarchy;
 using NuGet;
 using Topshelf;
 using Topshelf.Hosts;
@@ -256,7 +258,7 @@ namespace LogSearchShipper
 
 			Process.Start(new ProcessStartInfo
 			{
-				WorkingDirectory = updateDeploymentPath,
+				WorkingDirectory = GetMainLogFolder() ?? Path.GetTempPath(),
 				FileName = updaterPath,
 				Arguments = args,
 			});
@@ -370,6 +372,16 @@ namespace LogSearchShipper
 			if (!pathNormalized.StartsWith(refNormalized))
 				throw new ApplicationException(string.Format("Invalid reference path: {0}", refPath));
 			var res = pathNormalized.Substring(refNormalized.Length + 1);
+			return res;
+		}
+
+		string GetMainLogFolder()
+		{
+			var hierarchy = (Hierarchy)LogManager.GetRepository();
+			var appender = (FileAppender)hierarchy.GetAppenders().First(cur => cur.Name == "MainLogAppender");
+			if (appender == null)
+				return null;
+			var res = Path.GetDirectoryName(appender.File);
 			return res;
 		}
 
