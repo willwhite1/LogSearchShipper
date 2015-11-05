@@ -110,14 +110,12 @@ namespace LogSearchShipper.Core.ConfigurationSections
 					res = TimeSpan.FromMinutes(1);
 				return res;
 			}
-			set { this["update_checking_period"] = value; }
 		}
 
 		[ConfigurationProperty("is_pre_production_environment", IsRequired = false, DefaultValue = false)]
 		public bool IsPreProductionEnvironment
 		{
 			get { return (bool)this["is_pre_production_environment"]; }
-			set { this["is_pre_production_environment"] = value; }
 		}
 	}
 }
