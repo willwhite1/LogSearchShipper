@@ -76,12 +76,6 @@ namespace LogSearchShipper
 			};
 			thread.Start();
 
-			_updateThread = new Thread(args => CheckForUpdates(hostControl))
-			{
-				IsBackground = true,
-			};
-			_updateThread.Start();
-
 			_core = new LogSearchShipperProcessManager
 			{
 				ServiceName = ServiceName
@@ -89,6 +83,12 @@ namespace LogSearchShipper
 
 			_core.RegisterService();
 			_core.Start();
+
+			_updateThread = new Thread(args => CheckForUpdates(hostControl))
+			{
+				IsBackground = true,
+			};
+			_updateThread.Start();
 
 			return true;
 		}
