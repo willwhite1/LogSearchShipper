@@ -260,10 +260,12 @@ namespace LogSearchShipper
 			}
 		}
 
-		private static IPackage GetLastPackage(IPackageRepository repo, string packageId)
+		private IPackage GetLastPackage(IPackageRepository repo, string packageId)
 		{
 			var packages = repo.FindPackagesById(packageId).ToList();
 			packages.RemoveAll(val => !val.IsListed());
+			if (!_core.LogSearchShipperConfig.IsPreProductionEnvironment)
+				packages.RemoveAll(val => !val.IsReleaseVersion());
 			if (packages.Count == 0)
 				throw new ApplicationException("No update package is found");
 			packages.Sort((x, y) => x.Version.CompareTo(y.Version));
