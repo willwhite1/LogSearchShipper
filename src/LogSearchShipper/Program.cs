@@ -205,7 +205,13 @@ namespace LogSearchShipper
 			if (Directory.Exists(updateDataPath))
 				FileUtil.Cleanup(updateDataPath, "*.*", false, true);
 
-			LogInfo(string.Format("Auto update URL: {0}", updateUrl));
+			Log.Info(new
+			{
+				Category = Const.LogCategory.InternalDiagnostic,
+				Message = string.Format("Auto update URL: {0}", updateUrl),
+				IsPreProductionEnvironment = _core.LogSearchShipperConfig.IsPreProductionEnvironment,
+			});
+
 			if (string.IsNullOrEmpty(updateUrl))
 				return;
 
@@ -225,7 +231,6 @@ namespace LogSearchShipper
 			{
 				Category = Const.LogCategory.InternalDiagnostic,
 				Message = "Updating LogSearchShipper",
-				IsPreProductionEnvironment = _core.LogSearchShipperConfig.IsPreProductionEnvironment,
 				OldVersion = curVersion.ToString(),
 				NewVersion = updateVersion.ToString(),
 			});
