@@ -93,11 +93,11 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["resolve_unc_paths"] = value; }
 		}
 
-		[ConfigurationProperty("nuget_url", IsRequired = false)]
-		public String NugetUrl
+		[ConfigurationProperty("nuget_server_url", IsRequired = false)]
+		public String NugetServerUrl
 		{
-			get { return (String)this["nuget_url"]; }
-			set { this["nuget_url"] = value; }
+			get { return (String)this["nuget_server_url"]; }
+			set { this["nuget_server_url"] = value; }
 		}
 
 		[ConfigurationProperty("update_checking_period", IsRequired = false)]
