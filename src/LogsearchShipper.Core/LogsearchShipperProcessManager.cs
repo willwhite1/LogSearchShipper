@@ -147,7 +147,7 @@ namespace LogSearchShipper.Core
 					};
 
 				var mainLogWatch = watches.FirstOrDefault(
-					val => val.Files.EndsWith("LogSearchShipper.log",StringComparison.OrdinalIgnoreCase));
+					val => val.Files.EndsWith("LogSearchShipper.log", StringComparison.OrdinalIgnoreCase));
 				if (mainLogWatch != null)
 				{
 					foreach (FieldElement cur in mainLogWatch.Fields)
