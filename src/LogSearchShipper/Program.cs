@@ -191,7 +191,7 @@ namespace LogSearchShipper
 			var packageId = Const.AppName;
 			var curAssemblyPath = Assembly.GetExecutingAssembly().Location;
 			var appPath = Path.GetDirectoryName(curAssemblyPath);
-			var updateUrl = _core.LogSearchShipperConfig.NugetUrl;
+			var updateUrl = _core.LogSearchShipperConfig.NugetServerUrl;
 
 			if (string.IsNullOrEmpty(updateUrl))
 			{
