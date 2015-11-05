@@ -193,12 +193,6 @@ namespace LogSearchShipper
 			var appPath = Path.GetDirectoryName(curAssemblyPath);
 			var updateUrl = _core.LogSearchShipperConfig.NugetServerUrl;
 
-			if (string.IsNullOrEmpty(updateUrl))
-			{
-				LogError("Auto update is turned off.");
-				throw new ThreadInterruptedException();
-			}
-
 			if (!JunctionPoint.Exists(appPath))
 			{
 				LogError(string.Format("Invalid app folder structure: \"{0}\". Turned off auto updates.", appPath));
@@ -212,6 +206,9 @@ namespace LogSearchShipper
 				FileUtil.Cleanup(updateDataPath, "*.*", false, true);
 
 			LogInfo(string.Format("Auto update URL: {0}", updateUrl));
+			if (string.IsNullOrEmpty(updateUrl))
+				return;
+
 			var repo = PackageRepositoryFactory.Default.CreateRepository(updateUrl);
 			var lastPackage = GetLastPackage(repo, packageId);
 			var updateVersion = lastPackage.Version.Version;
