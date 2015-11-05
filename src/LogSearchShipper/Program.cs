@@ -344,7 +344,7 @@ namespace LogSearchShipper
 			foreach (var dir in dirs)
 			{
 				var parts = dir.Split('\\');
-				if (parts.Length != 4)
+				if (parts.Length != 4 || !string.Equals(parts[2], "LogSearchShipper"))
 					continue;
 
 				var curHostName = parts.Last();
