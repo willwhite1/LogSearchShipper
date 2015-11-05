@@ -96,7 +96,17 @@ namespace LogSearchShipper.Core.ConfigurationSections
 		[ConfigurationProperty("nuget_server_url", IsRequired = false)]
 		public String NugetServerUrl
 		{
-			get { return (String)this["nuget_server_url"]; }
+			get
+			{
+				var res = (string)this["nuget_server_url"];
+				if (string.IsNullOrEmpty(res))
+				{
+					res = Environment.GetEnvironmentVariable("NugetServerUrl");
+					if (string.IsNullOrEmpty(res))
+						res = Environment.GetEnvironmentVariable("InternalNugetServerUrl");
+				}
+				return res;
+			}
 		}
 
 		[ConfigurationProperty("update_checking_period", IsRequired = false)]
@@ -111,10 +121,22 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			}
 		}
 
-		[ConfigurationProperty("is_pre_production_environment", IsRequired = false, DefaultValue = false)]
-		public bool IsPreProductionEnvironment
+		[ConfigurationProperty("is_pre_production_environment", IsRequired = false, DefaultValue = null)]
+		public bool? IsPreProductionEnvironment
 		{
-			get { return (bool)this["is_pre_production_environment"]; }
+			get
+			{
+				var tmp = this["is_pre_production_environment"];
+				if (tmp == null)
+				{
+					var envText = Environment.GetEnvironmentVariable("IsPreProductionEnvironment");
+					if (string.IsNullOrEmpty(envText))
+						return false;
+					else
+						return bool.Parse(envText);
+				}
+				return (bool)tmp;
+			}
 		}
 	}
 }
