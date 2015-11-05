@@ -97,7 +97,6 @@ namespace LogSearchShipper.Core.ConfigurationSections
 		public String NugetServerUrl
 		{
 			get { return (String)this["nuget_server_url"]; }
-			set { this["nuget_server_url"] = value; }
 		}
 
 		[ConfigurationProperty("update_checking_period", IsRequired = false)]
