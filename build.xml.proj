@@ -36,8 +36,7 @@
 
 	<Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 	<Target Name="Build" DependsOnTargets="AssemblyVersionUpdate">
-		<MSBuild Projects="src/LogSearchShipper.sln" Targets="Rebuild" 
-				 Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+		<MSBuild Projects="src/LogSearchShipper.sln" Targets="Rebuild" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
 	</Target>
 
 <!-- /t:RunTests -->
