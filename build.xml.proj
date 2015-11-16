@@ -30,6 +30,10 @@
 			Files="@(AssemblyVersionFiles)"
 			Regex="AssemblyConfiguration\(&quot;.*&quot;\)"
 			ReplacementText="AssemblyConfiguration(&quot;$(SemVersion)&quot;)" />
+		<FileUpdate
+			Files="@(AssemblyVersionFiles)"
+			Regex="AssemblyInformationalVersion\(&quot;.*&quot;\)"
+			ReplacementText="AssemblyInformationalVersion(&quot;$(SemVersion)&quot;)" />
 	</Target>
 
 <!-- /t:Build -->
