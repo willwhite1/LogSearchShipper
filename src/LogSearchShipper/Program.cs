@@ -221,7 +221,7 @@ namespace LogSearchShipper
 			var lastPackage = GetLastPackage(repo, packageId);
 			var updateVersion = lastPackage.Version.Version;
 
-			var curVersion = new Version(FileVersionInfo.GetVersionInfo(curAssemblyPath).ProductVersion);
+			var curVersion = new Version(FileVersionInfo.GetVersionInfo(curAssemblyPath).FileVersion);
 
 			if (updateVersion <= curVersion)
 				return;
