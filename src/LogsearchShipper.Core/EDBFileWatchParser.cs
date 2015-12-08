@@ -147,10 +147,11 @@ namespace LogSearchShipper.Core
 					var serverName = server.Element("Name").Value;
 					var networkArea = server.Element("NetworkArea").Value;
 
-					return serverName.RegExMatches(_environmentWatchElement.ServerNames) &&
+					var res = serverName.RegExMatches(_environmentWatchElement.ServerNames) &&
 						!serverName.RegExMatches(_environmentWatchElement.ServerNamesNotMatch) &&
 						networkArea.RegExMatches(_environmentWatchElement.NetworkAreas) &&
 						!networkArea.RegExMatches(_environmentWatchElement.NetworkAreasNotMatch);
+					return res;
 				}).ToArray();
 
 			var watches = new List<FileWatchElement>();
