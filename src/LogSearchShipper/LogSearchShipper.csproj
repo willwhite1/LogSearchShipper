@@ -48,6 +48,14 @@
     <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GainCapital.AutoUpdate, Version=1.1.23.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GainCapital.AutoUpdate.1.1.23\lib\net45\GainCapital.AutoUpdate.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="GainCapital.Updater, Version=1.1.23.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GainCapital.AutoUpdate.1.1.23\lib\net45\GainCapital.Updater.exe</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
@@ -97,10 +105,6 @@
     <ProjectReference Include="..\LogsearchShipper.Core\LogSearchShipper.Core.csproj">
       <Project>{1C08E196-B074-47D0-9C9F-8A39C8DBB6F7}</Project>
       <Name>LogSearchShipper.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Updater\Updater.csproj">
-      <Project>{bb144ba2-ba62-43e8-8115-db58eb8dc600}</Project>
-      <Name>Updater</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
