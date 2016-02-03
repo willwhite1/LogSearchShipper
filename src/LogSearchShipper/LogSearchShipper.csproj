@@ -48,12 +48,12 @@
     <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GainCapital.AutoUpdate, Version=1.1.27.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GainCapital.AutoUpdate.1.1.27\lib\net45\GainCapital.AutoUpdate.dll</HintPath>
+    <Reference Include="GainCapital.AutoUpdate, Version=1.1.43.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GainCapital.AutoUpdate.1.1.43\lib\net45\GainCapital.AutoUpdate.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GainCapital.Updater, Version=1.1.27.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GainCapital.AutoUpdate.1.1.27\lib\net45\GainCapital.Updater.exe</HintPath>
+    <Reference Include="GainCapital.Updater, Version=1.1.43.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GainCapital.AutoUpdate.1.1.43\lib\net45\GainCapital.Updater.exe</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
