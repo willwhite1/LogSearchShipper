@@ -92,51 +92,5 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			get { return (bool)this["resolve_unc_paths"]; }
 			set { this["resolve_unc_paths"] = value; }
 		}
-
-		[ConfigurationProperty("nuget_server_url", IsRequired = false)]
-		public String NugetServerUrl
-		{
-			get
-			{
-				var res = (string)this["nuget_server_url"];
-				if (string.IsNullOrEmpty(res))
-				{
-					res = Environment.GetEnvironmentVariable("NugetServerUrl");
-					if (string.IsNullOrEmpty(res))
-						res = Environment.GetEnvironmentVariable("InternalNugetServerUrl");
-				}
-				return res;
-			}
-		}
-
-		[ConfigurationProperty("update_checking_period", IsRequired = false)]
-		public TimeSpan UpdateCheckingPeriod
-		{
-			get
-			{
-				var res = (TimeSpan)this["update_checking_period"];
-				if (res.Ticks == 0)
-					res = TimeSpan.FromMinutes(1);
-				return res;
-			}
-		}
-
-		[ConfigurationProperty("is_pre_production_environment", IsRequired = false, DefaultValue = null)]
-		public bool? IsPreProductionEnvironment
-		{
-			get
-			{
-				var tmp = this["is_pre_production_environment"];
-				if (tmp == null)
-				{
-					var envText = Environment.GetEnvironmentVariable("IsPreProductionEnvironment");
-					if (string.IsNullOrEmpty(envText))
-						return false;
-					else
-						return bool.Parse(envText);
-				}
-				return (bool)tmp;
-			}
-		}
 	}
 }
