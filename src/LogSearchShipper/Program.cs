@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
-
-using GainCapital.AutoUpdate;
 using log4net;
 using log4net.Config;
 using Topshelf;
@@ -16,7 +13,7 @@ using Const = LogSearchShipper.Core.Const;
 
 namespace LogSearchShipper
 {
-	internal class MainClass
+    internal class MainClass
 	{
 		public static void Main(string[] args)
 		{
@@ -53,6 +50,7 @@ namespace LogSearchShipper
 		private static readonly ILog Log = LogManager.GetLogger(typeof(LogSearchShipperService));
 		private LogSearchShipperProcessManager _core;
 
+        private readonly UpdateChecker _updateChecker = new UpdateChecker();
 		private readonly ManualResetEvent _terminationEvent = new ManualResetEvent(false);
 
 		public bool Start(HostControl hostControl)
@@ -61,8 +59,7 @@ namespace LogSearchShipper
 			Log.Info(new
 				{
 					Message = "Process info",
-					MainProcessVersion = curAssembly.GetName().Version.ToString(),
-					Mode = UpdateChecker.GetAppMode(hostControl).ToString(),
+					MainProcessVersion = curAssembly.GetName().Version.ToString(),					
 					User = Environment.UserName,
 				});
 
@@ -79,20 +76,7 @@ namespace LogSearchShipper
 
 			_core.RegisterService();
 			_core.Start();
-
-			_updateChecker = new UpdateChecker(hostControl,
-				new UpdatingInfo
-				{
-					NugetAppName = Const.AppName,
-					ServiceName = ServiceName,
-					Update = (packagePath, updateDeploymentPath) =>
-					{
-						var configPath = FindConfigPath(Dns.GetHostName(), Path.Combine(packagePath, @"content\net45\Config"));
-						if (UpdateChecker.Copy(configPath, updateDeploymentPath, new[] { "*.config" }) < 1)
-							throw new ApplicationException("Update package - no config files");
-					},
-				});
-			_updateChecker.Start();
+		    _updateChecker.Start();
 
 			return true;
 		}
@@ -220,7 +204,5 @@ namespace LogSearchShipper
 			var res = pathNormalized.Substring(refNormalized.Length + 1);
 			return res;
 		}
-
-		private UpdateChecker _updateChecker;
 	}
 }
