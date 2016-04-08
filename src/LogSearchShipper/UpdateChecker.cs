@@ -27,7 +27,7 @@ namespace LogSearchShipper
             var updaterPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Updater.exe");
             if (File.Exists(updaterPath))
             {
-                var processInfo = new ProcessStartInfo(updaterPath) { UseShellExecute = false, WindowStyle = ProcessWindowStyle.Hidden, CreateNoWindow = true };
+                var processInfo = new ProcessStartInfo(updaterPath) { UseShellExecute = false };
                 _updateProcess = Process.Start(processInfo);
             }
         }
