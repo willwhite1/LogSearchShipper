@@ -17,7 +17,7 @@
     <file src="..\..\bin\Newtonsoft.Json.dll" target="lib\net45\"/>
     <file src="..\..\bin\log4net.dll" target="lib\net45\"/>
     <file src="..\..\bin\Microsoft.Web.XmlTransform.dll" target="lib\net45\"/>
-    <file src="..\..\bin\NuGet.Core.dll" target="lib\net45\"/>]
+    <file src="..\..\bin\NuGet.Core.dll" target="lib\net45\"/>
     <file src="..\..\bin\Topshelf.dll" target="lib\net45\"/>
     <file src="..\..\bin\Topshelf.Log4Net.dll" target="lib\net45\"/>
     <file src="..\..\bin\Config\**\*.config" target="content\net45\Config\"/>
