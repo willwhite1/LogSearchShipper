@@ -51,8 +51,8 @@ namespace LogSearchShipper.Core.NxLog
 		private readonly object _sync = new object();
 		private double _lastProcessorSecondsUsed;
 		private double _lastNxlogProcessorSecondsUsed;
-		private DateTime _lastProcessorUsageSentTime;
-		private Thread _processorUsageReportingThread;
+		private DateTime _lastProcessorUsageSentTime;		
+	    private System.Timers.Timer _processorUsageReportingTimer;
 
 		public NxLogProcessManager(string dataFolder, string serviceNamePrefix, string userName = null, string password = null)
 		{
@@ -183,46 +183,35 @@ namespace LogSearchShipper.Core.NxLog
 				_lastProcessorSecondsUsed = 0;
 				_lastNxlogProcessorSecondsUsed = 0;
 
-				_processorUsageReportingThread = new Thread(ReportProcessorTimeUsage);
-				_processorUsageReportingThread.Start();
+                _processorUsageReportingTimer = new System.Timers.Timer
+                {
+                    AutoReset = false,
+                    Interval = ProcessorUsageReportingIntervalSeconds*1000
+                };
+                _processorUsageReportingTimer.Elapsed += _processorUsageReportingTimer_Elapsed;
+				_processorUsageReportingTimer.Start();
 			}
 		}
 
-		void ReportProcessorTimeUsage()
-		{
-			_log.Info("ReportProcessorTimeUsage() started");
-			try
-			{
-				while (!_disposed && !_stopped)
-				{
-					try
-					{
-						lock (_sync)
-						{
-							ReportCpuUsage(Process.GetCurrentProcess(), "ProcessorUsage",
-								ref _lastProcessorSecondsUsed, _lastProcessorUsageSentTime);
-							ReportCpuUsage(NxLogProcess, "NxlogProcessorUsage",
-								ref _lastNxlogProcessorSecondsUsed, _lastProcessorUsageSentTime);
+        private void _processorUsageReportingTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            try
+            {
+                lock (_sync)
+                {
+                    ReportCpuUsage(Process.GetCurrentProcess(), "ProcessorUsage",
+                        ref _lastProcessorSecondsUsed, _lastProcessorUsageSentTime);
+                    ReportCpuUsage(NxLogProcess, "NxlogProcessorUsage",
+                        ref _lastNxlogProcessorSecondsUsed, _lastProcessorUsageSentTime);
 
-							_lastProcessorUsageSentTime = DateTime.UtcNow;
-						}
-					}
-					catch (ThreadInterruptedException)
-					{
-						break;
-					}
-					catch (Exception exc)
-					{
-						_log.Error(exc.ToString());
-					}
-
-					Thread.Sleep(TimeSpan.FromSeconds(ProcessorUsageReportingIntervalSeconds));
-				}
-			}
-			catch (ThreadInterruptedException)
-			{
-			}
-			_log.Info("ReportProcessorTimeUsage() finished");
+                    _lastProcessorUsageSentTime = DateTime.UtcNow;
+                }
+            }            
+            catch (Exception exception)
+            {
+                _log.Error(exception);
+            }
+            _processorUsageReportingTimer.Start();
 		}
 
 		private static void ReportCpuUsage(Process process, string name, ref double lastProcessorSecondsUsed, DateTime lastSentTime)
@@ -284,12 +273,10 @@ namespace LogSearchShipper.Core.NxLog
 			_stopped = true;
 			lock (_sync)
 			{
-				if (_processorUsageReportingThread != null)
+				if (_processorUsageReportingTimer != null)
 				{
-					_processorUsageReportingThread.Interrupt();
-					if (!_processorUsageReportingThread.Join(TimeSpan.FromSeconds(5)))
-						_processorUsageReportingThread.Abort();
-					_processorUsageReportingThread = null;
+				    _processorUsageReportingTimer.Elapsed -= _processorUsageReportingTimer_Elapsed;
+					_processorUsageReportingTimer.Stop();
 				}
 			}
 
