@@ -159,16 +159,6 @@ namespace LogSearchShipper.Core.Tests.NxLog
 			AssertConfigContains("Exec	to_syslog_ietf();");
 		}
 
-		[Test]
-		[Platform(Exclude = "Mono")]
-		public void ShouldLaunchNxLogProcess()
-		{
-			var _processId = _nxLogProcessManager.Start();
-
-			Thread.Sleep(TimeSpan.FromSeconds(1));
-
-			Assert.IsNotNull(Process.GetProcessById(Convert.ToInt32(_processId)), "a NXLog process wasn't started");
-		}
 
 		[Test]
 		public void ShouldStoreConfigFileInDataFolder()
