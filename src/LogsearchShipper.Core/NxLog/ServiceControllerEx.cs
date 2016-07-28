@@ -136,25 +136,20 @@ namespace LogSearchShipper.Core.NxLog
 		private const int ERROR_SERVICE_NOT_ACTIVE = 1062;
 
 		public static int GetProcessId(string serviceName)
-		{
-			var query = string.Format("SELECT ProcessId FROM Win32_Service WHERE Name='{0}'", serviceName);
-			using (var searcher = new ManagementObjectSearcher(query))
-			{
-				using (var vals = searcher.Get())
-				{
-					if (vals.Count == 0)
-						return 0;
-					if (vals.Count != 1)
-						throw new ApplicationException();
-					var tmp = new ManagementBaseObject[1];
-					vals.CopyTo(tmp, 0);
-					var responseObject = tmp[0];
-					var res = Convert.ToInt32(responseObject["ProcessId"]);
-					return res;
-				}
-			}
+		{		    
+            var results = Process.GetProcessesByName("nxlog");
+            if (results.Length == 0)
+                return 0;
+
+            if (results.Length != 1)
+                throw new ApplicationException();
+
+            return results[0].Id;
+			
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ServiceControllerEx));
 	}
+
+    
 }
