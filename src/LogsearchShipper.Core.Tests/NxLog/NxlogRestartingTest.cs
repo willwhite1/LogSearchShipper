@@ -33,6 +33,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 		}
 
 		[Test]
+        [Ignore]
 		public void TestNxlogRestartsOnConfigUpdate()
 		{
 			var nxLogProcessId = _lssManager.Start();
