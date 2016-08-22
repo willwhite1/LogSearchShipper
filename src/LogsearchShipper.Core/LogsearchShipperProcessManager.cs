@@ -60,7 +60,7 @@ namespace LogSearchShipper.Core
 
 			SetupInputFiles();
 			NxLogProcessManager.OutputSyslog = new SyslogEndpoint(LogSearchShipperConfig.IngestorHost,
-				LogSearchShipperConfig.IngestorPort);
+                LogSearchShipperConfig.IngestorPort, LogSearchShipperConfig.Token);
 
 			var processId = NxLogProcessManager.Start();
 

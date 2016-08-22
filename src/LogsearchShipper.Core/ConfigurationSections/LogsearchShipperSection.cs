@@ -19,6 +19,13 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			set { this["ingestor_port"] = value; }
 		}
 
+        [ConfigurationProperty("token", IsRequired = false)]
+        public String Token
+        {
+            get { return (String)this["token"]; }
+            set { this["token"] = value; }
+        }
+
 		[ConfigurationProperty("data_folder", IsRequired = true)]
 		public String DataFolder
 		{

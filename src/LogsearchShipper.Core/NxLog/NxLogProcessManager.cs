@@ -389,6 +389,7 @@ SpoolDir	{6}
 {11}
 {12}
 {13}
+{14}
 ",
                 _log.IsDebugEnabled ? "DEBUG" : "INFO",
                 NxLogFile,
@@ -398,6 +399,7 @@ SpoolDir	{6}
                 Path.GetFullPath(DataFolder),
                 Path.GetDirectoryName(Assembly.GetAssembly(typeof(NxLogProcessManager)).Location),
                 GenerateOutputSyslogConfig(),
+                GenerateOutputLogzConfig(),
                 GenerateOutputFileConfig(),
                 GenerateInputSyslogConfig(),
                 GenerateInputFilesConfig(),
@@ -483,7 +485,7 @@ SpoolDir	{6}
 	WarnLimit 50000
 </Processor>
 <Route route_to_syslog>
-	Path {0} => buffer_out_syslog => out_syslog
+	Path {0} => buffer_out_syslog => out_syslog => out_logz
 </Route>
 ", allInputs);
             }
@@ -569,6 +571,38 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
 	Exec	to_syslog_ietf();
 </Output>",
                 OutputSyslog.Host, OutputSyslog.Port);
+        }
+
+        private string GenerateOutputLogzConfig()
+        {
+            var certFile = Path.Combine(DataFolder, @"logz.crt");
+            File.WriteAllText(certFile, @"-----BEGIN CERTIFICATE-----
+MIICsDCCAhmgAwIBAgIJAJZZlYOII804MA0GCSqGSIb3DQEBBQUAMEUxCzAJBgNV
+BAYTAkFVMRMwEQYDVQQIEwpTb21lLVN0YXRlMSEwHwYDVQQKExhJbnRlcm5ldCBX
+aWRnaXRzIFB0eSBMdGQwHhcNMTQwNDA4MTUxNzA3WhcNMjQwNDA1MTUxNzA3WjBF
+MQswCQYDVQQGEwJBVTETMBEGA1UECBMKU29tZS1TdGF0ZTEhMB8GA1UEChMYSW50
+ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKB
+gQC2xI0wD26YOIEukuyokWDkKsFEvZxnadOEGT/9isf/mdiMk10NRZTF5bZU9ek9
+Vj9HsO7sk2ays31bkjQVAw9/l2eQSDNKtnnWk28AiTEOvZq5ZYnc9PT5uyHQL4Uj
+XJe2H8Dg/gfJhy9Ru9gpSSnRkYOXnwp2v6eJiQtzC6EG0QIDAQABo4GnMIGkMB0G
+A1UdDgQWBBSyMMgqdi6u092zAgm03c0/JhP0bDB1BgNVHSMEbjBsgBSyMMgqdi6u
+092zAgm03c0/JhP0bKFJpEcwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgTClNvbWUt
+U3RhdGUxITAfBgNVBAoTGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZIIJAJZZlYOI
+I804MAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEFBQADgYEAif7W/VbSZ9GHfNDP
+Cf+dsFTBk/1MpPW0cHXCX2lza42kbZ29PmhW1DSD+LkDcodL5wdVvTKSvJKmi5Cz
+Y4O5DFyRcLQVTrhlUWfnUxTmaeWWzWyZe4RI98tTc2QHli6S9aeqczpa8k1aTiDp
+XDPsPhpJjIepHXFRDaXUoV/T984=
+-----END CERTIFICATE-----");
+
+            return string.Format(@"
+<Output out_logz>
+	Module  om_ssl
+    CAFile  {0}
+    AllowUntrusted FALSE
+    Host    listener.logz.io    
+    Port    5052
+    Exec    $token=""{1}""; $message=$raw_event; to_json();
+</Output>", certFile, OutputSyslog.Token);
         }
 
         private string GenerateOutputFileConfig()
