@@ -15,8 +15,18 @@ namespace LogSearchShipper.Core.ConfigurationSections
 		[ConfigurationProperty("value", IsRequired = true)]
 		public String Value
 		{
-			get { return (String) this["value"]; }
-			set { this["value"] = value; }
+			get 
+            { 
+                var value = (string)this["value"];
+                if (value.StartsWith("%") && value.EndsWith("%"))
+                    return Environment.GetEnvironmentVariable(value.Substring(1, value.Length - 2));
+
+                return value;                
+            }
+		    set
+		    {
+		        this["value"] = value;
+		    }
 		}
 
 		public override string ToString()
