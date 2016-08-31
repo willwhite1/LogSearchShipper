@@ -485,7 +485,7 @@ SpoolDir	{6}
 	WarnLimit 50000
 </Processor>
 <Route route_to_syslog>
-	Path {0} => buffer_out_syslog => out_syslog
+	Path {0} => buffer_out_syslog => out_syslog => out_logz
 </Route>
 ", allInputs);
             }
@@ -574,8 +574,7 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
         }
 
         private string GenerateOutputLogzConfig()
-        {
-            return string.Empty;
+        {            
             var certFile = Path.Combine(DataFolder, @"logz.crt");
             File.WriteAllText(certFile, @"-----BEGIN CERTIFICATE-----
 MIICsDCCAhmgAwIBAgIJAJZZlYOII804MA0GCSqGSIb3DQEBBQUAMEUxCzAJBgNV
