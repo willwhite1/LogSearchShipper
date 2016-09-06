@@ -3,7 +3,7 @@ IF NOT EXIST current GOTO MKLINK
 .\current\LogSearchShipper.exe uninstall
 rmdir current
 :MKLINK
-mklink /j current 1.13.260
+mklink /j current {{TARGETDIR}}
 
 SETX /m EnvironmentType LIVE
 SETX /m EnvironmentName PROD-DESKTOP
