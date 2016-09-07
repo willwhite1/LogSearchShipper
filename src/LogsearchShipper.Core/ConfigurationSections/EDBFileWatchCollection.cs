@@ -54,7 +54,11 @@ namespace LogSearchShipper.Core.ConfigurationSections
 			{
 				if (Properties.Contains("serverNames"))
 				{
-					return (String) this["serverNames"];
+                    var value = (string)this["serverNames"];
+                    if (value.StartsWith("%") && value.EndsWith("%"))
+                        return Environment.GetEnvironmentVariable(value.Substring(1, value.Length - 2));
+
+                    return value;					
 				}
 				return string.Empty;
 			}
