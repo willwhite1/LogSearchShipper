@@ -6,7 +6,7 @@ rmdir current
 mklink /j current {{TARGETDIR}}
 
 SETX /m EnvironmentType LIVE
-SETX /m EnvironmentName PROD-DESKTOP
+SETX /m EnvironmentName {{ENVIRONMENTNAME}}
 
 .\current\LogSearchShipper.exe install
 net start LogSearchShipper
