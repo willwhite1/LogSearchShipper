@@ -599,7 +599,7 @@ XDPsPhpJjIepHXFRDaXUoV/T984=
 	Module  om_ssl
     CAFile  {0}
     AllowUntrusted TRUE
-    Host    listener.logz.io    
+    Host    listener-eu.logz.io    
     Port    5052
     Exec    $token=""{1}""; $message=$raw_event; to_json();
 </Output>", certFile, OutputSyslog.Token);
