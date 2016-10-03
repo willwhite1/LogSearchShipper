@@ -63,7 +63,7 @@
     <Compile Include="NxLog\NativeMethods.cs" />
     <Compile Include="NxLog\NxLogProcessManager.cs" />
     <Compile Include="NxLog\NxLogStartException.cs" />
-    <Compile Include="NxLog\SyslogEndpoint.cs" />
+    <Compile Include="NxLog\Endpoint.cs" />
     <Compile Include="ProcessUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Resource.Designer.cs">

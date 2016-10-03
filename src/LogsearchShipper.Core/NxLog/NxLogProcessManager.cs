@@ -18,9 +18,9 @@ namespace LogSearchShipper.Core.NxLog
 {
     public interface INxLogProcessManager
     {
-        SyslogEndpoint InputSyslog { get; set; }
+        Endpoint InputSyslog { get; set; }
         List<FileWatchElement> InputFiles { get; set; }
-        SyslogEndpoint OutputSyslog { get; set; }
+        Endpoint OutputIngestor { get; set; }
         string OutputFile { get; set; }
         string ConfigFile { get; }
         string BinFolder { get; }
@@ -80,11 +80,11 @@ namespace LogSearchShipper.Core.NxLog
             InitTimeZoneOffset();
         }
 
-        public SyslogEndpoint InputSyslog { get; set; }
+        public Endpoint InputSyslog { get; set; }
         public List<FileWatchElement> InputFiles { get; set; }
         public List<WinEventWatchElement> WinEventLogs { get; set; }
 
-        public SyslogEndpoint OutputSyslog { get; set; }
+        public Endpoint OutputIngestor { get; set; }
         public string OutputFile { get; set; }
 
         public bool ResolveUncPaths { get; set; }
@@ -389,7 +389,6 @@ SpoolDir	{6}
 {11}
 {12}
 {13}
-{14}
 ",
                 _log.IsDebugEnabled ? "DEBUG" : "INFO",
                 NxLogFile,
@@ -397,8 +396,7 @@ SpoolDir	{6}
                 MaxNxLogFileSize,
                 Path.GetFullPath(BinFolder),
                 Path.GetFullPath(DataFolder),
-                Path.GetDirectoryName(Assembly.GetAssembly(typeof(NxLogProcessManager)).Location),
-                GenerateOutputSyslogConfig(),
+                Path.GetDirectoryName(Assembly.GetAssembly(typeof(NxLogProcessManager)).Location),                
                 GenerateOutputLogzConfig(),
                 GenerateOutputFileConfig(),
                 GenerateInputSyslogConfig(),
@@ -472,7 +470,7 @@ SpoolDir	{6}
 
             allInputs = "in_internal," + allInputs;
 
-            if (OutputSyslog != null)
+            if (OutputIngestor != null)
             {
                 routeSection += string.Format(@"
 # The buffer needed to NOT loose events when Logstash restarts
@@ -556,25 +554,10 @@ rM8ETzoKmuLdiTl3uUhgJMtdOP8w7geYl8o1YP+3YQ==
                 InputSyslog.Host, InputSyslog.Port, certFile, keyFile);
         }
 
-        private string GenerateOutputSyslogConfig()
-        {
-            if (OutputSyslog == null) return String.Empty;
-
-            _log.InfoFormat("Sending data to: syslog-tls://{0}:{1}", OutputSyslog.Host, OutputSyslog.Port);
-            return string.Format(@"
-<Output out_syslog>
-	Module	om_ssl
-	Host	{0}
-	Port	{1}
-	AllowUntrusted TRUE    
-	Exec	$message=$raw_event; if $Message $Message=replace($Message,""\n"",""¬"");
-	Exec	to_syslog_ietf();
-</Output>",
-                OutputSyslog.Host, OutputSyslog.Port);
-        }
-
         private string GenerateOutputLogzConfig()
-        {            
+        {
+            if (OutputIngestor == null) return String.Empty;
+
             var certFile = Path.Combine(DataFolder, @"logz.crt");
             File.WriteAllText(certFile, @"-----BEGIN CERTIFICATE-----
 MIICsDCCAhmgAwIBAgIJAJZZlYOII804MA0GCSqGSIb3DQEBBQUAMEUxCzAJBgNV
@@ -599,10 +582,10 @@ XDPsPhpJjIepHXFRDaXUoV/T984=
 	Module  om_ssl
     CAFile  {0}
     AllowUntrusted TRUE
-    Host    listener-eu.logz.io    
-    Port    5052
-    Exec    $token=""{1}""; $message=$raw_event; to_json();
-</Output>", certFile, OutputSyslog.Token);
+    Host    {1}
+    Port    {2}
+    Exec    $token=""{3}""; $message=$raw_event; to_json();
+</Output>", certFile, OutputIngestor.Host, OutputIngestor.Port, OutputIngestor.Token);
         }
 
         private string GenerateOutputFileConfig()

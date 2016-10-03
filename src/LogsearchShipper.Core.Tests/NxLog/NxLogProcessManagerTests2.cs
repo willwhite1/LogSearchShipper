@@ -26,7 +26,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 						Type = "plain",
 					}
 				},
-				OutputSyslog = new SyslogEndpoint("ingestor.example.com", 443),
+				OutputIngestor = new Endpoint("ingestor.example.com", 443),
 				FilePollIntervalSeconds = 5,
 			};
 			nxLogProcessManager.SetupConfigFile();
@@ -59,7 +59,7 @@ namespace LogSearchShipper.Core.Tests.NxLog
 						CloseWhenIdle = false,
 					}
 				},
-				OutputSyslog = new SyslogEndpoint("ingestor.example.com", 443),
+				OutputIngestor = new Endpoint("ingestor.example.com", 443),
 				FilePollIntervalSeconds = 5,
 			};
 			nxLogProcessManager.SetupConfigFile();

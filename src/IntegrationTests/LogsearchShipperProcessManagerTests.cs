@@ -47,8 +47,8 @@ namespace IntegrationTests
 		[Test]
 		public void ShouldLaunchWithCorrectOutputSyslog()
 		{
-			Assert.AreEqual("ingestor.example.com", _LogSearchShipperProcessManager.NxLogProcessManager.OutputSyslog.Host);
-			Assert.AreEqual(443, _LogSearchShipperProcessManager.NxLogProcessManager.OutputSyslog.Port);
+			Assert.AreEqual("ingestor.example.com", _LogSearchShipperProcessManager.NxLogProcessManager.OutputIngestor.Host);
+			Assert.AreEqual(443, _LogSearchShipperProcessManager.NxLogProcessManager.OutputIngestor.Port);
 		}
 	}
 }

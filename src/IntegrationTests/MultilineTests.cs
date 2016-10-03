@@ -22,7 +22,7 @@ namespace IntegrationTests
 		[Test]
 		public void ShouldHandleMultilineLog4NetExceptions()
 		{
-		 var syslogEndpoint = new SyslogEndpoint("localhost", 10121);
+		 var syslogEndpoint = new Endpoint("localhost", 10121);
 
 			var tmpDir = Path.Combine(Path.GetTempPath(), "ShouldHandleMultilineLog4NetExceptions");
 			var receiverDataFolder = Path.Combine(tmpDir, "receiver");
@@ -35,7 +35,7 @@ namespace IntegrationTests
 
 			var receiver = new NxLogProcessManager(receiverDataFolder, "MultilineTests")
 			{
-				InputSyslog = new SyslogEndpoint("localhost", 10121),
+				InputSyslog = new Endpoint("localhost", 10121),
 				OutputFile = outputFile
 			};
 			_nxLogProcessManagers.Add(receiver);
@@ -53,7 +53,7 @@ namespace IntegrationTests
 						Type = "plain"
 					}
 				},
-				OutputSyslog = syslogEndpoint
+				OutputIngestor = syslogEndpoint
 			};
 			_nxLogProcessManagers.Add(shipper);
 			if (File.Exists(shipper.NxLogFile)) File.WriteAllText(shipper.NxLogFile, string.Empty);
