@@ -151,12 +151,11 @@ namespace LogSearchShipper.Core.Tests.NxLog
 			AssertConfigContains("<Extension syslog>");
 			AssertConfigContains("Module	xm_syslog");
 
-			AssertConfigContains("<Output out_syslog");
-			AssertConfigContains("Module	om_ssl");
+			AssertConfigContains("<Output out_logz");
+			AssertConfigContains("Module  om_ssl");
 
-			AssertConfigContains("Host	ingestor.example.com");
-			AssertConfigContains("Port	443");
-			AssertConfigContains("Exec	to_syslog_ietf();");
+            AssertConfigContains("Host    ingestor.example.com");
+            AssertConfigContains("Port    443");			
 		}
 
 
