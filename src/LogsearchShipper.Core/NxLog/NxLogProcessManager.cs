@@ -483,7 +483,7 @@ SpoolDir	{6}
 	WarnLimit 50000
 </Processor>
 <Route route_to_syslog>
-	Path {0} => buffer_out_syslog => out_syslog => out_logz
+	Path {0} => buffer_out_syslog => out_logz
 </Route>
 ", allInputs);
             }
